@@ -1,0 +1,18 @@
+Version: 1.1.6336.27079
+Started: 07.05.2017 03:02:50
+-----------------------------------------------------------------------------
+Date: 07.05.2017 03:04:20
+Exception: System.IO.IOException: Unable to read data from the transport connection: An existing connection was forcibly closed by the remote host. ---> System.Net.Sockets.SocketException: An existing connection was forcibly closed by the remote host
+   at System.Net.Sockets.Socket.Receive(Byte[] buffer, Int32 offset, Int32 size, SocketFlags socketFlags)
+   at System.Net.Sockets.NetworkStream.Read(Byte[] buffer, Int32 offset, Int32 size)
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.NetworkStream.Read(Byte[] buffer, Int32 offset, Int32 size)
+   at System.IO.Stream.ReadByte()
+   at System.IO.BinaryReader.ReadByte()
+   at Licencjat_new.Server.NotificationClient.Receiver() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\NotificationClient.cs:line 110
+Message: Unable to read data from the transport connection: An existing connection was forcibly closed by the remote host.
+StackTrace:    at System.Net.Sockets.NetworkStream.Read(Byte[] buffer, Int32 offset, Int32 size)
+   at System.IO.Stream.ReadByte()
+   at System.IO.BinaryReader.ReadByte()
+   at Licencjat_new.Server.NotificationClient.Receiver() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\NotificationClient.cs:line 110
+--------------------------------------

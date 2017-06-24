@@ -1,0 +1,36 @@
+Version: 1.1.6361.27661
+Started: 01.06.2017 15:22:10
+-----------------------------------------------------------------------------
+Version: 1.1.6361.27661
+Started: 01.06.2017 15:23:19
+-----------------------------------------------------------------------------
+Version: 1.1.6361.27661
+Started: 01.06.2017 15:23:50
+-----------------------------------------------------------------------------
+Version: 1.1.6361.27661
+Started: 01.06.2017 15:24:28
+-----------------------------------------------------------------------------
+Version: 1.1.6361.27661
+Started: 01.06.2017 15:32:40
+-----------------------------------------------------------------------------
+Date: 01.06.2017 15:33:42
+Exception: System.NullReferenceException: Object reference not set to an instance of an object.
+   at Licencjat_new.CustomClasses.EmailHelper.AuthenticateClient(ImapClient client, String username, String password) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\CustomClasses\EmailHelper.cs:line 51
+   at Licencjat_new.Windows.MainWindow._emailWorker_DoWork(Object sender, DoWorkEventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 467
+--------------------------------------
+Date: 01.06.2017 15:33:44
+Exception: System.NullReferenceException: Object reference not set to an instance of an object.
+   at Licencjat_new.Windows.MainWindow._emailWorker_RunWorkerCompleted(Object sender, RunWorkerCompletedEventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 512
+--------------------------------------
+Version: 1.1.6361.27661
+Started: 01.06.2017 15:34:12
+-----------------------------------------------------------------------------
+Date: 01.06.2017 15:34:26
+Exception: System.NullReferenceException: Object reference not set to an instance of an object.
+   at Licencjat_new.CustomClasses.EmailHelper.AuthenticateClient(ImapClient client, String username, String password) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\CustomClasses\EmailHelper.cs:line 51
+   at Licencjat_new.Windows.MainWindow._emailWorker_DoWork(Object sender, DoWorkEventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 467
+--------------------------------------
+Date: 01.06.2017 15:34:27
+Exception: System.NullReferenceException: Object reference not set to an instance of an object.
+   at Licencjat_new.Windows.MainWindow._emailWorker_RunWorkerCompleted(Object sender, RunWorkerCompletedEventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 512
+--------------------------------------

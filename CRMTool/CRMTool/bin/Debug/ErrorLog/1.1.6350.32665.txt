@@ -1,0 +1,14 @@
+Version: 1.1.6350.32665
+Started: 21.05.2017 18:08:54
+-----------------------------------------------------------------------------
+Version: 1.1.6350.32665
+Started: 21.05.2017 18:13:16
+-----------------------------------------------------------------------------
+Date: 21.05.2017 18:14:32
+Exception: System.InvalidOperationException: The calling thread cannot access this object because a different thread owns it.
+   at System.Windows.Threading.Dispatcher.VerifyAccess()
+   at System.Windows.Media.Imaging.BitmapSource.get_PixelWidth()
+   at System.Windows.Media.Imaging.BitmapEncoder.SaveFrame(SafeMILHandle frameEncodeHandle, SafeMILHandle encoderOptions, BitmapFrame frame)
+   at System.Windows.Media.Imaging.BitmapEncoder.Save(Stream stream)
+   at Licencjat_new.Server.Client.AddNewMessage(String conversationId, ConversationMessageModel message) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\Client.cs:line 381
+--------------------------------------

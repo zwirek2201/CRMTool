@@ -1,0 +1,20 @@
+Version: 1.1.6351.22908
+Started: 22.05.2017 12:43:40
+-----------------------------------------------------------------------------
+Date: 22.05.2017 12:45:40
+Exception: System.InvalidOperationException: Sequence contains no matching element
+   at System.Linq.Enumerable.First[TSource](IEnumerable`1 source, Func`2 predicate)
+   at Licencjat_new.Windows.Document.<>c__DisplayClass13_0.<NotificationClient_NewFilesArrived>b__0() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\Document.xaml.cs:line 97
+   at System.Windows.Threading.DispatcherOperation.InvokeDelegateCore()
+   at System.Windows.Threading.DispatcherOperation.InvokeImpl()
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at System.Windows.Threading.DispatcherOperation.Wait(TimeSpan timeout)
+   at System.Windows.Threading.Dispatcher.InvokeImpl(DispatcherOperation operation, CancellationToken cancellationToken, TimeSpan timeout)
+   at System.Windows.Threading.Dispatcher.Invoke(Action callback, DispatcherPriority priority, CancellationToken cancellationToken, TimeSpan timeout)
+   at System.Windows.Threading.Dispatcher.Invoke(Action callback)
+   at Licencjat_new.Windows.Document.NotificationClient_NewFilesArrived(Object sender, NewFilesArrivedEventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\Document.xaml.cs:line 92
+   at System.EventHandler`1.Invoke(Object sender, TEventArgs e)
+   at Licencjat_new.Server.NotificationClient.Receiver() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\NotificationClient.cs:line 318
+--------------------------------------

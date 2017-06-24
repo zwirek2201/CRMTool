@@ -1,0 +1,73 @@
+Version: 1.1.6343.30876
+Started: 14.05.2017 17:09:15
+-----------------------------------------------------------------------------
+Version: 1.1.6343.30876
+Started: 14.05.2017 17:09:26
+-----------------------------------------------------------------------------
+Date: 14.05.2017 17:11:16
+Exception: System.IO.IOException: Unable to read data from the transport connection: An existing connection was forcibly closed by the remote host. ---> System.Net.Sockets.SocketException: An existing connection was forcibly closed by the remote host
+   at System.Net.Sockets.Socket.Receive(Byte[] buffer, Int32 offset, Int32 size, SocketFlags socketFlags)
+   at System.Net.Sockets.NetworkStream.Read(Byte[] buffer, Int32 offset, Int32 size)
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.NetworkStream.Read(Byte[] buffer, Int32 offset, Int32 size)
+   at System.IO.Stream.ReadByte()
+   at System.IO.BinaryReader.ReadByte()
+   at Licencjat_new.Server.NotificationClient.Receiver() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\NotificationClient.cs:line 112
+--------------------------------------
+Version: 1.1.6343.30876
+Started: 14.05.2017 17:11:32
+-----------------------------------------------------------------------------
+Version: 1.1.6343.30876
+Started: 14.05.2017 17:11:42
+-----------------------------------------------------------------------------
+Version: 1.1.6343.30876
+Started: 14.05.2017 17:14:24
+-----------------------------------------------------------------------------
+Version: 1.1.6343.30876
+Started: 14.05.2017 17:14:38
+-----------------------------------------------------------------------------
+Version: 1.1.6343.30876
+Started: 14.05.2017 17:19:01
+-----------------------------------------------------------------------------
+Version: 1.1.6343.30876
+Started: 14.05.2017 17:19:09
+-----------------------------------------------------------------------------
+Version: 1.1.6343.30876
+Started: 14.05.2017 17:22:32
+-----------------------------------------------------------------------------
+Version: 1.1.6343.30876
+Started: 14.05.2017 17:22:59
+-----------------------------------------------------------------------------
+Version: 1.1.6343.30876
+Started: 14.05.2017 17:26:11
+-----------------------------------------------------------------------------
+Version: 1.1.6343.30876
+Started: 14.05.2017 17:26:19
+-----------------------------------------------------------------------------
+Version: 1.1.6343.30876
+Started: 14.05.2017 17:28:23
+-----------------------------------------------------------------------------
+Version: 1.1.6343.30876
+Started: 14.05.2017 17:28:34
+-----------------------------------------------------------------------------
+Date: 14.05.2017 17:30:22
+Exception: System.IO.IOException: Unable to read data from the transport connection: An existing connection was forcibly closed by the remote host. ---> System.Net.Sockets.SocketException: An existing connection was forcibly closed by the remote host
+   at System.Net.Sockets.Socket.Receive(Byte[] buffer, Int32 offset, Int32 size, SocketFlags socketFlags)
+   at System.Net.Sockets.NetworkStream.Read(Byte[] buffer, Int32 offset, Int32 size)
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.NetworkStream.Read(Byte[] buffer, Int32 offset, Int32 size)
+   at System.IO.Stream.ReadByte()
+   at System.IO.BinaryReader.ReadByte()
+   at Licencjat_new.Server.NotificationClient.Receiver() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\NotificationClient.cs:line 112
+--------------------------------------
+Date: 14.05.2017 17:30:27
+Exception: System.IO.EndOfStreamException: Unable to read beyond the end of the stream.
+   at System.IO.BinaryReader.ReadByte()
+   at Licencjat_new.Server.NotificationClient.Receiver() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\NotificationClient.cs:line 112
+--------------------------------------
+Version: 1.1.6343.30876
+Started: 14.05.2017 17:30:39
+-----------------------------------------------------------------------------
+Version: 1.1.6343.30876
+Started: 14.05.2017 17:30:59
+-----------------------------------------------------------------------------

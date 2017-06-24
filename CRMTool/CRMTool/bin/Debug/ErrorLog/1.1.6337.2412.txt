@@ -1,0 +1,37 @@
+Version: 1.1.6337.2412
+Started: 08.05.2017 01:20:29
+-----------------------------------------------------------------------------
+Version: 1.1.6337.2412
+Started: 08.05.2017 01:23:21
+-----------------------------------------------------------------------------
+Version: 1.1.6337.2412
+Started: 08.05.2017 01:48:11
+-----------------------------------------------------------------------------
+Date: 08.05.2017 01:50:17
+Exception: System.InvalidOperationException: The calling thread cannot access this object because a different thread owns it.
+   at System.Windows.Threading.Dispatcher.VerifyAccess()
+   at System.Windows.DependencyObject.GetValue(DependencyProperty dp)
+   at System.Windows.Media.Brush.get_Transform()
+   at System.Windows.Media.SolidColorBrush.AddRefOnChannelCore(Channel channel)
+   at System.Windows.Media.Brush.System.Windows.Media.Composition.DUCE.IResource.AddRefOnChannel(Channel channel)
+   at System.Windows.Media.Pen.System.Windows.Media.Composition.DUCE.IResource.AddRefOnChannel(Channel channel)
+   at System.Windows.Media.RenderData.System.Windows.Media.Composition.DUCE.IResource.AddRefOnChannel(Channel channel)
+   at System.Windows.Media.DrawingVisual.RenderContent(RenderContext ctx, Boolean isOnChannel)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.Render(RenderContext ctx, UInt32 childIndex)
+   at System.Windows.Media.Renderer.Render(IntPtr pRenderTarget, Channel channel, Visual visual, Int32 width, Int32 height, Double dpiX, Double dpiY, Matrix worldTransform, Rect windowClip)
+   at System.Windows.Media.Imaging.BitmapVisualManager.Render(Visual visual, Matrix worldTransform, Rect windowClip)
+   at System.Windows.Media.Imaging.BitmapVisualManager.Render(Visual visual)
+   at TheArtOfDev.HtmlRenderer.WPF.HtmlRender.RenderToImage(String html, Size minSize, Size maxSize, Color backgroundColor, CssData cssData, EventHandler`1 stylesheetLoad, EventHandler`1 imageLoad) in d:\source\github\HTML-Renderer\Source\HtmlRenderer.WPF\HtmlRender.cs:line 314
+   at Licencjat_new.CustomClasses.ImageHelper.GetHtmlImagePreview(String html, Size minSize, Size maxSize) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\CustomClasses\HelperClasses.cs:line 33
+   at Licencjat_new.Windows.MainWindow.ProcessMessages(EmailModel emailAddress, List`1 messages) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 1305
+--------------------------------------
+Version: 1.1.6337.2412
+Started: 08.05.2017 16:04:21
+-----------------------------------------------------------------------------
+Version: 1.1.6337.2412
+Started: 08.05.2017 16:09:06
+-----------------------------------------------------------------------------
+Version: 1.1.6337.2412
+Started: 08.05.2017 16:10:04
+-----------------------------------------------------------------------------

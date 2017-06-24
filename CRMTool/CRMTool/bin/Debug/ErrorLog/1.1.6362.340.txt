@@ -1,0 +1,16 @@
+Version: 1.1.6362.340
+Started: 02.06.2017 00:11:28
+-----------------------------------------------------------------------------
+Date: 02.06.2017 00:11:46
+Exception: System.NullReferenceException: Object reference not set to an instance of an object.
+   at Licencjat_new.Controls.ContactPersonListItem..ctor(PersonModel person, Boolean selectionMode) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Controls\ContactControls.cs:line 199
+   at Licencjat_new.Controls.ContactList.AddPerson(PersonModel person) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Controls\ContactControls.cs:line 1599
+   at Licencjat_new.Controls.ContactList.HandleLayouts() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Controls\ContactControls.cs:line 1542
+   at Licencjat_new.Controls.ContactList..ctor(List`1 persons, List`1 companies, Boolean selectionMode, Boolean multipleSelection) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Controls\ContactControls.cs:line 1288
+   at Licencjat_new.Windows.Contact.InitializeContactList() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\Contact.xaml.cs:line 94
+   at Licencjat_new.Windows.Contact.Init() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\Contact.xaml.cs:line 75
+   at Licencjat_new.Windows.MainWindow.UpperMenuModeChanged(Object sender, EventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 999
+--------------------------------------
+Version: 1.1.6362.340
+Started: 02.06.2017 00:14:04
+-----------------------------------------------------------------------------

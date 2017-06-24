@@ -1,0 +1,10 @@
+Version: 1.1.6368.29112
+Started: 08.06.2017 16:10:28
+-----------------------------------------------------------------------------
+Date: 08.06.2017 16:11:35
+Exception: System.Exception: Conversation doesn't exist
+   at Licencjat_new.Server.Client.CheckConversationExists(String conversationVisibleId) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\Client.cs:line 356
+--------------------------------------
+Version: 1.1.6368.29112
+Started: 08.06.2017 16:12:36
+-----------------------------------------------------------------------------

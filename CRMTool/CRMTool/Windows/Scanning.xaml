@@ -1,0 +1,107 @@
+﻿<UserControl x:Class="Licencjat_new.Windows.Scanning"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Licencjat_new.Windows"
+             xmlns:gif="http://wpfanimatedgif.codeplex.com"
+             xmlns:controls="clr-namespace:Licencjat_new.Controls"
+             mc:Ignorable="d" 
+                         Panel.ZIndex="301" 
+             Height="{Binding ActualHeight, ElementName=mainCanvas}" 
+             Width="{Binding ActualWidth, ElementName=mainCanvas}">
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <DockPanel x:Name="mainPanel" Background="#fdfdfd" Height="650" Width="900"  VerticalAlignment="Center" HorizontalAlignment="Center">
+            <DockPanel DockPanel.Dock="Top" x:Name="upperPanel" Background="#1c9ad2" Height="30">
+                <Button Name="btnClose" Width="30" Height="30" BorderThickness="0" Background="Transparent" DockPanel.Dock="Right" HorizontalAlignment="Right" Click="btnClose_Click">
+                    <Image Source="pack://application:,,,/resources/close_white.png" Margin="7"/>
+                </Button>
+            </DockPanel>
+            <DockPanel DockPanel.Dock="Bottom" x:Name="lowerPanel" Background="#1c9ad2" Height="20">
+                <Label Name="lblStatus" FontSize="11" Foreground="white" Background="Transparent" Content="" Margin="5,0,0,0" VerticalContentAlignment="Center" Height="20" Padding="0"/>
+            </DockPanel>
+            <DockPanel>
+                <Border BorderBrush="#1c9ad2" BorderThickness="0,1,0,0" DockPanel.Dock="Bottom">
+                    <DockPanel Height="50" Background="#fdfdfd" LastChildFill="False" DockPanel.Dock="Bottom">
+                        <controls:RoundedButton x:Name="ReadyButton" BackgroundColor="#1c9ad2" BorderColor="#fdfdfd" Text="Gotowe" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
+                        <controls:RoundedButton x:Name="CancelButton" BackgroundColor="#fdfdfd" BorderColor="#1c9ad2" Text="Anuluj" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
+                    </DockPanel>
+                </Border>
+                <Canvas x:Name="innerCanvas" Width="900">
+                    <Grid Background="#fdfdfd" Height="{Binding ActualHeight, ElementName=innerCanvas}" Width="{Binding ActualWidth, ElementName=innerCanvas}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="359"/>
+                        </Grid.ColumnDefinitions>
+                        <DockPanel Grid.Column="1">
+                            <Border Height="40"  DockPanel.Dock="Top" VerticalAlignment="Top" BorderThickness="0,0,0,1" BorderBrush="#c2c2c2">
+                                <DockPanel DockPanel.Dock="Top" Height="40" Background="White">
+                                    <Button  Name="btnPreviousPage" Width="40" Height="40" BorderThickness="0" Background="Transparent" DockPanel.Dock="Left" HorizontalAlignment="Left" Click="btnPreviousPage_Click">
+                                        <Image Margin="10"  Source="pack://application:,,,/resources/arrow_left.png"/>
+                                    </Button>
+                                    <Button Name="btnNextPage" Width="40" Height="40" BorderThickness="0" Background="Transparent" DockPanel.Dock="Right" HorizontalAlignment="Right" Click="btnNextPage_Click">
+                                        <Image Margin="10"  Source="pack://application:,,,/resources/arrow_right.png"/>
+                                    </Button>
+                                    <Label  Name="lblPageCount" Content="" VerticalContentAlignment="Center" Foreground="#c2c2c2" HorizontalContentAlignment="Center" FontSize="13"/>
+                                </DockPanel>
+                            </Border>
+                            <Canvas Name="imageCanvas" MouseEnter="imageCanvas_MouseEnter" MouseLeave="imageCanvas_MouseLeave">
+                                <Image x:Name="scanImage" Height="{Binding ActualHeight, ElementName=imageCanvas}" Width="{Binding ActualWidth, ElementName=imageCanvas}"/>
+                                <Grid Name="lowerImageToolBar" Height="40" Width="{Binding ActualWidth, ElementName=imageCanvas}" VerticalAlignment="Bottom" Canvas.Bottom="0" Background="White" Opacity="0.2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0" Background="Transparent" BorderThickness="0" HorizontalAlignment="Right" Width="65" Click="Button_Click">
+                                        <Image Source="pack://application:,,,/resources/arrow_left.png" Margin="10"/>
+                                    </Button>
+                                    <Button Grid.Column="1" Background="Transparent" BorderThickness="0" Click="Button_Click_1">
+                                        <Image Source="pack://application:,,,/resources/rotate.png" Margin="10"/>
+                                    </Button>
+                                    <Button Grid.Column="2" Background="Transparent" BorderThickness="0" Click="Button_Click_2">
+                                        <Image Source="pack://application:,,,/resources/arrow_right.png" Margin="10"/>
+                                    </Button>
+                                    <Button Grid.Column="3" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left" Width="65" Click="Button_Click_3">
+                                        <Image Source="pack://application:,,,/resources/remove.png" Margin="10"/>
+                                    </Button>
+                                </Grid>
+                            </Canvas>
+                        </DockPanel>
+                        <Border Grid.Column="0" BorderThickness="0,0,1,0" BorderBrush="#c2c2c2">
+                            <DockPanel >
+                                <Border Height="40"  DockPanel.Dock="Top" VerticalAlignment="Top" BorderThickness="0,0,0,1" BorderBrush="#c2c2c2">
+                                    <DockPanel LastChildFill="True" Background="White">
+                                        <Label Content="Nazwa:" VerticalContentAlignment="Center" BorderBrush="Transparent" BorderThickness="0,0,0,0" Margin="5,0,5,0" Foreground="#1c9ad2" FontSize="13"/>
+                                        <TextBox Name="txtFileName" BorderThickness="0,0,0,0" Background="White" FontSize="13" VerticalContentAlignment="Center" TextChanged="txtFileName_TextChanged" />
+                                    </DockPanel>
+                                </Border>
+                                <Border DockPanel.Dock="Top" Height="50" BorderThickness="0,0,0,1" BorderBrush="#c2c2c2" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0">
+                                    <Grid Name="modeMenu">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="50*"/>
+                                            <ColumnDefinition Width="50*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button  Name="btnScanModeManual" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Background="#1c9ad2" FontSize="15" FontWeight="Medium"  Foreground="White" Content="Skanowanie manualne" Click="btnScanMode_Click"/>
+                                        <Button Name="btnScanModeAutomatic" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Background="#ededed" FontSize="15"  Foreground="Black" Content="Skanowanie automatyczne" Click="btnScanMode_Click"/>
+                                    </Grid>
+                                </Border>
+                                <Canvas Name="contentCanvas" Panel.ZIndex="1">
+                                    <ContentControl x:Name="ContentArea" Height="{Binding ActualHeight, ElementName=contentCanvas}" Width="{Binding ActualWidth, ElementName=contentCanvas}"/>
+                                    <Grid  Name="errorPanel" Width="{Binding ActualWidth, ElementName=contentCanvas}" Height="40" Canvas.Bottom="0" Visibility="Collapsed"  Panel.ZIndex="4" Background="#ffe5e5" Opacity="0.9">
+                                        <Label Name="lblErrorMessage" VerticalAlignment="Center" Height="40" BorderThickness="0,1,0,0" BorderBrush="#e50000"  VerticalContentAlignment="Center" Foreground="#e50000" FontSize="13" HorizontalContentAlignment="Center"  Content="Brak stron do zapisania!"/>
+                                    </Grid>
+                                </Canvas>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+                    <Grid x:Name="loadingOverlay" Panel.ZIndex="20" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="White" Visibility="Collapsed" Opacity="0.8" Height="400" Width="800">
+                        <Label Content="Skanowanie" HorizontalAlignment="Center" FontSize="32" Margin="0,90,0,0" FontWeight="Medium" Foreground="#1c9ad2"></Label>
+                        <Image gif:ImageBehavior.AnimatedSource="pack://application:,,,/resources/loading.gif" VerticalAlignment="Center" HorizontalAlignment="Center" Width="100" Height="100"/>
+                    </Grid>
+                </Canvas>
+            </DockPanel>
+        </DockPanel>
+    </Grid>
+</UserControl>

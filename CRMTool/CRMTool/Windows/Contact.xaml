@@ -1,0 +1,37 @@
+﻿<UserControl x:Class="Licencjat_new.Windows.Contact"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Licencjat_new.Windows"
+             xmlns:controls="clr-namespace:Licencjat_new.Controls"
+             mc:Ignorable="d" 
+             VerticalAlignment="Stretch"
+             HorizontalAlignment="Stretch" d:DesignWidth="1000">
+    <Grid x:Name="MainDockPanel">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="55"/>
+        </Grid.ColumnDefinitions>
+        <Border BorderBrush="#c2c2c2" BorderThickness="0,0,1,0" Opacity="1">
+            <controls:ContactFilterContainer Grid.Column="0" Grid.Row="0">
+                <controls:ContactSearchBox DockPanel.Dock="Top" x:Name="ContactSearchBox"></controls:ContactSearchBox>
+            </controls:ContactFilterContainer>
+        </Border>
+        <GridSplitter Width="5" HorizontalAlignment="Right" VerticalAlignment="Stretch" ResizeBehavior="CurrentAndNext"/>
+        <controls:ContactMainContainer Grid.Column="1" Grid.Row="0" x:Name="ContactMainContainer">
+                <controls:ContactTabControl DockPanel.Dock="Top" x:Name="ContactTabControl" DefaultMode="Contacts"/>
+            <controls:ToolBarMainMenuStrip x:Name="MainMenuStrip" DockPanel.Dock="Top">
+                <controls:ToolBarToggleButton x:Name="ToggleButton" DockPanel.Dock="Right"/>
+            </controls:ToolBarMainMenuStrip>
+        </controls:ContactMainContainer>
+        <Border Grid.Column="2" Grid.Row="0" BorderBrush="#c2c2c2" Background="#fdfdfd" BorderThickness="0,0,1,0" Opacity="1" Width="55">
+            <controls:AlphabetList x:Name="AlphabetList" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"></controls:AlphabetList>
+        </Border>
+    </Grid>
+    <UserControl.Effect>
+        <DropShadowEffect Color="Black" Direction="180" ShadowDepth="-10" Opacity="0.4"  BlurRadius="5" />
+    </UserControl.Effect>
+</UserControl>
+

@@ -1,0 +1,60 @@
+Version: 1.1.6361.21339
+Started: 01.06.2017 11:51:24
+-----------------------------------------------------------------------------
+Date: 01.06.2017 11:51:47
+Exception: System.Exception: Connection unsynced
+   at Licencjat_new.Server.Client.GetAllCompanies() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\Client.cs:line 478
+--------------------------------------
+Date: 01.06.2017 11:51:49
+Exception: System.FormatException: String was not recognized as a valid DateTime.
+   at System.DateTimeParse.Parse(String s, DateTimeFormatInfo dtfi, DateTimeStyles styles)
+   at System.DateTime.Parse(String s)
+   at Licencjat_new.Server.Client.Login() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\Client.cs:line 121
+--------------------------------------
+Date: 01.06.2017 11:51:49
+Exception: System.Exception: Connection unsynced
+   at Licencjat_new.Server.Client.GetAllContacts() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\Client.cs:line 554
+--------------------------------------
+Date: 01.06.2017 11:51:50
+Exception: System.NullReferenceException: Object reference not set to an instance of an object.
+   at Licencjat_new.Windows.MainWindow._contactWorker_DoWork(Object sender, DoWorkEventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 359
+--------------------------------------
+Date: 01.06.2017 11:51:50
+Exception: System.Exception: Connection unsynced
+   at Licencjat_new.Server.Client.GetFilesInfo() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\Client.cs:line 720
+--------------------------------------
+Date: 01.06.2017 11:51:50
+Exception: System.NullReferenceException: Object reference not set to an instance of an object.
+   at Licencjat_new.Windows.MainWindow.FileWorker_DoWork(Object sender, DoWorkEventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 683
+--------------------------------------
+Date: 01.06.2017 11:51:50
+Exception: System.Exception: Connection unsynced
+   at Licencjat_new.Server.Client.GetUserConversations() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\Client.cs:line 248
+--------------------------------------
+Date: 01.06.2017 11:51:51
+Exception: System.NullReferenceException: Object reference not set to an instance of an object.
+   at Licencjat_new.Windows.MainWindow._conversationWorker_DoWork(Object sender, DoWorkEventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 621
+--------------------------------------
+Date: 01.06.2017 11:51:51
+Exception: System.Exception: Connection unsynced
+   at Licencjat_new.Server.Client.GetUserNotifications(Int32 from, Int32 count) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\Client.cs:line 609
+--------------------------------------
+Date: 01.06.2017 11:51:51
+Exception: System.NullReferenceException: Object reference not set to an instance of an object.
+   at Licencjat_new.Windows.MainWindow._notificationWorker_DoWork(Object sender, DoWorkEventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 586
+--------------------------------------
+Date: 01.06.2017 11:51:51
+Exception: System.Exception: Connection unsynced
+   at Licencjat_new.Server.Client.GetUserEmailAddresses() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\Client.cs:line 196
+--------------------------------------
+Date: 01.06.2017 11:51:51
+Exception: System.NullReferenceException: Object reference not set to an instance of an object.
+   at Licencjat_new.Windows.MainWindow._emailWorker_DoWork(Object sender, DoWorkEventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 390
+--------------------------------------
+Date: 01.06.2017 11:51:52
+Exception: System.NullReferenceException: Object reference not set to an instance of an object.
+   at Licencjat_new.Windows.MainWindow._emailWorker_RunWorkerCompleted(Object sender, RunWorkerCompletedEventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 511
+--------------------------------------
+Version: 1.1.6361.21339
+Started: 01.06.2017 11:54:05
+-----------------------------------------------------------------------------

@@ -1,0 +1,22 @@
+Version: 1.1.6342.28988
+Started: 13.05.2017 16:06:21
+-----------------------------------------------------------------------------
+Date: 13.05.2017 16:06:44
+Exception: System.IO.IOException: Cannot locate resource 'resources/settings_context.png'.
+   at MS.Internal.AppModel.ResourcePart.GetStreamCore(FileMode mode, FileAccess access)
+   at System.IO.Packaging.PackagePart.GetStream(FileMode mode, FileAccess access)
+   at System.IO.Packaging.PackWebResponse.CachedResponse.GetResponseStream()
+   at System.IO.Packaging.PackWebResponse.GetResponseStream()
+   at System.IO.Packaging.PackWebResponse.get_ContentType()
+   at System.Windows.Media.Imaging.BitmapDecoder.SetupDecoderFromUriOrStream(Uri uri, Stream stream, BitmapCacheOption cacheOption, Guid& clsId, Boolean& isOriginalWritable, Stream& uriStream, UnmanagedMemoryStream& unmanagedMemoryStream, SafeFileHandle& safeFilehandle)
+   at System.Windows.Media.Imaging.BitmapDecoder.CreateFromUriOrStream(Uri baseUri, Uri uri, Stream stream, BitmapCreateOptions createOptions, BitmapCacheOption cacheOption, RequestCachePolicy uriCachePolicy, Boolean insertInDecoderCache)
+   at System.Windows.Media.Imaging.BitmapImage.FinalizeCreation()
+   at System.Windows.Media.Imaging.BitmapImage.EndInit()
+   at Licencjat_new.CustomClasses.ImageHelper.UriToImageSource(Uri uri) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\CustomClasses\HelperClasses.cs:line 26
+   at Licencjat_new.Controls.ConversationListItem.Init() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Controls\ConversationControls.cs:line 331
+   at Licencjat_new.Controls.ConversationListItem..ctor(ConversationModel conversation) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Controls\ConversationControls.cs:line 288
+   at Licencjat_new.Controls.ConversationList.AddConversations(List`1 conversations) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Controls\ConversationControls.cs:line 179
+   at Licencjat_new.Windows.Conversation.LoadConversations() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\Conversation.xaml.cs:line 460
+   at Licencjat_new.Windows.Conversation.Init() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\Conversation.xaml.cs:line 58
+   at Licencjat_new.Windows.MainWindow.UpperMenuModeChanged(Object sender, EventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 951
+--------------------------------------

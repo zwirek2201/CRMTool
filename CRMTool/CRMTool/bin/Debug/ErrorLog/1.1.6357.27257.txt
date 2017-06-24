@@ -1,0 +1,50 @@
+Version: 1.1.6357.27257
+Started: 28.05.2017 15:08:38
+-----------------------------------------------------------------------------
+Version: 1.1.6357.27257
+Started: 28.05.2017 15:45:16
+-----------------------------------------------------------------------------
+Version: 1.1.6357.27257
+Started: 28.05.2017 17:40:39
+-----------------------------------------------------------------------------
+Version: 1.1.6357.27257
+Started: 28.05.2017 18:32:56
+-----------------------------------------------------------------------------
+Date: 28.05.2017 19:08:18
+Exception: System.Exception: Connection unsynced
+   at Licencjat_new.Server.Client.GetAllCompanies() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\Client.cs:line 476
+--------------------------------------
+Date: 28.05.2017 19:08:19
+Exception: System.Exception: Connection unsynced
+   at Licencjat_new.Server.Client.GetAllContacts() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\Client.cs:line 550
+--------------------------------------
+Date: 28.05.2017 19:08:20
+Exception: System.NullReferenceException: Object reference not set to an instance of an object.
+   at Licencjat_new.Windows.MainWindow._contactWorker_DoWork(Object sender, DoWorkEventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 359
+--------------------------------------
+Date: 28.05.2017 19:08:20
+Exception: System.Exception: Connection unsynced
+   at Licencjat_new.Server.Client.GetFilesInfo() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\Client.cs:line 716
+--------------------------------------
+Date: 28.05.2017 19:08:20
+Exception: System.NullReferenceException: Object reference not set to an instance of an object.
+   at Licencjat_new.Windows.MainWindow.FileWorker_DoWork(Object sender, DoWorkEventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 683
+--------------------------------------
+Date: 28.05.2017 19:08:20
+Exception: System.Exception: Connection unsynced
+   at Licencjat_new.Server.Client.GetUserConversations() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\Client.cs:line 248
+--------------------------------------
+Date: 28.05.2017 19:08:21
+Exception: System.NullReferenceException: Object reference not set to an instance of an object.
+   at Licencjat_new.Windows.MainWindow._conversationWorker_DoWork(Object sender, DoWorkEventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 621
+--------------------------------------
+Date: 28.05.2017 19:08:24
+Exception: System.Exception: Connection unsynced
+   at Licencjat_new.Server.Client.GetUserNotifications(Int32 from, Int32 count) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\Client.cs:line 605
+--------------------------------------
+Version: 1.1.6357.27257
+Started: 28.05.2017 19:08:52
+-----------------------------------------------------------------------------
+Version: 1.1.6357.27257
+Started: 28.05.2017 19:33:51
+-----------------------------------------------------------------------------

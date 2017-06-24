@@ -1,0 +1,14 @@
+Version: 1.1.6350.37952
+Started: 21.05.2017 21:05:10
+-----------------------------------------------------------------------------
+Version: 1.1.6350.37952
+Started: 21.05.2017 22:37:28
+-----------------------------------------------------------------------------
+Date: 21.05.2017 22:39:53
+Exception: System.ArgumentOutOfRangeException: The parameter value must be greater than zero.
+Parameter name: pixelWidth
+   at System.Windows.Media.Imaging.RenderTargetBitmap..ctor(Int32 pixelWidth, Int32 pixelHeight, Double dpiX, Double dpiY, PixelFormat pixelFormat)
+   at TheArtOfDev.HtmlRenderer.WPF.HtmlRender.RenderToImage(String html, Size minSize, Size maxSize, Color backgroundColor, CssData cssData, EventHandler`1 stylesheetLoad, EventHandler`1 imageLoad) in d:\source\github\HTML-Renderer\Source\HtmlRenderer.WPF\HtmlRender.cs:line 319
+   at Licencjat_new.CustomClasses.ImageHelper.GetHtmlImagePreview(String html, Size minSize, Size maxSize) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\CustomClasses\HelperClasses.cs:line 34
+   at Licencjat_new.Windows.Conversation.<>c__DisplayClass15_0.<NewEmailButton_Click>b__2(Object se, DoWorkEventArgs ev) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\Conversation.xaml.cs:line 195
+--------------------------------------

@@ -1,0 +1,56 @@
+Version: 1.1.6351.103
+Started: 22.05.2017 00:03:29
+-----------------------------------------------------------------------------
+Version: 1.1.6351.103
+Started: 22.05.2017 00:23:13
+-----------------------------------------------------------------------------
+Version: 1.1.6351.103
+Started: 22.05.2017 00:25:53
+-----------------------------------------------------------------------------
+Date: 22.05.2017 00:28:02
+Exception: System.InvalidOperationException: The calling thread cannot access this object because a different thread owns it.
+   at System.Windows.Threading.Dispatcher.VerifyAccess()
+   at System.Windows.DependencyObject.GetValue(DependencyProperty dp)
+   at System.Windows.Controls.Panel.get_IsItemsHost()
+   at System.Windows.Controls.ItemsControl.GetItemsOwnerInternal(DependencyObject element, ItemsControl& itemsControl)
+   at System.Windows.Controls.Panel.VerifyBoundState()
+   at System.Windows.Controls.Panel.get_InternalChildren()
+   at System.Windows.Controls.Panel.get_Children()
+   at Licencjat_new.Controls.FileList.Sort() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Controls\FileControls.cs:line 454
+   at Licencjat_new.Controls.FileList.AddFiles(List`1 files) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Controls\FileControls.cs:line 566
+   at Licencjat_new.Windows.Document.NotificationClient_NewFilesArrived(Object sender, NewFilesArrivedEventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\Document.xaml.cs:line 92
+   at System.EventHandler`1.Invoke(Object sender, TEventArgs e)
+   at Licencjat_new.Server.NotificationClient.Receiver() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\NotificationClient.cs:line 317
+--------------------------------------
+Version: 1.1.6351.103
+Started: 22.05.2017 00:31:09
+-----------------------------------------------------------------------------
+Version: 1.1.6351.103
+Started: 22.05.2017 00:33:03
+-----------------------------------------------------------------------------
+Date: 22.05.2017 00:33:53
+Exception: System.InvalidOperationException: The calling thread cannot access this object because a different thread owns it.
+   at System.Windows.Threading.Dispatcher.VerifyAccess()
+   at System.Windows.DependencyObject.GetValue(DependencyProperty dp)
+   at System.Windows.Controls.Panel.get_IsItemsHost()
+   at System.Windows.Controls.ItemsControl.GetItemsOwnerInternal(DependencyObject element, ItemsControl& itemsControl)
+   at System.Windows.Controls.Panel.VerifyBoundState()
+   at System.Windows.Controls.Panel.get_InternalChildren()
+   at System.Windows.Controls.Panel.get_Children()
+   at Licencjat_new.Controls.FileList.Sort() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Controls\FileControls.cs:line 454
+   at Licencjat_new.Controls.FileList.AddFiles(List`1 files) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Controls\FileControls.cs:line 566
+   at Licencjat_new.Windows.Document.NotificationClient_NewFilesArrived(Object sender, NewFilesArrivedEventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\Document.xaml.cs:line 92
+   at System.EventHandler`1.Invoke(Object sender, TEventArgs e)
+   at Licencjat_new.Server.NotificationClient.Receiver() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\NotificationClient.cs:line 317
+--------------------------------------
+Version: 1.1.6351.103
+Started: 22.05.2017 00:35:29
+-----------------------------------------------------------------------------
+Date: 22.05.2017 00:37:34
+Exception: System.ArgumentOutOfRangeException: The parameter value must be greater than zero.
+Parameter name: pixelWidth
+   at System.Windows.Media.Imaging.RenderTargetBitmap..ctor(Int32 pixelWidth, Int32 pixelHeight, Double dpiX, Double dpiY, PixelFormat pixelFormat)
+   at TheArtOfDev.HtmlRenderer.WPF.HtmlRender.RenderToImage(String html, Size minSize, Size maxSize, Color backgroundColor, CssData cssData, EventHandler`1 stylesheetLoad, EventHandler`1 imageLoad) in d:\source\github\HTML-Renderer\Source\HtmlRenderer.WPF\HtmlRender.cs:line 319
+   at Licencjat_new.CustomClasses.ImageHelper.GetHtmlImagePreview(String html, Size minSize, Size maxSize) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\CustomClasses\HelperClasses.cs:line 34
+   at Licencjat_new.Windows.Conversation.<>c__DisplayClass15_0.<NewEmailButton_Click>b__2(Object se, DoWorkEventArgs ev) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\Conversation.xaml.cs:line 195
+--------------------------------------

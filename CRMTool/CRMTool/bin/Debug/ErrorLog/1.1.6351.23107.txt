@@ -1,0 +1,8 @@
+Version: 1.1.6351.23107
+Started: 22.05.2017 12:50:16
+-----------------------------------------------------------------------------
+Date: 22.05.2017 12:52:39
+Exception: System.InvalidOperationException: A recipient must be specified.
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at Licencjat_new.Windows.Conversation.<>c__DisplayClass15_0.<NewEmailButton_Click>b__2(Object se, DoWorkEventArgs ev) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\Conversation.xaml.cs:line 188
+--------------------------------------

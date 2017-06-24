@@ -1,0 +1,48 @@
+﻿<UserControl x:Class="Licencjat_new.Windows.HelperWindows.ConversationMessageDetails"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Licencjat_new.Windows.HelperWindows"
+             xmlns:controls="clr-namespace:Licencjat_new.Controls"
+             xmlns:gif="http://wpfanimatedgif.codeplex.com"
+             xmlns:wpf="clr-namespace:TheArtOfDev.HtmlRenderer.WPF;assembly=HtmlRenderer.WPF"
+             mc:Ignorable="d" 
+             Panel.ZIndex="301" 
+             Height="{Binding ActualHeight, ElementName=mainCanvas}" 
+             Width="{Binding ActualWidth, ElementName=mainCanvas}">
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <DockPanel x:Name="MainDock" Background="White" Width="900" MaxHeight="600" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <DockPanel Height="30" VerticalAlignment="Center" LastChildFill="False" Background="#1c9ad2" DockPanel.Dock="Top"  HorizontalAlignment="Stretch">
+                <Grid x:Name="CloseButton" Height="30" Width="30" Background="#1c9ad2" DockPanel.Dock="Right">
+                    <Image x:Name="CloseImage" Height="15" Width="15"  Margin="7.5" Source="pack://application:,,,/resources/close_light.png"/>
+                </Grid>
+                <DockPanel.Effect>
+                    <DropShadowEffect Color="Black" Direction="320" ShadowDepth="-10" Opacity="0.4"  BlurRadius="5" />
+                </DockPanel.Effect>
+            </DockPanel>
+            <StackPanel Height="15" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="#1c9ad2" DockPanel.Dock="Bottom"/>
+            <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="White">
+                <Border BorderBrush="#1c9ad2" Background="#fdfdfd" DockPanel.Dock="Top"  BorderThickness="0,0,0,1">
+                    <controls:CustomDetailsTable x:Name="DetailsTable" Margin="0,5,0,0"/>
+                </Border>
+                <Border x:Name="SubjectLabelContainer" Height="40" DockPanel.Dock="Top" Background="White">
+                    <TextBlock x:Name="SubjectLabel" HorizontalAlignment="Stretch" VerticalAlignment="Center" FontWeight="Medium" Padding="30,0,0,0" Foreground="#1c9ad2" FontSize="18"/>
+                </Border>
+                <StackPanel DockPanel.Dock="Top" x:Name="CallUnansweredContainer" Visibility="Collapsed">
+                    <Image Margin="0,5,0,0" Height="40" Source="pack://application:,,,/resources/call_unanswered.png"/>
+                    <Label VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="13" Foreground="#1c9ad2" Padding="0,5,0,5" Content="Połączenie nieodebrane" />
+                </StackPanel>
+                <Border x:Name="AttachmentListContainer" BorderBrush="#1c9ad2" BorderThickness="0,1,0,0" Height="70" DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" Background="#fdfdfd">
+                    <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+                        <StackPanel HorizontalAlignment="Left" x:Name="AttachmentList" Orientation="Horizontal" VerticalAlignment="Stretch"></StackPanel>
+                    </ScrollViewer>
+                </Border>
+                <wpf:HtmlPanel x:Name="MessageContainer" Panel.ZIndex="10" Margin="15,0,0,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            </DockPanel>
+        </DockPanel>
+        <Border x:Name="loadingOverlay" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="#bbffffff" Visibility="Collapsed" Opacity="0.8">
+            <Image gif:ImageBehavior.AnimatedSource="pack://application:,,,/resources/loading.gif" VerticalAlignment="Center" HorizontalAlignment="Center" Width="100" Height="100" />
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,499 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5B5D2F23-BC3A-4C4E-B901-1FDEFF3A30D9}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Licencjat_new</RootNamespace>
+    <AssemblyName>Licencjat_new</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Awesomium.Core, Version=1.7.4.2, Culture=neutral, PublicKeyToken=e1a0d7c8071a5214, processorArchitecture=x86">
+      <HintPath>..\packages\Unofficial.Awesomium.Complete.1.7.4.2\lib\Awesomium.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Awesomium.Windows.Controls, Version=1.7.4.2, Culture=neutral, PublicKeyToken=7a34e179b8b61c39, processorArchitecture=x86">
+      <HintPath>..\packages\Unofficial.Awesomium.Complete.1.7.4.2\lib\Awesomium.Windows.Controls.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="HtmlRenderer, Version=1.5.0.5, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlRenderer.Core.1.5.0.5\lib\net45\HtmlRenderer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="HtmlRenderer.WPF, Version=1.5.0.6, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlRenderer.WPF.1.5.0.6\lib\net45\HtmlRenderer.WPF.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="ImapX, Version=2.0.0.18, Culture=neutral, PublicKeyToken=5992873d65130d1f, processorArchitecture=MSIL">
+      <HintPath>..\packages\ImapX.2.0.0.18\lib\net452\ImapX.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Magick.NET-Q16-AnyCPU, Version=7.0.0.0, Culture=neutral, PublicKeyToken=2004825badfa91ec, processorArchitecture=MSIL">
+      <HintPath>..\packages\Magick.NET-Q16-AnyCPU.7.0.3.902\lib\net40-client\Magick.NET-Q16-AnyCPU.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MimeTypeMap, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MediaTypeMap.2.1.0.0\lib\net40\MimeTypeMap.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="UIAutomationProvider" />
+    <Reference Include="UIAutomationTypes" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="WpfAnimatedGif, Version=1.4.14.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WpfAnimatedGif.1.4.14\lib\net\WpfAnimatedGif.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Xceed.Wpf.AvalonDock, Version=3.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Extended.Wpf.Toolkit.3.0\lib\net40\Xceed.Wpf.AvalonDock.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Xceed.Wpf.AvalonDock.Themes.Aero, Version=3.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Extended.Wpf.Toolkit.3.0\lib\net40\Xceed.Wpf.AvalonDock.Themes.Aero.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Xceed.Wpf.AvalonDock.Themes.Metro, Version=3.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Extended.Wpf.Toolkit.3.0\lib\net40\Xceed.Wpf.AvalonDock.Themes.Metro.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Xceed.Wpf.AvalonDock.Themes.VS2010, Version=3.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Extended.Wpf.Toolkit.3.0\lib\net40\Xceed.Wpf.AvalonDock.Themes.VS2010.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Xceed.Wpf.DataGrid, Version=3.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Extended.Wpf.Toolkit.3.0\lib\net40\Xceed.Wpf.DataGrid.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Xceed.Wpf.Toolkit, Version=3.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Extended.Wpf.Toolkit.3.0\lib\net40\Xceed.Wpf.Toolkit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="Controls\ContactControls.cs" />
+    <Compile Include="Controls\ConversationControls.cs" />
+    <Compile Include="Controls\EmailControls.cs" />
+    <Compile Include="Controls\FileControls.cs" />
+    <Compile Include="Controls\LoginControls.cs" />
+    <Compile Include="Controls\NotificationControls.cs" />
+    <Compile Include="CustomClasses\CompanyModel.cs" />
+    <Compile Include="CustomClasses\ConversationMessageModel.cs" />
+    <Compile Include="CustomClasses\ConversationModel.cs" />
+    <Compile Include="CustomClasses\CryptographyHelper.cs" />
+    <Compile Include="CustomClasses\EmailAddressModel.cs" />
+    <Compile Include="CustomClasses\EmailHelper.cs" />
+    <Compile Include="CustomClasses\FileModel.cs" />
+    <Compile Include="CustomClasses\MathConverter.cs" />
+    <Compile Include="CustomClasses\NotificationModel.cs" />
+    <Compile Include="CustomClasses\PersonModel.cs" />
+    <Compile Include="CustomClasses\PhoneNumberModel.cs" />
+    <Compile Include="CustomClasses\RegistryHelper.cs" />
+    <Compile Include="CustomClasses\ScannerHelper.cs" />
+    <Compile Include="Server\Client.cs" />
+    <Compile Include="Server\FileClients.cs" />
+    <Compile Include="Server\MessageDictionary.cs" />
+    <Compile Include="Server\NotificationClient.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="Windows\Contact.xaml.cs">
+      <DependentUpon>Contact.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Conversation.xaml.cs">
+      <DependentUpon>Conversation.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\CustomTreeListControl.cs" />
+    <Compile Include="Windows\Document.xaml.cs">
+      <DependentUpon>Document.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Email.xaml.cs">
+      <DependentUpon>Email.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomClasses\HelperClasses.cs" />
+    <Compile Include="Controls\Menus.cs" />
+    <Compile Include="Windows\HelperWindows\AdditionalChoose.xaml.cs">
+      <DependentUpon>AdditionalChoose.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\HelperWindows\ChooseFiles.xaml.cs">
+      <DependentUpon>ChooseFiles.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\HelperWindows\ChoosePerson.xaml.cs">
+      <DependentUpon>ChoosePerson.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\HelperWindows\CompanyDetails.xaml.cs">
+      <DependentUpon>CompanyDetails.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\HelperWindows\ConversationDetails.xaml.cs">
+      <DependentUpon>ConversationDetails.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\HelperWindows\ConversationMessageDetails.xaml.cs">
+      <DependentUpon>ConversationMessageDetails.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\HelperWindows\ConversationSettings.xaml.cs">
+      <DependentUpon>ConversationSettings.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\HelperWindows\CustomMessageBox.xaml.cs">
+      <DependentUpon>CustomMessageBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\HelperWindows\NewCompany.xaml.cs">
+      <DependentUpon>NewCompany.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\HelperWindows\NewEmailMessage.xaml.cs">
+      <DependentUpon>NewEmailMessage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\HelperWindows\NewPhoneConversationMessage.xaml.cs">
+      <DependentUpon>NewPhoneConversationMessage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\HelperWindows\Rename.xaml.cs">
+      <DependentUpon>Rename.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\HomePage.xaml.cs">
+      <DependentUpon>HomePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Scanning.xaml.cs">
+      <DependentUpon>Scanning.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\ScanningWindows\ScanningAutomatic.xaml.cs">
+      <DependentUpon>ScanningAutomatic.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\ScanningWindows\ScanningManual.xaml.cs">
+      <DependentUpon>ScanningManual.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Windows\Contact.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Conversation.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Document.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Email.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\HelperWindows\AdditionalChoose.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\HelperWindows\ChooseFiles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\HelperWindows\ChoosePerson.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\HelperWindows\CompanyDetails.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\HelperWindows\ConversationDetails.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\HelperWindows\ConversationMessageDetails.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\HelperWindows\ConversationSettings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\HelperWindows\CustomMessageBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\HelperWindows\NewCompany.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\HelperWindows\NewEmailMessage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\HelperWindows\NewPhoneConversationMessage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\HelperWindows\Rename.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\HomePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Login.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Windows\Login.xaml.cs">
+      <DependentUpon>Login.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="Windows\Scanning.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\ScanningWindows\ScanningAutomatic.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\ScanningWindows\ScanningManual.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Licenses.licx" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="WIA">
+      <Guid>{94A0E92D-43C0-494E-AC29-FD45948A5221}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\addEmailMessage.png" />
+    <Resource Include="resources\addMailMessage.png" />
+    <Resource Include="resources\addPhoneMessage.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\addFilter_context.png" />
+    <Resource Include="resources\addMessage_cursor.cur" />
+    <Resource Include="resources\addMessage_cursor.png" />
+    <Resource Include="resources\add_conversation.png" />
+    <Resource Include="resources\add_person.png" />
+    <Resource Include="resources\archive.png" />
+    <Resource Include="resources\arrow_down.png" />
+    <Resource Include="resources\arrow_down_blue.png" />
+    <Resource Include="resources\arrow_down_darker.png" />
+    <Resource Include="resources\arrow_down_light.png" />
+    <Resource Include="resources\arrow_left.png" />
+    <Resource Include="resources\arrow_right.png" />
+    <Resource Include="resources\arrow_up.png" />
+    <Resource Include="resources\arrow_up_blue.png" />
+    <Resource Include="resources\arrow_up_darker.png" />
+    <Resource Include="resources\arrow_up_light.png" />
+    <Resource Include="resources\blue_arrow.png" />
+    <Resource Include="resources\close_blue.png" />
+    <Resource Include="resources\close_gray.png" />
+    <Resource Include="resources\close_light.png" />
+    <Resource Include="resources\close_white.png" />
+    <Resource Include="resources\download_context.png" />
+    <Resource Include="resources\drafts.png" />
+    <Resource Include="resources\expand_down_active.png" />
+    <Resource Include="resources\expand_down_unactive.png" />
+    <Resource Include="resources\export_context.png" />
+    <Resource Include="resources\fav_off.png" />
+    <Resource Include="resources\fav_on.png" />
+    <Resource Include="resources\folder.png" />
+    <Resource Include="resources\full_trash.png" />
+    <Resource Include="resources\group.png" />
+    <Resource Include="resources\ic_addContactPerson.png" />
+    <Resource Include="resources\ic_addConversation.png" />
+    <Resource Include="resources\inbox.png" />
+    <Resource Include="resources\info_context.png" />
+    <Resource Include="resources\junk.png" />
+    <Resource Include="resources\loading-white.gif" />
+    <Resource Include="resources\loading.gif" />
+    <Resource Include="resources\lock_context.png" />
+    <Resource Include="resources\logo.png" />
+    <Resource Include="resources\logo_nazwa.png" />
+    <Resource Include="resources\mail.png" />
+    <Resource Include="resources\mail2.png" />
+    <Resource Include="resources\mail_locked.png" />
+    <Resource Include="resources\maximize_2_blue.png" />
+    <Resource Include="resources\maximize_2_light.png" />
+    <Resource Include="resources\maximize_blue.png" />
+    <Resource Include="resources\maximize_light.png" />
+    <Resource Include="resources\minimize_blue.png" />
+    <Resource Include="resources\minimize_light.png" />
+    <Resource Include="resources\mute_context.png" />
+    <Resource Include="resources\NOaddMessage_cursor.cur" />
+    <Resource Include="resources\NOaddMessage_cursor.png" />
+    <Resource Include="resources\notification_off.png" />
+    <Resource Include="resources\notification_on.png" />
+    <Resource Include="resources\person_female.png" />
+    <Resource Include="resources\person_male.png" />
+    <Resource Include="resources\phone.png" />
+    <Resource Include="resources\phone2.png" />
+    <Resource Include="resources\plus_gray.png" />
+    <Resource Include="resources\remove.png" />
+    <Resource Include="resources\removeFilter_context.png" />
+    <Resource Include="resources\remove_context.png" />
+    <Resource Include="resources\rename_context.png" />
+    <Resource Include="resources\rotate.png" />
+    <Resource Include="resources\scan_automatic.png" />
+    <Resource Include="resources\scan_manual.png" />
+    <Resource Include="resources\search_off.png" />
+    <Resource Include="resources\search_on.png" />
+    <Resource Include="resources\select_off.png" />
+    <Resource Include="resources\select_on.png" />
+    <Resource Include="resources\sent.png" />
+    <Resource Include="resources\sorting_blue.png" />
+    <Resource Include="resources\unlock_context.png" />
+    <Resource Include="resources\user.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\FileTypeIcons\after-effects.png" />
+    <Resource Include="resources\FileTypeIcons\ai.png" />
+    <Resource Include="resources\FileTypeIcons\audition.png" />
+    <Resource Include="resources\FileTypeIcons\avi.png" />
+    <Resource Include="resources\FileTypeIcons\bridge.png" />
+    <Resource Include="resources\FileTypeIcons\css.png" />
+    <Resource Include="resources\FileTypeIcons\csv.png" />
+    <Resource Include="resources\FileTypeIcons\dbf.png" />
+    <Resource Include="resources\FileTypeIcons\doc.png" />
+    <Resource Include="resources\FileTypeIcons\dreamweaver.png" />
+    <Resource Include="resources\FileTypeIcons\dwg.png" />
+    <Resource Include="resources\FileTypeIcons\exe.png" />
+    <Resource Include="resources\FileTypeIcons\file.png" />
+    <Resource Include="resources\FileTypeIcons\fireworks.png" />
+    <Resource Include="resources\FileTypeIcons\fla.png" />
+    <Resource Include="resources\FileTypeIcons\flash.png" />
+    <Resource Include="resources\FileTypeIcons\html.png" />
+    <Resource Include="resources\FileTypeIcons\illustrator.png" />
+    <Resource Include="resources\FileTypeIcons\indesign.png" />
+    <Resource Include="resources\FileTypeIcons\iso.png" />
+    <Resource Include="resources\FileTypeIcons\jpg.png" />
+    <Resource Include="resources\FileTypeIcons\js.png" />
+    <Resource Include="resources\FileTypeIcons\json.png" />
+    <Resource Include="resources\FileTypeIcons\mp3.png" />
+    <Resource Include="resources\FileTypeIcons\mp4.png" />
+    <Resource Include="resources\FileTypeIcons\pdf.png" />
+    <Resource Include="resources\FileTypeIcons\photoshop.png" />
+    <Resource Include="resources\FileTypeIcons\png.png" />
+    <Resource Include="resources\FileTypeIcons\ppt.png" />
+    <Resource Include="resources\FileTypeIcons\prelude.png" />
+    <Resource Include="resources\FileTypeIcons\premiere.png" />
+    <Resource Include="resources\FileTypeIcons\psd.png" />
+    <Resource Include="resources\FileTypeIcons\rtf.png" />
+    <Resource Include="resources\FileTypeIcons\search.png" />
+    <Resource Include="resources\FileTypeIcons\svg.png" />
+    <Resource Include="resources\FileTypeIcons\txt.png" />
+    <Resource Include="resources\FileTypeIcons\xls.png" />
+    <Resource Include="resources\FileTypeIcons\xml.png" />
+    <Resource Include="resources\FileTypeIcons\zip.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\addEmailMessage_hover.png" />
+    <Resource Include="resources\addMailMessage_hover.png" />
+    <Resource Include="resources\addPhoneMessage_hover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\settings.png" />
+    <Resource Include="resources\settings_hover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\settings_context.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\call_unanswered.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\arrow_right_photo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\add.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\addEmailClient.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

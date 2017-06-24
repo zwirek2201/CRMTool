@@ -1,0 +1,37 @@
+﻿<UserControl x:Class="Licencjat_new.Windows.HelperWindows.NewCompany"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Licencjat_new.Windows.HelperWindows"
+             xmlns:controls="clr-namespace:Licencjat_new.Controls"
+             xmlns:gif="http://wpfanimatedgif.codeplex.com"
+             mc:Ignorable="d" 
+            Panel.ZIndex="301" 
+             Height="{Binding ActualHeight, ElementName=mainCanvas}" 
+             Width="{Binding ActualWidth, ElementName=mainCanvas}">
+
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <DockPanel x:Name="MainDock" LastChildFill="True" Background="#fdfdfd" Height="650" Width="800" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Label Height="30" FontSize="14" VerticalAlignment="Center" Background="#1c9ad2" DockPanel.Dock="Top" Foreground="White" Content="Nowa wiadomość e-mail" Padding="10,0,0,0" VerticalContentAlignment="Center" HorizontalAlignment="Stretch">
+                <Label.Effect>
+                    <DropShadowEffect Color="Black" Direction="320" ShadowDepth="-10" Opacity="0.4"  BlurRadius="5" />
+                </Label.Effect>
+            </Label>
+            <StackPanel Height="15" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="#1c9ad2" DockPanel.Dock="Bottom"/>
+            <Border BorderBrush="#1c9ad2" BorderThickness="0,0,0,1" Height="40"  DockPanel.Dock="Top">
+                    <TextBox x:Name="companyName" BorderThickness="0" FontSize="18" Foreground="#1c9ad2" Text="a" Background="#fdfdfd" Margin="10,0,10,0" VerticalContentAlignment="Center"/>
+            </Border>
+            <Border BorderBrush="#1c9ad2" BorderThickness="0,1,0,0" DockPanel.Dock="Bottom">
+                <DockPanel Height="50" Background="#fdfdfd" LastChildFill="False">
+                    <controls:RoundedButton x:Name="ReadyButton" BackgroundColor="#1c9ad2" BorderColor="#fdfdfd" Text="Wyślij" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
+                    <controls:RoundedButton x:Name="CancelButton" BackgroundColor="#fdfdfd" BorderColor="#1c9ad2" Text="Anuluj" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
+                </DockPanel>
+            </Border>
+            <Label FontSize="22" Content="Członkowie:" Margin="10,5,0,0" Foreground="#1c9ad2" FontWeight="Medium" DockPanel.Dock="Top"/>
+        </DockPanel>
+        <Border x:Name="loadingOverlay" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="#bbffffff" Visibility="Collapsed" Opacity="0.8">
+            <Image gif:ImageBehavior.AnimatedSource="pack://application:,,,/resources/loading.gif" VerticalAlignment="Center" HorizontalAlignment="Center" Width="100" Height="100" />
+        </Border>
+    </Grid>
+</UserControl>

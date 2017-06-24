@@ -1,0 +1,10 @@
+Version: 1.1.6346.22443
+Started: 17.05.2017 12:28:10
+-----------------------------------------------------------------------------
+Version: 1.1.6346.22443
+Started: 17.05.2017 12:28:51
+-----------------------------------------------------------------------------
+Date: 17.05.2017 12:29:27
+Exception: System.NullReferenceException: Object reference not set to an instance of an object.
+   at Licencjat_new.Server.Client.AddNewMessage(String conversationId, ConversationMessageModel message) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\Client.cs:line 404
+--------------------------------------

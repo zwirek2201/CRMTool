@@ -1,0 +1,8 @@
+Version: 1.1.6338.24842
+Started: 09.05.2017 13:48:07
+-----------------------------------------------------------------------------
+Date: 09.05.2017 13:48:43
+Exception: System.NullReferenceException: Object reference not set to an instance of an object.
+   at Licencjat_new.Server.Client.SendFile(Stream data) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\Client.cs:line 798
+   at Licencjat_new.Server.Client.AddNewMessage(String conversationId, ConversationMessageModel message) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\Client.cs:line 405
+--------------------------------------

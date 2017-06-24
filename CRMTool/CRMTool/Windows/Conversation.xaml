@@ -1,0 +1,41 @@
+﻿<UserControl x:Class="Licencjat_new.Windows.Conversation"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Licencjat_new.Windows"
+             xmlns:controls="clr-namespace:Licencjat_new.Controls"
+             xmlns:customClasses="clr-namespace:Licencjat_new.CustomClasses"
+             mc:Ignorable="d" 
+             VerticalAlignment="Stretch"
+             d:DesignWidth="1366"
+             HorizontalAlignment="Stretch" d:DesignHeight="324.206"
+             x:Name="conversation">
+    <UserControl.Resources>
+        <customClasses:MathConverter x:Key="MathConverter"></customClasses:MathConverter>
+    </UserControl.Resources>
+    <Grid x:Name="MainDockPanel" ClipToBounds="True">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Border BorderBrush="#c2c2c2" BorderThickness="0,0,1,0" Opacity="1" Height="{Binding ActualHeight, ElementName=MainDockPanel}">
+            <controls:ConversationListContainer  x:Name="ConversationListContainer">
+                <controls:ConversationList x:Name="ConversationList"/>
+            </controls:ConversationListContainer>
+        </Border>
+        <GridSplitter Width="5" HorizontalAlignment="Right" VerticalAlignment="Stretch" ResizeBehavior="CurrentAndNext" x:Name="Split"/>
+        <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1" Grid.Row="0">
+            <controls:NewConversationMessagePanel x:Name="NewMessagePanel" DockPanel.Dock="Bottom" Panel.ZIndex="299"/>
+            <controls:ConversationMainContainer Margin="0,0,0,0"  x:Name="ConversationMainContainer">
+                <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  x:Name="MessageListContainer" Width="{Binding ActualWidth, ElementName=ConversationMainContainer}" Height="{Binding ActualHeight, ElementName=MainDockPanel, Converter={StaticResource MathConverter}, ConverterParameter=@VALUE-100}"  Canvas.Top="40" Canvas.Left="0" Padding="10,0,10,10">
+                <controls:ConversationMessageList x:Name="MessageList" />
+            </ScrollViewer>
+            <controls:ConversationMemberList x:Name="MemberList" SnapsToDevicePixels="True" Canvas.Top="0" Canvas.Left="0" Width="{Binding ActualWidth, ElementName=ConversationMainContainer}"/>
+        </controls:ConversationMainContainer>
+        </DockPanel>
+    </Grid>
+    <UserControl.Effect>
+        <DropShadowEffect Color="Black" Direction="180" ShadowDepth="-10" Opacity="0.4"  BlurRadius="5" />
+    </UserControl.Effect>
+</UserControl>

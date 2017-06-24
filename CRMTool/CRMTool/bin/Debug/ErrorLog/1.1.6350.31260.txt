@@ -1,0 +1,23 @@
+Version: 1.1.6350.31260
+Started: 21.05.2017 17:22:02
+-----------------------------------------------------------------------------
+Date: 21.05.2017 17:25:48
+Exception: System.InvalidOperationException: A recipient must be specified.
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at Licencjat_new.Windows.Conversation.<>c__DisplayClass15_0.<NewEmailButton_Click>b__2(Object se, DoWorkEventArgs ev) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\Conversation.xaml.cs:line 188
+--------------------------------------
+Date: 21.05.2017 18:03:37
+Exception: System.InvalidOperationException: The calling thread cannot access this object because a different thread owns it.
+   at System.Windows.Threading.Dispatcher.VerifyAccess()
+   at System.Windows.DependencyObject.GetValue(DependencyProperty dp)
+   at System.Windows.Controls.Panel.get_IsItemsHost()
+   at System.Windows.Controls.ItemsControl.GetItemsOwnerInternal(DependencyObject element, ItemsControl& itemsControl)
+   at System.Windows.Controls.Panel.VerifyBoundState()
+   at System.Windows.Controls.Panel.get_InternalChildren()
+   at System.Windows.Controls.Panel.get_Children()
+   at Licencjat_new.Controls.FileList.Sort() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Controls\FileControls.cs:line 454
+   at Licencjat_new.Controls.FileList.AddFiles(List`1 files) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Controls\FileControls.cs:line 566
+   at Licencjat_new.Windows.Document.NotificationClient_NewFilesArrived(Object sender, NewFilesArrivedEventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\Document.xaml.cs:line 92
+   at System.EventHandler`1.Invoke(Object sender, TEventArgs e)
+   at Licencjat_new.Server.NotificationClient.Receiver() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\NotificationClient.cs:line 316
+--------------------------------------

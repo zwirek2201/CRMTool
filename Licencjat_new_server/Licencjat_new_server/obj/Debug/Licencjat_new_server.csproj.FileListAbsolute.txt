@@ -1,0 +1,6 @@
+E:\Marcin\Documents\LICENCJAT\Licencjat_new_server\Licencjat_new_server\bin\Debug\Licencjat_new_server.exe.config
+E:\Marcin\Documents\LICENCJAT\Licencjat_new_server\Licencjat_new_server\bin\Debug\Licencjat_new_server.exe
+E:\Marcin\Documents\LICENCJAT\Licencjat_new_server\Licencjat_new_server\bin\Debug\Licencjat_new_server.pdb
+E:\Marcin\Documents\LICENCJAT\Licencjat_new_server\Licencjat_new_server\obj\Debug\Licencjat_new_server.csprojResolveAssemblyReference.cache
+E:\Marcin\Documents\LICENCJAT\Licencjat_new_server\Licencjat_new_server\obj\Debug\Licencjat_new_server.exe
+E:\Marcin\Documents\LICENCJAT\Licencjat_new_server\Licencjat_new_server\obj\Debug\Licencjat_new_server.pdb

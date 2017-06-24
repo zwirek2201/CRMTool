@@ -1,0 +1,20 @@
+Version: 1.1.6351.32012
+Started: 22.05.2017 17:47:08
+-----------------------------------------------------------------------------
+Version: 1.1.6351.32012
+Started: 22.05.2017 19:10:07
+-----------------------------------------------------------------------------
+Date: 22.05.2017 19:16:48
+Exception: System.IO.EndOfStreamException: Unable to read beyond the end of the stream.
+   at System.IO.BinaryReader.ReadByte()
+   at Licencjat_new.Server.NotificationClient.Receiver() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\NotificationClient.cs:line 112
+--------------------------------------
+Version: 1.1.6351.32012
+Started: 22.05.2017 19:17:00
+-----------------------------------------------------------------------------
+Version: 1.1.6351.32012
+Started: 22.05.2017 19:36:31
+-----------------------------------------------------------------------------
+Version: 1.1.6351.32012
+Started: 22.05.2017 19:38:20
+-----------------------------------------------------------------------------

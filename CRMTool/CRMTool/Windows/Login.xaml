@@ -1,0 +1,37 @@
+﻿<UserControl x:Class="Licencjat_new.Windows.Login"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Licencjat_new.Windows"
+             xmlns:gif="http://wpfanimatedgif.codeplex.com"
+             xmlns:controls="clr-namespace:Licencjat_new.Controls"
+             mc:Ignorable="d" 
+             VerticalAlignment="Stretch"
+             HorizontalAlignment="Stretch"
+             HorizontalContentAlignment="Center"
+             VerticalContentAlignment="Top"
+             Background="#fdfdfd" d:DesignWidth="1000" d:DesignHeight="600">
+    <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,50,0,50">
+        <Label  FontWeight="Medium" x:Name="versionLabel" Margin="323,3,0,0" Width="100" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="#1c9ad2"  HorizontalContentAlignment="Center"></Label>
+        <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Image Source="pack://application:,,,/resources/logo_nazwa.png" Height="80" Margin="0,0,0,50" DockPanel.Dock="Top"></Image>
+        <Border x:Name="CanvasBorder" BorderBrush="#c2c2c2" Visibility="Visible" Background="#f3f3f3" BorderThickness="1,1,1,1" Margin="0, 0, 0, 0" CornerRadius="20">
+            <Canvas x:Name="mainCanvas" Height="250" Width="780" Background="Transparent">
+                <Grid Height="{Binding ActualHeight, ElementName=CanvasBorder}" Width="{Binding ActualWidth, ElementName=CanvasBorder}">
+                        <StackPanel Margin="50,25,50,0" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                            <controls:RoundedTextBox Caption="Login:" x:Name="txtLoginBox"/>
+                            <controls:RoundedTextBox Caption="Hasło:" IsPassword="True" x:Name="txtPasswordBox"/>
+                            <controls:RoundedButton x:Name="btnLoginButton" Text="Zaloguj" BackgroundColor="#1c9ad2" BorderColor="#fdfdfd"></controls:RoundedButton>
+                            <Label x:Name="ErrorLabel" DockPanel.Dock="Bottom" Margin="0,5,0,0" FontSize="15" Height="30" HorizontalAlignment="Stretch" Foreground="DarkRed" HorizontalContentAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                <Border x:Name="loadingOverlay" VerticalAlignment="Stretch" Canvas.Top="0" Canvas.Left="0" HorizontalAlignment="Stretch" Background="#bbffffff" Visibility="Collapsed" Opacity="0" Height="{Binding ActualHeight, ElementName=mainCanvas}" Width="{Binding ActualWidth,ElementName=mainCanvas}" CornerRadius="{Binding CornerRadius, ElementName=CanvasBorder}">
+                    <Image gif:ImageBehavior.AnimatedSource="pack://application:,,,/resources/loading.gif" VerticalAlignment="Center" HorizontalAlignment="Center" Width="100" Height="100" />
+                </Border>
+            </Canvas>
+        </Border>
+    </DockPanel>
+    </Grid>
+</UserControl>
+

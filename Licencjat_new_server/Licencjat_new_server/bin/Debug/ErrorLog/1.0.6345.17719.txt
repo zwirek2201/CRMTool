@@ -1,0 +1,25 @@
+Version: 1.0.6345.17719
+Started: 16.05.2017 09:50:41
+-----------------------------------------------------------------------------
+Date: 16.05.2017 09:50:41
+Exception: System.Net.Sockets.SocketException (0x80004005): Only one usage of each socket address (protocol/network address/port) is normally permitted
+   at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at System.Net.Sockets.TcpListener.Start(Int32 backlog)
+   at System.Net.Sockets.TcpListener.Start()
+   at Licencjat_new_server.Program..ctor() in E:\Marcin\Documents\LICENCJAT\Licencjat_new_server\Licencjat_new_server\Program.cs:line 40
+--------------------------------------
+Version: 1.0.6345.17719
+Started: 16.05.2017 09:52:23
+-----------------------------------------------------------------------------
+Date: 16.05.2017 09:52:25
+Exception: System.Net.Sockets.SocketException (0x80004005): Only one usage of each socket address (protocol/network address/port) is normally permitted
+   at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at System.Net.Sockets.TcpListener.Start(Int32 backlog)
+   at System.Net.Sockets.TcpListener.Start()
+   at Licencjat_new_server.Program..ctor() in E:\Marcin\Documents\LICENCJAT\Licencjat_new_server\Licencjat_new_server\Program.cs:line 40
+--------------------------------------
+Version: 1.0.6345.17719
+Started: 16.05.2017 09:52:39
+-----------------------------------------------------------------------------

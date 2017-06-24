@@ -1,0 +1,27 @@
+Version: 1.1.6361.41319
+Started: 01.06.2017 22:57:22
+-----------------------------------------------------------------------------
+Version: 1.1.6361.41319
+Started: 01.06.2017 23:34:46
+-----------------------------------------------------------------------------
+Version: 1.1.6361.41319
+Started: 01.06.2017 23:36:36
+-----------------------------------------------------------------------------
+Version: 1.1.6361.41319
+Started: 01.06.2017 23:37:52
+-----------------------------------------------------------------------------
+Version: 1.1.6361.41319
+Started: 01.06.2017 23:40:46
+-----------------------------------------------------------------------------
+Date: 01.06.2017 23:41:34
+Exception: System.ArgumentNullException: Value cannot be null.
+Parameter name: input
+   at System.Text.RegularExpressions.Regex.Matches(String input)
+   at System.Text.RegularExpressions.Regex.Matches(String input, String pattern)
+   at Licencjat_new.Controls.NotificationItem..ctor(NotificationModel notification, Boolean justInTime) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Controls\NotificationControls.cs:line 624
+   at Licencjat_new.Controls.NotificationsPanel.AddNotification(NotificationModel notification) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Controls\NotificationControls.cs:line 338
+   at Licencjat_new.Windows.MainWindow.<>c__DisplayClass147_0.<RaiseNotification>b__0() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 798
+   at System.Windows.Threading.Dispatcher.Invoke(Action callback, DispatcherPriority priority, CancellationToken cancellationToken, TimeSpan timeout)
+   at System.Windows.Threading.Dispatcher.Invoke(Action callback)
+   at Licencjat_new.Windows.MainWindow.RaiseNotification(NotificationModel notification, Boolean silent) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 796
+--------------------------------------

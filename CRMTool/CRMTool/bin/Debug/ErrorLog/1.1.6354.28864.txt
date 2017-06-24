@@ -1,0 +1,10 @@
+Version: 1.1.6354.28864
+Started: 25.05.2017 16:02:13
+-----------------------------------------------------------------------------
+Date: 25.05.2017 16:02:33
+Exception: System.ArgumentException: An item with the same key has already been added.
+   at System.ThrowHelper.ThrowArgumentException(ExceptionResource resource)
+   at System.Collections.Generic.Dictionary`2.Insert(TKey key, TValue value, Boolean add)
+   at System.Collections.Generic.Dictionary`2.Add(TKey key, TValue value)
+   at Licencjat_new.Windows.MainWindow.NotificationClient_ConversationMembersAdded(Object sender, ConversationMembersAddedEventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 1125
+--------------------------------------

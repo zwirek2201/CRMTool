@@ -1,0 +1,31 @@
+Version: 1.1.6359.26357
+Started: 30.05.2017 14:38:38
+-----------------------------------------------------------------------------
+Date: 30.05.2017 14:39:08
+Exception: System.IO.IOException: Cannot locate resource 'resources/arrow_right_photo.png'.
+   at MS.Internal.AppModel.ResourcePart.GetStreamCore(FileMode mode, FileAccess access)
+   at System.IO.Packaging.PackagePart.GetStream(FileMode mode, FileAccess access)
+   at System.IO.Packaging.PackWebResponse.CachedResponse.GetResponseStream()
+   at System.IO.Packaging.PackWebResponse.GetResponseStream()
+   at System.IO.Packaging.PackWebResponse.get_ContentType()
+   at System.Windows.Media.Imaging.BitmapDecoder.SetupDecoderFromUriOrStream(Uri uri, Stream stream, BitmapCacheOption cacheOption, Guid& clsId, Boolean& isOriginalWritable, Stream& uriStream, UnmanagedMemoryStream& unmanagedMemoryStream, SafeFileHandle& safeFilehandle)
+   at System.Windows.Media.Imaging.BitmapDecoder.CreateFromUriOrStream(Uri baseUri, Uri uri, Stream stream, BitmapCreateOptions createOptions, BitmapCacheOption cacheOption, RequestCachePolicy uriCachePolicy, Boolean insertInDecoderCache)
+   at System.Windows.Media.Imaging.BitmapImage.FinalizeCreation()
+   at System.Windows.Media.Imaging.BitmapImage.EndInit()
+   at Licencjat_new.CustomClasses.ImageHelper.UriToImageSource(Uri uri) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\CustomClasses\HelperClasses.cs:line 27
+   at Licencjat_new.Controls.ConversationMessageListItem..ctor(ConversationMessageModel message) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Controls\ConversationControls.cs:line 877
+   at Licencjat_new.Controls.ConversationMessageList.AddMessage(ConversationMessageModel message) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Controls\ConversationControls.cs:line 603
+   at Licencjat_new.Controls.ConversationMessageList.AddMessages(List`1 messages) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Controls\ConversationControls.cs:line 661
+   at Licencjat_new.Windows.Conversation._parent_NewMessageArrived(Object sender, NewConversationMessageArrivedEventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\Conversation.xaml.cs:line 573
+   at Licencjat_new.Windows.MainWindow.<>c__DisplayClass152_0.<NotificationClient_NewConversationMessageArrived>b__0() in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 1248
+   at System.Windows.Threading.DispatcherOperation.InvokeDelegateCore()
+   at System.Windows.Threading.DispatcherOperation.InvokeImpl()
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at System.Windows.Threading.DispatcherOperation.Wait(TimeSpan timeout)
+   at System.Windows.Threading.Dispatcher.InvokeImpl(DispatcherOperation operation, CancellationToken cancellationToken, TimeSpan timeout)
+   at System.Windows.Threading.Dispatcher.Invoke(Action callback, DispatcherPriority priority, CancellationToken cancellationToken, TimeSpan timeout)
+   at System.Windows.Threading.Dispatcher.Invoke(Action callback)
+   at Licencjat_new.Windows.MainWindow.NotificationClient_NewConversationMessageArrived(Object sender, NewConversationMessageArrivedEventArgs e) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 1241
+--------------------------------------
