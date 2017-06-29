@@ -186,10 +186,11 @@ namespace Licencjat_new.Windows
 
             MessagesGrid.PreviewMouseLeftButtonDown += MessagesGrid_PreviewMouseLeftButtonDown;
             MessagesGrid.GiveFeedback += MessagesGrid_GiveFeedback;
-
             _processingWorker.DoWork += _processingWorker_DoWork;
 
             ConversationList.AllowDrop = true;
+
+            ConversationList.Visibility = Visibility.Collapsed;
 
             WindowInitialized = true;   
         }
@@ -283,10 +284,12 @@ namespace Licencjat_new.Windows
             {
                 e.UseDefaultCursors = false;
                 Mouse.SetCursor(_dragAddCursor);
+                ConversationList.Visibility = Visibility.Visible;
             }
             else
             {
                 e.UseDefaultCursors = true;
+                ConversationList.Visibility = Visibility.Collapsed;
             }
             e.Handled = true;
         }
