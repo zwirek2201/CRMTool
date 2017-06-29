@@ -1357,8 +1357,6 @@ namespace Licencjat_new.Controls
                     }
                     else
                     {
-                        _boundToggleButton.Visibility = Visibility.Collapsed;
-                        _boundTabControl.Visibility = Visibility.Collapsed;
                         Content = NoMatchPlaceholder;
                     }
                 }
