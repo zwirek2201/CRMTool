@@ -15,6 +15,7 @@ namespace Licencjat_new.Controls
     #region EmailList
     class EmailList : DockPanel
     {
+        public event EventHandler AddNewEmailAddress;
         #region Constructors
         public EmailList()
         {
@@ -24,7 +25,14 @@ namespace Licencjat_new.Controls
             LastChildFill = true;
 
             ToolBarMainMenuStrip mainMenu = new ToolBarMainMenuStrip();
-            mainMenu.Children.Add(new ToolBarButton("Nowy adres e-mail", new Uri("pack://application:,,,/resources/addEmailClient.png")));
+            ToolBarButton addEmailAddress = new ToolBarButton("Nowy adres e-mail",
+                new Uri("pack://application:,,,/resources/addEmailClient.png"));
+            addEmailAddress.Click += (s, ea) =>
+            {
+                AddNewEmailAddress?.Invoke(this, EventArgs.Empty);
+            };
+
+            mainMenu.Children.Add(addEmailAddress);
             Children.Insert(0,mainMenu);
         }
         #endregion

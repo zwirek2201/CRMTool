@@ -13,6 +13,7 @@ using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 using System.Windows.Resources;
 using Licencjat_new.CustomClasses;
+using Licencjat_new.Windows.HelperWindows;
 using Message = ImapX.Message;
 
 namespace Licencjat_new.Server
@@ -874,6 +875,34 @@ namespace Licencjat_new.Server
                     _writer.Write(company.Id);
                     _writer.Write(company.Name);
                     _writer.Write(newName);
+                    return;
+                }
+                throw new Exception("Connection unsynced");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                ErrorHelper.LogError(ex);
+            }
+        }
+
+        public void AddNewEmailAddress(NewEmailAddressEventArgs ea)
+        {
+            try
+            {
+                _writer.Write(MessageDictionary.AddEmailAddress);
+                if (_reader.Read() == MessageDictionary.OK)
+                {
+                    _writer.Write(ea.Address);
+                    _writer.Write(ea.Login);
+                    _writer.Write(ea.UseLoginPassword);
+                    _writer.Write(ea.ImapHost);
+                    _writer.Write(ea.ImapPort);
+                    _writer.Write(ea.ImapUseSsl);
+                    _writer.Write(ea.SmtpHost);
+                    _writer.Write(ea.SmtpPort);
+                    _writer.Write(ea.SmtpUseSsl);
+                    _writer.Write(ea.Name);
                     return;
                 }
                 throw new Exception("Connection unsynced");

@@ -394,8 +394,6 @@ namespace Licencjat_new.Windows
 
                 this.Dispatcher.Invoke(() =>
                 {
-
-
                     Label statusLabel = (Label) LogicalTreeHelper.FindLogicalNode(this, "leftLabel");
                     Image loadingImage = (Image) LogicalTreeHelper.FindLogicalNode(this, "leftImage");
 
@@ -459,24 +457,31 @@ namespace Licencjat_new.Windows
                         string login = CryptographyHelper.DecodeString(email.Login);
                         string password =
                             RegistryHelper.GetRegistryValue(CryptographyHelper.HashString(email.Address, 0));
-                        string decodedPassword = CryptographyHelper.DecodeString(password);
-
-                        smtpClient.Credentials = new NetworkCredential(login, decodedPassword);
-                        smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
-                        email.SmtpClient = smtpClient;
-
-                        if (EmailHelper.AuthenticateClient(client, login, decodedPassword))
+                        if (password != null)
                         {
-                            client.Behavior.ExamineFolders = false;
-                            client.Behavior.FolderTreeBrowseMode = ImapX.Enums.FolderTreeBrowseMode.Lazy;
+                            string decodedPassword = CryptographyHelper.DecodeString(password);
 
-                            client.Folders.Inbox.Examine();
-                            client.Folders.Inbox.Messages.Download(searchString,
-                                ImapX.Enums.MessageFetchMode.Body | ImapX.Enums.MessageFetchMode.Headers |
-                                ImapX.Enums.MessageFetchMode.InternalDate | ImapX.Enums.MessageFetchMode.Flags);
-                            client.Folders.Inbox.OnNewMessagesArrived += Client_NewMessagesArrived;
-                            client.Folders.Inbox.StartIdling();                            
-                            email.ImapClient = client;
+                            smtpClient.Credentials = new NetworkCredential(login, decodedPassword);
+                            smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
+                            email.SmtpClient = smtpClient;
+
+                            if (EmailHelper.AuthenticateClient(client, login, decodedPassword))
+                            {
+                                client.Behavior.ExamineFolders = false;
+                                client.Behavior.FolderTreeBrowseMode = ImapX.Enums.FolderTreeBrowseMode.Lazy;
+
+                                client.Folders.Inbox.Examine();
+                                client.Folders.Inbox.Messages.Download(searchString,
+                                    ImapX.Enums.MessageFetchMode.Body | ImapX.Enums.MessageFetchMode.Headers |
+                                    ImapX.Enums.MessageFetchMode.InternalDate | ImapX.Enums.MessageFetchMode.Flags);
+                                client.Folders.Inbox.OnNewMessagesArrived += Client_NewMessagesArrived;
+                                client.Folders.Inbox.StartIdling();
+                                email.ImapClient = client;
+                            }
+                        }
+                        else
+                        {
+                            email.ImapClient = null;
                         }
                     }
                     else

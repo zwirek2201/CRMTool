@@ -59,7 +59,6 @@ namespace Licencjat_new.CustomClasses
             {
                 return null;
             }
-
         }
         #endregion
     }

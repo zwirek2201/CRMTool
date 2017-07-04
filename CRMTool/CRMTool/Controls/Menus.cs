@@ -1420,6 +1420,8 @@ namespace Licencjat_new.Controls
         private Border _checkBoxBorder;
         private bool _selected;
 
+        public event EventHandler SelectedChanged;
+
         public bool Selected
         {
             get { return _selected; }
@@ -1493,6 +1495,7 @@ namespace Licencjat_new.Controls
         private void _checkBoxBorder_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             Selected = !Selected;
+            SelectedChanged?.Invoke(this, EventArgs.Empty);
             _checkBoxBorder.PreviewMouseLeftButtonUp -= _checkBoxBorder_PreviewMouseLeftButtonUp;
         }
 

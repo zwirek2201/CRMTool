@@ -22,11 +22,18 @@
                     <DockPanel Height="50" Background="#fdfdfd" LastChildFill="False">
                         <controls:RoundedButton x:Name="ReadyButton" BackgroundColor="#1c9ad2" BorderColor="#fdfdfd" Text="Dodaj" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
                         <controls:RoundedButton x:Name="CancelButton" BackgroundColor="#fdfdfd" BorderColor="#1c9ad2" Text="Anuluj" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
-                        <TextBlock x:Name="ErrorTextBlock" Foreground="#e50000" Text="Błąd" FontSize="16" LineStackingStrategy="BlockLineHeight" Margin="10,15,10,0"/>
+                        <TextBlock x:Name="ErrorTextBlock" Foreground="#e50000" Text="" FontSize="16" LineStackingStrategy="BlockLineHeight" Margin="10,15,10,0"/>
                     </DockPanel>
                 </StackPanel>
             </Border>
-            <controls:RoundedTextBox x:Name="AddressTextBox"  Caption="Adres" DockPanel.Dock="Top"/>
+            <Grid DockPanel.Dock="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="6*"/>
+                    <ColumnDefinition Width="4*"/>
+                </Grid.ColumnDefinitions>
+                <controls:RoundedTextBox Grid.Column="0" x:Name="AddressTextBox"  Caption="Adres" DockPanel.Dock="Top"/>
+                <controls:RoundedTextBox Grid.Column="1" x:Name="NameTextBox"  Caption="Nazwa" DockPanel.Dock="Top"/>
+            </Grid>
             <Grid HorizontalAlignment="Stretch" DockPanel.Dock="Top">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>

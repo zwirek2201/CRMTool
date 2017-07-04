@@ -18,6 +18,7 @@ using ImapX;
 using Licencjat_new.Controls;
 using Licencjat_new.CustomClasses;
 using Licencjat_new.Server;
+using Licencjat_new.Windows.HelperWindows;
 using TheArtOfDev.HtmlRenderer.WPF;
 using WpfAnimatedGif;
 
@@ -61,6 +62,7 @@ namespace Licencjat_new.Windows
 
         public void Init()
         {
+            EmailList.AddNewEmailAddress += EmailList_AddNewEmailAddress;
             MessagesGrid.SelectionMode = DataGridSelectionMode.Single;
             SmallToolBarWideButton removeButton = new SmallToolBarWideButton("Usuń");
             removeButton.Click += (s, ea) =>
@@ -192,6 +194,29 @@ namespace Licencjat_new.Windows
             ConversationList.AllowDrop = true;
 
             WindowInitialized = true;   
+        }
+
+        private void EmailList_AddNewEmailAddress(object sender, EventArgs e)
+        {
+            NewEmailAddress newEmail = new NewEmailAddress();
+
+            newEmail.ReadyButtonClicked += (s, ea) =>
+            {
+                ea.Login = CryptographyHelper.EncodeString(ea.Login);
+                ea.Password = CryptographyHelper.EncodeString(ea.Password);
+
+                RegistryHelper.AddRegistryValue(ea.Login, ea.Password);
+                _parent.Client.AddNewEmailAddress(ea);
+            };
+
+            newEmail.CancelButtonClicked += (s, ea) =>
+            {
+                _parent.mainCanvas.Children.Remove(newEmail);
+                _parent.Darkened = false;
+            };
+
+            _parent.Darkened = true;
+            _parent.mainCanvas.Children.Add(newEmail);
         }
 
         private void MessagesGrid_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

@@ -931,6 +931,28 @@ namespace Licencjat_new_server
 
             DB.RunSimpleCommand("UPDATE Companies SET [Name] = @newName WHERE Id = @companyId", parameters);
         }
+
+        public static string AddEmailAddress(string personId, string emailAddress, string login, string imapHost, int imapPort, bool imapUseSsl, string smtpHost, int smtpPort, bool smtpUseSsl, string name)
+        {
+            DataTable parameters = DB.GetParametersDataTable();
+            parameters.Rows.Add("emailAddress", emailAddress);
+            if(login == "")
+                parameters.Rows.Add("login",  DBNull.Value);
+            else
+                parameters.Rows.Add("login", login);
+
+            parameters.Rows.Add("imapHost", imapHost);
+            parameters.Rows.Add("imapPort", imapPort);
+            parameters.Rows.Add("imapUseSsl", imapUseSsl);
+            parameters.Rows.Add("smtpHost", smtpHost);
+            parameters.Rows.Add("smtpPort", smtpPort);
+            parameters.Rows.Add("smtpUseSsl", smtpUseSsl);
+            parameters.Rows.Add("name", name);
+            parameters.Rows.Add("personId", personId);
+
+            DataTable returnTable = DB.RunSelectCommand("INSERT INTO PersonEmailAddresses ([Address], [Login], [ImapHost], [ImapPort], [ImapUseSsl], [Person], [Active], [SmtpHost], [SmtpPort], [SmtpUseSsl], [Default], [Name]) values (@emailAddress, @login, @imapHost, @imapPort, @imapUseSsl, @personId, 1, @smtpHost, @smtpPort, @smtpUseSsl, 1, @name); select scope_identity()", parameters);
+            return returnTable.Rows[0][0].ToString();
+        }
     }
 
     public class EmailResultInfo

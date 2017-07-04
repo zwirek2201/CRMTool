@@ -172,6 +172,7 @@ namespace Licencjat_new_server
                     string conversationId = "";
                     string authorId = "";
                     string emailAddressId = "";
+                    string newEmailAddress = "";
                     switch (response)
                     {
                             #region GetEmailAddresses
@@ -779,7 +780,23 @@ namespace Licencjat_new_server
 
                             NotifyAllUsersAboutCompanyRenamed(companyId, oldName, newName);
                             break;
-                            #endregion
+                        #endregion
+                        case MessageDictionary.AddEmailAddress:
+                            _writer.Write(MessageDictionary.OK);
+                            newEmailAddress = _reader.ReadString();
+                            string login = _reader.ReadString();
+                            bool useLoginInfo = _reader.ReadBoolean();
+                            string imapHost = _reader.ReadString();
+                            int imapPort = _reader.ReadInt32();
+                            bool imapUseSsl = _reader.ReadBoolean();
+                            string smtpHost = _reader.ReadString();
+                            int smtpPort = _reader.ReadInt32();
+                            bool smtpUseSsl = _reader.ReadBoolean();
+                            string name = _reader.ReadString();
+
+                            DBApi.AddEmailAddress(UserInfo.PersonId,newEmailAddress, login, imapHost, imapPort, imapUseSsl, smtpHost, smtpPort, smtpUseSsl, name);
+
+                            break;
                     }
                 }
             }

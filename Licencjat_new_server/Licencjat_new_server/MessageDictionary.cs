@@ -25,6 +25,7 @@ namespace Licencjat_new_server
         public const byte GetEmailAddresses = 10;
         public const byte SetLastDownloadedUid = 11;
         public const byte AddUnhandledMessages = 12;
+        public const byte AddEmailAddress = 13;
 
         //Files
         public const byte ImUploadClient = 20;
