@@ -180,6 +180,9 @@
     <Compile Include="Windows\HelperWindows\NewCompany.xaml.cs">
       <DependentUpon>NewCompany.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\HelperWindows\NewEmailAddress.xaml.cs">
+      <DependentUpon>NewEmailAddress.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\HelperWindows\NewEmailMessage.xaml.cs">
       <DependentUpon>NewEmailMessage.xaml</DependentUpon>
     </Compile>
@@ -250,6 +253,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\HelperWindows\NewCompany.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\HelperWindows\NewEmailAddress.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
