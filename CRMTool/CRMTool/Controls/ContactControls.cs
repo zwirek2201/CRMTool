@@ -1745,7 +1745,27 @@ namespace Licencjat_new.Controls
 
         private void ClearAlphabetElements()
         {
+            List<UIElement> elementsToDelete = new List<UIElement>();
+            UIElement element1 = null;
+            foreach (UIElement element in _companiesStack.Children)
+            {
+                if (element1 == null)
+                {
+                    element1 = element;
+                    continue;
+                }
 
+                if (element1 is AlphabetElementListItem && element is AlphabetElementListItem)
+                {
+                    AlphabetElementListItem item = (AlphabetElementListItem)element1;
+                    CompaniesUsedAlphabet.Remove(item.Element);
+                    elementsToDelete.Add(element1);
+                }
+
+                element1 = element;
+            }
+
+            elementsToDelete.ForEach(obj => _companiesStack.Children.Remove(obj));
         }
 
         private void PersonItem_Click(object sender, EventArgs e)
