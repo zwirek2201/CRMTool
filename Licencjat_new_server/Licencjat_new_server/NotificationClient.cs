@@ -360,6 +360,25 @@ namespace Licencjat_new_server
             }
         }
 
+        public void NewEmailAddress(string id, string newEmailAddress, string login, string imapHost, int imapPort, bool imapUseSsl, string smtpHost, int smtpPort, bool smtpUseSsl, string name)
+        {
+            _writer.Write(MessageDictionary.AddEmailAddress);
+
+            if (_reader.Read() == MessageDictionary.OK)
+            {
+                _writer.Write(id);
+                _writer.Write(newEmailAddress);
+                _writer.Write(login);
+                _writer.Write(imapHost);
+                _writer.Write(imapPort);
+                _writer.Write(imapUseSsl);
+                _writer.Write(smtpHost);
+                _writer.Write(smtpPort);
+                _writer.Write(smtpUseSsl);
+                _writer.Write(name);
+            }
+        }
+
         private byte[] ReceiveFile()
         {
             byte[] buffer = new byte[1024 * 8];

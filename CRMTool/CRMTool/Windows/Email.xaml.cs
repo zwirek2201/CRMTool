@@ -97,6 +97,8 @@ namespace Licencjat_new.Windows
                         MessageDetailsContainer.Visibility = Visibility.Collapsed;
                     }
                 }
+
+                _parent.NewEmailAddress += _parent_NewEmailAddress;
             };
 
             SmallToolBarWideButton removeFromServerButton = new SmallToolBarWideButton("Usuń całkowicie");
@@ -196,6 +198,17 @@ namespace Licencjat_new.Windows
             WindowInitialized = true;   
         }
 
+        private void _parent_NewEmailAddress(object sender, NewEmailAddressEventArgs e)
+        {
+            CustomTreeListNode rootNode = new CustomTreeListNode(e.Address,
+                ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/mail.png")));
+
+            EmailModel email = _parent.EmailClients.Last();
+            rootNode.ChildObject = email;
+
+            EmailTreeList.AddNode(rootNode);
+        }
+
         private void EmailList_AddNewEmailAddress(object sender, EventArgs e)
         {
             NewEmailAddress newEmail = new NewEmailAddress();
@@ -205,8 +218,11 @@ namespace Licencjat_new.Windows
                 ea.Login = CryptographyHelper.EncodeString(ea.Login);
                 ea.Password = CryptographyHelper.EncodeString(ea.Password);
 
-                RegistryHelper.AddRegistryValue(ea.Login, ea.Password);
+                RegistryHelper.AddRegistryValue(CryptographyHelper.HashString(ea.Address, 0), ea.Password);
                 _parent.Client.AddNewEmailAddress(ea);
+
+                _parent.mainCanvas.Children.Remove(newEmail);
+                _parent.Darkened = false;
             };
 
             newEmail.CancelButtonClicked += (s, ea) =>

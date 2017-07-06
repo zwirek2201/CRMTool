@@ -794,7 +794,9 @@ namespace Licencjat_new_server
                             bool smtpUseSsl = _reader.ReadBoolean();
                             string name = _reader.ReadString();
 
-                            DBApi.AddEmailAddress(UserInfo.PersonId,newEmailAddress, login, imapHost, imapPort, imapUseSsl, smtpHost, smtpPort, smtpUseSsl, name);
+                            string emailId = DBApi.AddEmailAddress(UserInfo.PersonId,newEmailAddress, login, imapHost, imapPort, imapUseSsl, smtpHost, smtpPort, smtpUseSsl, name);
+                            NotifyUserAboutNewEmailAddress(UserInfo.UserId, emailId, newEmailAddress, login, imapHost, imapPort,
+                                imapUseSsl, smtpHost, smtpPort, smtpUseSsl, name);
 
                             break;
                     }
@@ -847,6 +849,25 @@ namespace Licencjat_new_server
                 int count;
                 while ((count = stream.Read(buffer, 0, buffer.Length)) > 0)
                     _writer.Write(buffer, 0, count);
+            }
+        }
+
+        private void NotifyUserAboutNewEmailAddress(string userId, string emailId, string newEmailAddress, string login,
+            string imapHost, int imapPort, bool imapUseSsl, string smtpHost, int smtpPort, bool smtpUseSsl, string name)
+        {
+            try
+            {
+                Client userClient = Program.GetClientById(userId);
+
+                if (userClient != null)
+                {
+                    userClient.NotificationClient.NewEmailAddress(emailId, newEmailAddress, login, imapHost, imapPort, imapUseSsl,
+                        smtpHost, smtpPort, smtpUseSsl, name);
+                }
+            }
+            catch (Exception ex)
+            {
+
             }
         }
 

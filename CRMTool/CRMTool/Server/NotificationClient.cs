@@ -13,6 +13,7 @@ using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Licencjat_new.CustomClasses;
+using Licencjat_new.Windows.HelperWindows;
 
 namespace Licencjat_new.Server
 {
@@ -42,6 +43,7 @@ namespace Licencjat_new.Server
         public event EventHandler<ConversationSettingsChangedEventArgs> ConversationSettingsChanged;
         public event EventHandler<NewCompanyEventArgs> NewCompanyArrived;
         public event EventHandler<CompanyRenamedEventArgs> CompanyRenamed;
+        public event EventHandler<NewEmailAddressEventArgs> NewEmailAddress;
         #endregion
 
         #region Constructors
@@ -282,6 +284,7 @@ namespace Licencjat_new.Server
                                             });
                                         break;
                                     #endregion
+
                                     #region ConversationSettingsChanged
                                     case MessageDictionary.ChangeConversationSettings:
                                         conversationId = _reader.ReadString();
@@ -472,7 +475,38 @@ namespace Licencjat_new.Server
                             ConversationRemoved?.Invoke(this,
                                 new ConversationRemovedEventArgs() {ConversationId = conversationId});
                             break;
+                        #endregion
 
+                        #region NewEmailAddress
+                        case MessageDictionary.AddEmailAddress:
+                            _writer.Write(MessageDictionary.OK);
+
+                            string emailId = _reader.ReadString();
+                            string emailAddress = _reader.ReadString();
+                            string login = _reader.ReadString();
+                            string imapHost = _reader.ReadString();
+                            int imapPort = _reader.ReadInt32();
+                            bool imapUseSel = _reader.ReadBoolean();
+                            string smtpHost = _reader.ReadString();
+                            int smtpPort = _reader.ReadInt32();
+                            bool smtpUseSsl = _reader.ReadBoolean();
+                            string addressName = _reader.ReadString();
+
+                            NewEmailAddress?.Invoke(this, new NewEmailAddressEventArgs()
+                            {
+                                Id = emailId,
+                                Login = login,
+                                Address = emailAddress,
+                                ImapHost = imapHost,
+                                ImapPort = imapPort,
+                                ImapUseSsl = imapUseSel,
+                                SmtpHost = smtpHost,
+                                SmtpPort = smtpPort,
+                                SmtpUseSsl = smtpUseSsl,
+                                Name = addressName
+                            });
+
+                            break;
                             #endregion
                     }
                 }

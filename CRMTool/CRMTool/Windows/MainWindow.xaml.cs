@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -45,6 +46,7 @@ namespace Licencjat_new.Windows
         public event EventHandler<ConversationSettingsChangedEventArgs> ConversationSettingsChanged;
         public event EventHandler<NewCompanyEventArgs> NewCompanyArrived;
         public event EventHandler<CompanyRenamedEventArgs> CompanyRenamed;
+        public event EventHandler<NewEmailAddressEventArgs> NewEmailAddress;
 
         #endregion
 
@@ -151,7 +153,7 @@ namespace Licencjat_new.Windows
 
         #region Lists
 
-        public List<EmailModel> EmailClients { get; set; }
+        public List<EmailModel> EmailClients { get; set; } = new List<EmailModel>();
         public List<ConversationModel> Conversations { get; set; }
         public List<CompanyModel> Companies { get; set; }
         public List<PersonModel> Persons { get; set; }
@@ -388,10 +390,6 @@ namespace Licencjat_new.Windows
         {
             try
             {
-                List<EmailModel> emails = Client.GetUserEmailAddresses();
-                int emailTotal = emails.Count;
-                int emailCount = 0;
-
                 this.Dispatcher.Invoke(() =>
                 {
                     Label statusLabel = (Label) LogicalTreeHelper.FindLogicalNode(this, "leftLabel");
@@ -404,6 +402,11 @@ namespace Licencjat_new.Windows
                         ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/loading-white.gif")));
                     //ImageBehavior.SetAutoStart(loadingImage, true);
                 });
+
+                List<EmailModel> emails = (List<EmailModel>) e.Argument;
+
+                int emailTotal = emails.Count;
+                int emailCount = 0;
 
                 foreach (EmailModel email in emails)
                 {
@@ -418,7 +421,7 @@ namespace Licencjat_new.Windows
                     });
                     string searchString = "";
 
-                    if (email.UnhandledMessagesIds.Any() || email.LastUid != "")
+                    if (email.UnhandledMessagesIds.Any() || !string.IsNullOrEmpty(email.LastUid))
                     {
                         searchString += "UID ";
 
@@ -442,12 +445,12 @@ namespace Licencjat_new.Windows
                         DateTime substractDate = DateTime.Now;
                         substractDate = substractDate.AddDays(-14);
 
-                        searchString += "SINCE " + substractDate.ToString("dd-MMM-yyyy");
+                        searchString += "SINCE " + substractDate.ToString("dd-MMM-yyyy", CultureInfo.InvariantCulture);
                     }
 
                     ImapClient client = EmailHelper.ConnectToServer(email.ImapHost, email.ImapPort, email.ImapUseSsl);
 
-                    if (email.Login != "")
+                    if (email.Login != "" && client != null)
                     {
                         SmtpClient smtpClient = new SmtpClient(email.SmtpHost, email.SmtpPort);
                         smtpClient.EnableSsl = email.SmtpUseSsl;
@@ -507,7 +510,7 @@ namespace Licencjat_new.Windows
         {
             try
             {
-                EmailClients = (List<EmailModel>) e.Result;
+                EmailClients.AddRange((List<EmailModel>) e.Result);
                 Label statusLabel = (Label) LogicalTreeHelper.FindLogicalNode(this, "leftLabel");
                 statusLabel.Content = "Zakończono pobieranie";
 
@@ -606,7 +609,8 @@ namespace Licencjat_new.Windows
 
         private void _notificationWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            EmailWorker.RunWorkerAsync();
+            List<EmailModel> emails = Client.GetUserEmailAddresses();
+            EmailWorker.RunWorkerAsync(emails);
         }
 
         #endregion
@@ -1056,6 +1060,7 @@ namespace Licencjat_new.Windows
                     NotificationClient.ConversationSettingsChanged += NotificationClient_ConversationSettingsChanged;
                     NotificationClient.NewCompanyArrived += NotificationClient_NewCompanyArrived;
                     NotificationClient.CompanyRenamed += NotificationClient_CompanyRenamed;
+                    NotificationClient.NewEmailAddress += NotificationClient_NewEmailAddress;
 
                     _notificationPanel = new NotificationsPanel(mainCanvas.ActualWidth,
                         mainCanvas.ActualHeight - 60);
@@ -1084,6 +1089,28 @@ namespace Licencjat_new.Windows
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
             }
+        }
+
+        private void NotificationClient_NewEmailAddress(object sender, NewEmailAddressEventArgs e)
+        {
+            EmailModel email = new EmailModel(e.Id, e.Address, e.Login, e.ImapHost, e.ImapPort, e.ImapUseSsl, e.SmtpHost,
+                e.SmtpPort, e.SmtpUseSsl, new List<string>(), null);
+
+            Dispatcher.Invoke(() =>
+            {
+                EmailWorker.RunWorkerAsync(new List<EmailModel>() {email});
+            });
+
+            RunWorkerCompletedEventHandler completed = null;
+
+            completed = (s, ea) =>
+            {
+                NewEmailAddress?.Invoke(this, e);
+                EmailWorker.RunWorkerCompleted -= completed;
+            };
+
+            EmailWorker.RunWorkerCompleted += completed;
+
         }
 
         private void NotificationClient_CompanyRenamed(object sender, CompanyRenamedEventArgs e)
