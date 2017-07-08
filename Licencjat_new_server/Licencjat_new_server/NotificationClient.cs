@@ -379,6 +379,29 @@ namespace Licencjat_new_server
             }
         }
 
+        public void CompanyRemoved(string companyId, NotificationModel notification)
+        {
+            _writer.Write(MessageDictionary.NewNotification);
+
+            if (_reader.Read() == MessageDictionary.OK)
+            {
+                _writer.Write(notification.NotificationId);
+                _writer.Write(notification.NotificationText);
+                _writer.Write(notification.NotificationDate.ToString("dd-MM-yyyy HH:mm:ss"));
+                _writer.Write(notification.NotificationReferenceFields.Count);
+
+                foreach (string referenceField in notification.NotificationReferenceFields)
+                {
+                    _writer.Write(referenceField);
+                }
+
+                _writer.Write(MessageDictionary.EndOfMessage);
+                _writer.Write(MessageDictionary.RemoveCompany);
+
+                _writer.Write(companyId);
+            }
+        }
+
         private byte[] ReceiveFile()
         {
             byte[] buffer = new byte[1024 * 8];

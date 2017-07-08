@@ -522,6 +522,7 @@ namespace Licencjat_new.Controls
 
         public event EventHandler DataChanged;
         public event EventHandler Rename;
+        public event EventHandler Remove;
 
         public ContactCompanyListItem(CompanyModel company)
         {
@@ -571,10 +572,15 @@ namespace Licencjat_new.Controls
                             ImageHelper.UriToImageSource(new Uri(@"pack://application:,,,/resources/remove_context.png"))
                     }
             };
-            //renameItem.Click += RenameItem_Click;
+            removeItem.Click += RemoveItem_Click; ;
             contextMenu.Items.Add(removeItem);
 
             ContextMenu = contextMenu;
+        }
+
+        private void RemoveItem_Click(object sender, RoutedEventArgs e)
+        {
+            Remove?.Invoke(this, EventArgs.Empty);
         }
 
         internal void Company_DataChanged(object sender, EventArgs e)
@@ -1057,6 +1063,7 @@ namespace Licencjat_new.Controls
         private List<CompanyModel> _usedCompanies = new List<CompanyModel>();
 
         public event EventHandler RenameCompany;
+        public event EventHandler RemoveCompanyEvent;
 
         //public List<PersonModel> BlockedPersons { get; private set; }
 
@@ -1180,8 +1187,8 @@ namespace Licencjat_new.Controls
             SelectionMode = selectionMode;
             MultipleSelection = multipleSelection;
             Persons = persons;
-            InternalContacts = persons.Where(obj => obj.Company == null).ToList();
-            ExternalContacts = persons.Where(obj => obj.Company != null).ToList();
+            InternalContacts = persons.Where(obj => obj.IsInternalUser).ToList();
+            ExternalContacts = persons.Where(obj => !obj.IsInternalUser).ToList();
             Companies = companies;
 
             NoMatchPlaceholder = new Label()
@@ -1491,19 +1498,19 @@ namespace Licencjat_new.Controls
             bool nameCharExists = false;
             bool companyExists = false;
 
-            StackPanel layoutPanel = person.Company == null
+            StackPanel layoutPanel = person.IsInternalUser
                 ? _internalContactsStack
                 : _externalContactsStack;
 
-            List<string> usedAlphabet = person.Company == null
+            List<string> usedAlphabet = person.IsInternalUser
                 ? InternalContactsUsedAlphabet
                 : ExternalContactsUsedAlphabet;
 
-            List<PersonModel> usedList = person.Company == null
+            List<PersonModel> usedList = person.IsInternalUser
                 ? _usedInternalContacts
                 : _usedExternalContacts;
 
-            List<AlphabetElementListItem> usedAlphabetElements = person.Company == null
+            List<AlphabetElementListItem> usedAlphabetElements = person.IsInternalUser
                 ? _internalContactsAlphabetElements
                 : _externalContactsAlphabetElements;
 
@@ -1585,6 +1592,7 @@ namespace Licencjat_new.Controls
                 companyItem = new ContactCompanyListItem(person.Company);
 
                 companyItem.Rename += CompanyItem_Rename;
+                companyItem.Remove += CompanyItem_Remove;
                 //companyItem.Click += PersonItem_Click;
 
                 if (!companyExists)
@@ -1613,7 +1621,9 @@ namespace Licencjat_new.Controls
             {
                 string companyNameChar = person.Company.Name.First().ToString().ToUpper();
 
-                usedList = usedList.OrderBy(obj => obj.Company.Name).ThenBy(obj => obj.FullName).ToList();
+
+                    List<PersonModel> newUsed = usedList.Where(obj => obj.Company != null).ToList().OrderBy(obj => obj.Company.Name).ThenBy(obj => obj.FullName).ToList();
+
                 _usedCompanies = _usedCompanies.OrderBy(obj => obj.Name).ToList();
                 CompaniesUsedAlphabet.Sort();
 
@@ -1624,10 +1634,10 @@ namespace Licencjat_new.Controls
                     listIndex ++;
 
                 listIndex += _usedCompanies.IndexOf(person.Company) + CompaniesUsedAlphabet.IndexOf(companyNameChar) +
-                             usedList.IndexOf(person);
-
+                             newUsed.IndexOf(person);
                 companyItem = new ContactCompanyListItem(person.Company);
                 companyItem.Rename += CompanyItem_Rename;
+                companyItem.Remove += CompanyItem_Remove;
 
                 personItem = new ContactPersonListItem(person, SelectionMode);
                 personItem.Click += PersonItem_Click;
@@ -1655,6 +1665,11 @@ namespace Licencjat_new.Controls
             }
 
             #endregion
+        }
+
+        private void CompanyItem_Remove(object sender, EventArgs e)
+        {
+            RemoveCompanyEvent?.Invoke(sender, e);
         }
 
         private void CompanyItem_Rename(object sender, EventArgs e)
@@ -1704,6 +1719,7 @@ namespace Licencjat_new.Controls
                     companyItem = new ContactCompanyListItem(company);
                     companyItem.DataChanged += CompanyItem_DataChanged;
                     companyItem.Rename += CompanyItem_Rename;
+                    companyItem.Remove += CompanyItem_Remove;
 
                     //companyItem.Click += PersonItem_Click;
 
@@ -1731,6 +1747,25 @@ namespace Licencjat_new.Controls
             {
 
             }
+        }
+
+        public void RemoveCompany(string companyId)
+        {
+            foreach (UIElement item in _companiesStack.Children)
+            {
+                if (item is ContactCompanyListItem)
+                {
+                    ContactCompanyListItem companyItem = (ContactCompanyListItem)item;
+                    if (companyItem.Company.Id == companyId)
+                    {
+                        _companiesStack.Children.Remove(companyItem);
+                        break;
+                    }
+                }
+            }
+
+            _usedCompanies.Remove(_usedCompanies.Find(obj => obj.Id == companyId));
+            ClearAlphabetElements();
         }
 
         private void CompanyItem_DataChanged(object sender, EventArgs e)

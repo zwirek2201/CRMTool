@@ -47,6 +47,7 @@ namespace Licencjat_new.Windows
         public event EventHandler<NewCompanyEventArgs> NewCompanyArrived;
         public event EventHandler<CompanyRenamedEventArgs> CompanyRenamed;
         public event EventHandler<NewEmailAddressEventArgs> NewEmailAddress;
+        public event EventHandler<CompanyRemovedEventArgs> CompanyRemoved;
 
         #endregion
 
@@ -836,7 +837,7 @@ namespace Licencjat_new.Windows
 
                 if (author != null)
                 {
-                    if (author.Company == null)
+                    if (author.IsInternalUser)
                         message.Received = false;
                     message.Color = conversation.ColorDictionary[author];
 
@@ -1061,6 +1062,7 @@ namespace Licencjat_new.Windows
                     NotificationClient.NewCompanyArrived += NotificationClient_NewCompanyArrived;
                     NotificationClient.CompanyRenamed += NotificationClient_CompanyRenamed;
                     NotificationClient.NewEmailAddress += NotificationClient_NewEmailAddress;
+                    NotificationClient.CompanyRemoved += NotificationClient_CompanyRemoved;
 
                     _notificationPanel = new NotificationsPanel(mainCanvas.ActualWidth,
                         mainCanvas.ActualHeight - 60);
@@ -1091,6 +1093,24 @@ namespace Licencjat_new.Windows
             }
         }
 
+        private void NotificationClient_CompanyRemoved(object sender, CompanyRemovedEventArgs e)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                Persons.Where(obj => obj.Company == Companies.Find(obj2 => obj2.Id == e.CompanyId))
+                    .ToList()
+                    .ForEach(obj => obj.Company = null);
+
+                NotificationModel notification = ProcessNotification(e.Notification);
+                RaiseNotification(notification);
+
+                Companies.Find(obj => obj.Id == e.CompanyId).Name = "";
+                Companies.Remove(Companies.Find(obj => obj.Id == e.CompanyId));
+
+                CompanyRemoved?.Invoke(sender, e);
+            });
+        }
+
         private void NotificationClient_NewEmailAddress(object sender, NewEmailAddressEventArgs e)
         {
             EmailModel email = new EmailModel(e.Id, e.Address, e.Login, e.ImapHost, e.ImapPort, e.ImapUseSsl, e.SmtpHost,
@@ -1118,7 +1138,7 @@ namespace Licencjat_new.Windows
             this.Dispatcher.Invoke(() =>
             {
                 Companies.Find(obj => obj.Id == e.CompanyId).Name = e.NewName;
-                //CompanyRenamed?.Invoke(sender, e);
+                CompanyRenamed?.Invoke(sender, e);
 
                 NotificationModel notification = ProcessNotification(e.Notification);
 

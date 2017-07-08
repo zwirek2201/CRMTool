@@ -438,7 +438,7 @@ namespace Licencjat_new_server
 
                 if (!personExists)
                 {
-                    personInfo = new PersonResultInfo(contact["Id"].ToString(), contact["FirstName"].ToString(), contact["LastName"].ToString(), contact["Gender"].ToString(), contact["Company"].ToString(), null, null);
+                    personInfo = new PersonResultInfo(contact["Id"].ToString(), contact["FirstName"].ToString(), contact["LastName"].ToString(), contact["Gender"].ToString(), contact["Company"].ToString(), null, null, Convert.ToBoolean(contact["IsInternalUser"]));
                     contactResults.Add(personInfo);
                 }
                 else
@@ -953,6 +953,19 @@ namespace Licencjat_new_server
             DataTable returnTable = DB.RunSelectCommand("INSERT INTO PersonEmailAddresses ([Address], [Login], [ImapHost], [ImapPort], [ImapUseSsl], [Person], [Active], [SmtpHost], [SmtpPort], [SmtpUseSsl], [Default], [Name]) values (@emailAddress, @login, @imapHost, @imapPort, @imapUseSsl, @personId, 1, @smtpHost, @smtpPort, @smtpUseSsl, 1, @name); select scope_identity()", parameters);
             return returnTable.Rows[0][0].ToString();
         }
+
+        public static string RemoveCompany(string companyId)
+        {
+            DataTable parameters = DB.GetParametersDataTable();
+            parameters.Rows.Add("companyId", companyId);
+
+            DB.RunSimpleCommand("delete from ContactPersons WHERE Company = @companyId", parameters);
+            DB.RunSimpleCommand("delete from Notifications WHERE CompanyId = @companyId", parameters);
+            DataTable returnTable = DB.RunSelectCommand("select [Name] from Companies where Id = @companyId", parameters);
+            DB.RunSimpleCommand("delete from Companies WHERE Id = @companyId", parameters);
+
+            return returnTable.Rows[0][0].ToString();
+        }
     }
 
     public class EmailResultInfo
@@ -1100,9 +1113,10 @@ namespace Licencjat_new_server
         public string CompanyId { get; set; }
         public List<EmailAddressResultInfo> EmailAddresses { get; set; }
         public List<PhoneNumberResultInfo> PhoneNumbers { get; set; }
+        public bool IsInternalUser { get; set; }
 
         public PersonResultInfo(string id, string firstName, string lastName, string gender, string companyId,
-            List<EmailAddressResultInfo> emailAddresses, List<PhoneNumberResultInfo> phoneNumbers)
+            List<EmailAddressResultInfo> emailAddresses, List<PhoneNumberResultInfo> phoneNumbers, bool isInternalUser)
         {
             Id = id;
             FirstName = firstName;
@@ -1111,6 +1125,7 @@ namespace Licencjat_new_server
             CompanyId = companyId;
             EmailAddresses = emailAddresses ?? new List<EmailAddressResultInfo>();
             PhoneNumbers = phoneNumbers ?? new List<PhoneNumberResultInfo>();
+            IsInternalUser = isInternalUser;
         }
     }
 

@@ -79,9 +79,16 @@ namespace Licencjat_new.Windows
 
 
             _parent.NewCompanyArrived += _parent_NewCompanyArrived;
+            _parent.CompanyRemoved += _parent_CompanyRemoved;
+
             //ContactSearchBox searchBox = ContactSearchBox;
             //ContactList.BoundSearchBox = searchBox;
             WindowInitialized = true;
+        }
+
+        private void _parent_CompanyRemoved(object sender, Server.CompanyRemovedEventArgs e)
+        {
+            _contactList.RemoveCompany(e.CompanyId);
         }
 
         private void _parent_NewCompanyArrived(object sender, Server.NewCompanyEventArgs e)
@@ -112,12 +119,39 @@ namespace Licencjat_new.Windows
                 ContactMainContainer.Children.Add(_contactList);
 
             _contactList.RenameCompany += _contactList_RenameCompany;
+            _contactList.RemoveCompanyEvent += _contactList_RemoveCompany;
 
             ToolBarButton addButton = new ToolBarButton("",
                 new Uri("pack://application:,,,/resources/add.png"));
             addButton.Click += AddButton_Click;
 
             MainMenuStrip.AddButton(addButton, Dock.Left);
+        }
+
+        private void _contactList_RemoveCompany(object sender, EventArgs e)
+        {
+            CustomMessageBox messageBox =
+                new CustomMessageBox(
+                    "Czy na pewno chcesz usunąć tą firmę oraz wszystkie powiązania pomiędzy nią a jej pracownikami?",
+                    MessageBoxButton.YesNo);
+
+            ContactCompanyListItem companyItem = (ContactCompanyListItem)sender;
+
+            messageBox.YesButtonClicked += (s, ea) =>
+            {
+                _parent.Client.RemoveCompany(companyItem.Company);
+                _parent.Darkened = false;
+                _parent.mainCanvas.Children.Remove(messageBox);
+            };
+
+            messageBox.NoButtonClicked += (s, ea) =>
+            {
+                _parent.Darkened = false;
+                _parent.mainCanvas.Children.Remove(messageBox);
+            };
+
+            _parent.Darkened = true;
+            _parent.mainCanvas.Children.Add(messageBox);
         }
 
         private void _contactList_RenameCompany(object sender, EventArgs e)

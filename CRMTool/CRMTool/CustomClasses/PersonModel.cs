@@ -19,10 +19,11 @@ namespace Licencjat_new.CustomClasses
         public string CompanyId { get; private set; }
         public List<EmailAddressModel> EmailAddresses { get; private set; }
         public List<PhoneNumberModel> PhoneNumbers { get; private set; }
+        public bool IsInternalUser { get; private set; }
         #endregion
 
         #region Constructors
-        public PersonModel(string id, string firstName, string lastName, Gender gender, string companyId)
+        public PersonModel(string id, string firstName, string lastName, Gender gender, string companyId, bool isInternalUser)
         {
             Id = id;
             FirstName = firstName;
@@ -30,6 +31,7 @@ namespace Licencjat_new.CustomClasses
             FullName = FirstName + " " + LastName;
             Gender = gender;
             CompanyId = companyId;
+            IsInternalUser = isInternalUser;
             EmailAddresses = new List<EmailAddressModel>();
             PhoneNumbers = new List<PhoneNumberModel>();
         }

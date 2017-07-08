@@ -503,11 +503,12 @@ namespace Licencjat_new.Server
                         string PersonLastName = _reader.ReadString();
                         string PersonGenderCode = _reader.ReadString();
                         string PersonCompanyId = _reader.ReadString();
+                        bool IsInternalUser = _reader.ReadBoolean();
 
                         Gender PersonGender = (Gender)Convert.ToInt32(PersonGenderCode);
 
                         PersonModel contactPerson = new PersonModel(PersonId, PersonFirstName, PersonLastName, PersonGender,
-                            PersonCompanyId);
+                            PersonCompanyId, IsInternalUser);
 
                         int emailAddressCount = _reader.ReadInt32();
 
@@ -875,6 +876,25 @@ namespace Licencjat_new.Server
                     _writer.Write(company.Id);
                     _writer.Write(company.Name);
                     _writer.Write(newName);
+                    return;
+                }
+                throw new Exception("Connection unsynced");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                ErrorHelper.LogError(ex);
+            }
+        }
+
+        public void RemoveCompany(CompanyModel company)
+        {
+            try
+            {
+                _writer.Write(MessageDictionary.RemoveCompany);
+                if (_reader.Read() == MessageDictionary.OK)
+                {
+                    _writer.Write(company.Id);
                     return;
                 }
                 throw new Exception("Connection unsynced");

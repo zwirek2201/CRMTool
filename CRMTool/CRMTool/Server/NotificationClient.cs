@@ -44,6 +44,7 @@ namespace Licencjat_new.Server
         public event EventHandler<NewCompanyEventArgs> NewCompanyArrived;
         public event EventHandler<CompanyRenamedEventArgs> CompanyRenamed;
         public event EventHandler<NewEmailAddressEventArgs> NewEmailAddress;
+        public event EventHandler<CompanyRemovedEventArgs> CompanyRemoved;
         #endregion
 
         #region Constructors
@@ -328,6 +329,19 @@ namespace Licencjat_new.Server
                                                 notificationDate, false)
                                         });
                                         break;
+                                    #endregion
+                                    #region RemoveCompanyEvent
+                                    case MessageDictionary.RemoveCompany:
+                                        companyId = _reader.ReadString();
+
+                                        CompanyRemoved?.Invoke(this, new CompanyRemovedEventArgs()
+                                        {
+                                            CompanyId = companyId,
+                                            Notification = new NotificationModel(notificationId, notificationText,
+                                                referenceFields,
+                                                notificationDate, false)
+                                        });
+                                        break;
                                         #endregion
                                 }
                             }
@@ -537,6 +551,12 @@ namespace Licencjat_new.Server
             return file.ToArray();
         }
         #endregion
+    }
+
+    public class CompanyRemovedEventArgs
+    {
+        public string CompanyId { get; set; }
+        public NotificationModel Notification { get; set; }
     }
 
     public class CompanyRenamedEventArgs

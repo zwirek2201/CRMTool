@@ -284,7 +284,7 @@ namespace Licencjat_new.Windows
 
                             foreach (PersonModel recipient in conversation.Members)
                             {
-                                if (recipient.Company != null)
+                                if (!recipient.IsInternalUser)
                                 {
                                     recipient.EmailAddresses.Where(obj => obj.Default)
                                         .ToList()

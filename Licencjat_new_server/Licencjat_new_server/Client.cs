@@ -499,6 +499,7 @@ namespace Licencjat_new_server
                                     _writer.Write(contact.LastName);
                                     _writer.Write(contact.Gender);
                                     _writer.Write(contact.CompanyId);
+                                    _writer.Write(contact.IsInternalUser);
 
                                     _writer.Write(contact.EmailAddresses.Count);
                                     foreach (EmailAddressResultInfo emailAddress in contact.EmailAddresses)
@@ -781,6 +782,7 @@ namespace Licencjat_new_server
                             NotifyAllUsersAboutCompanyRenamed(companyId, oldName, newName);
                             break;
                         #endregion
+                        #region AddEmailAddress
                         case MessageDictionary.AddEmailAddress:
                             _writer.Write(MessageDictionary.OK);
                             newEmailAddress = _reader.ReadString();
@@ -799,6 +801,18 @@ namespace Licencjat_new_server
                                 imapUseSsl, smtpHost, smtpPort, smtpUseSsl, name);
 
                             break;
+                        #endregion
+                        #region RemoveCompany
+                        case MessageDictionary.RemoveCompany:
+                            _writer.Write(MessageDictionary.OK);
+                            companyId = _reader.ReadString();
+
+                            companyName = DBApi.RemoveCompany(companyId);
+
+
+                            NotifyAllUsersAboutCompanyRemoved(companyId, companyName);
+                            break;
+                            #endregion
                     }
                 }
             }
@@ -815,6 +829,7 @@ namespace Licencjat_new_server
                 }
             }
         }
+
 
         private byte[] ReceiveFile()
         {
@@ -849,6 +864,44 @@ namespace Licencjat_new_server
                 int count;
                 while ((count = stream.Read(buffer, 0, buffer.Length)) > 0)
                     _writer.Write(buffer, 0, count);
+            }
+        }
+
+        private void NotifyAllUsersAboutCompanyRemoved(string companyId, string companyName)
+        {
+            try
+            {
+                DateTime notificationDate = DateTime.Now;
+
+                NotificationResultInfo notificationResultInfo = new NotificationResultInfo()
+                {
+                    Type = NotificationType.RemovedCompany,
+                    SenderId = UserInfo.PersonId,
+                    OldName = companyName,
+                    NotificationDate = notificationDate,
+                };
+
+                NotificationModel notification = NotificationHandler.ProcessNotification(notificationResultInfo);
+
+                List<string> subscribedUsersId = DBApi.GetAllUsers();
+
+                foreach (string userId in subscribedUsersId)
+                {
+                    NotificationResultInfo recipientNotificationResultInfo = notificationResultInfo;
+                    recipientNotificationResultInfo.RecipientId = userId;
+                    string notificationId = DBApi.AddNewNotification(recipientNotificationResultInfo);
+
+                    notification.NotificationId = notificationId;
+
+                    Client userClient = Program.GetClientById(userId);
+                    if (userClient == null) return;
+
+                    userClient.NotificationClient.CompanyRemoved(companyId, notification);
+                }
+            }
+            catch (Exception ex)
+            {
+
             }
         }
 

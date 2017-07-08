@@ -1776,7 +1776,7 @@ namespace Licencjat_new.Controls
 
             Members.Add(personItem);
 
-            if (person.Company != null)
+            if (!person.IsInternalUser)
                 _leftPanel.Children.Add(personItem);
             else
                 _rightPanel.Children.Add(personItem);
@@ -1798,7 +1798,7 @@ namespace Licencjat_new.Controls
         public void RemoveMemberFromList(PersonModel person)
         {
             MemberListItem memberItem = Members.Find(obj => obj.Person == person);
-            if (memberItem.Person.Company == null)
+            if (memberItem.Person.IsInternalUser)
                 _rightPanel.Children.Remove(memberItem);
             else
                 _leftPanel.Children.Remove(memberItem);

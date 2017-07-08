@@ -62,6 +62,7 @@ namespace Licencjat_new.Server
         public const byte GetAllCompanies = 60;
         public const byte NewCompany = 61;
         public const byte RenameCompany = 62;
+        public const byte RemoveCompany = 63;
 
         //Notifications
         public const byte ImNotificationClient = 70;

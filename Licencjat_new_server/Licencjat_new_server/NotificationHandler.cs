@@ -18,7 +18,8 @@ namespace Licencjat_new_server
             new NotificationRule(NotificationType.RenamedFile,"{SenderId} zmienił nazwę pliku [OldName] na [NewName]",new List<string>() { "Persons.FullName"}),
             new NotificationRule(NotificationType.ConversationSettingsChanged,"{SenderId} zmienił ustawienia konwersacji {ConversationId}",new List<string>() { "Persons.FullName", "Conversations.Name"}),
             new NotificationRule(NotificationType.NewCompany,"{SenderId} dodał firmę {CompanyId} do listy kontaktów",new List<string>() { "Persons.FullName", "Companies.Name"}),
-            new NotificationRule(NotificationType.RenamedCompany,"{SenderId} zmienił nazwę firmy [OldName] na [NewName]",new List<string>() { "Persons.FullName" })
+            new NotificationRule(NotificationType.RenamedCompany,"{SenderId} zmienił nazwę firmy [OldName] na [NewName]",new List<string>() { "Persons.FullName" }),
+            new NotificationRule(NotificationType.RemovedCompany,"{SenderId} usunął firmę [OldName] z książki kontaktów",new List<string>() { "Persons.FullName" })
 
         };
 
@@ -106,6 +107,7 @@ namespace Licencjat_new_server
         RenamedFile = 6,
         ConversationSettingsChanged = 7,
         NewCompany,
-        RenamedCompany
+        RenamedCompany,
+        RemovedCompany
     }
 }
