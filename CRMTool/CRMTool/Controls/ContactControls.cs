@@ -169,6 +169,7 @@ namespace Licencjat_new.Controls
         private bool _selected;
 
         public event EventHandler Click;
+        public event EventHandler ShowDetails;
         public PersonModel Person { get; private set; }
 
         public bool Selected
@@ -216,7 +217,7 @@ namespace Licencjat_new.Controls
                             ImageHelper.UriToImageSource(new Uri(@"pack://application:,,,/resources/info_context.png"))
                     }
             };
-            //renameItem.Click += RenameItem_Click;
+            detailsItem.Click += DetailsItem_Click;
             contextMenu.Items.Add(detailsItem);
 
             contextMenu.Items.Add(new Separator());
@@ -235,6 +236,11 @@ namespace Licencjat_new.Controls
             contextMenu.Items.Add(removeItem);
 
             ContextMenu = contextMenu;
+        }
+
+        private void DetailsItem_Click(object sender, RoutedEventArgs e)
+        {
+            ShowDetails?.Invoke(this, EventArgs.Empty);
         }
 
         private void ContactPersonListItem_PreviewMouseLeftButtonDown(object sender,
@@ -1065,6 +1071,8 @@ namespace Licencjat_new.Controls
         public event EventHandler RenameCompany;
         public event EventHandler RemoveCompanyEvent;
 
+        public event EventHandler PersonShowDetails;
+
         //public List<PersonModel> BlockedPersons { get; private set; }
 
         private List<string> InternalContactsUsedAlphabet { get; set; } = new List<string>();
@@ -1321,6 +1329,8 @@ namespace Licencjat_new.Controls
                             ContactPersonListItem item = new ContactPersonListItem(person);
                             item.Click += PersonItem_Click;
 
+                            item.ShowDetails += Item_ShowDetails;
+
                             _searchStack.Children.Add(item);
                         }
                         matchFound = true;;
@@ -1536,7 +1546,7 @@ namespace Licencjat_new.Controls
             listIndex += usedList.IndexOf(person) + usedAlphabet.IndexOf(personNameChar);
 
             personItem = new ContactPersonListItem(person, SelectionMode);
-
+            personItem.ShowDetails += Item_ShowDetails;
             personItem.Click += PersonItem_Click;
 
             if (nameCharExists)
@@ -1640,6 +1650,7 @@ namespace Licencjat_new.Controls
                 companyItem.Remove += CompanyItem_Remove;
 
                 personItem = new ContactPersonListItem(person, SelectionMode);
+                personItem.ShowDetails += Item_ShowDetails;
                 personItem.Click += PersonItem_Click;
 
                 if (!companyExists)
@@ -1675,6 +1686,11 @@ namespace Licencjat_new.Controls
         private void CompanyItem_Rename(object sender, EventArgs e)
         {
             RenameCompany?.Invoke(sender, e);
+        }
+
+        private void Item_ShowDetails(object sender, EventArgs e)
+        {
+            PersonShowDetails?.Invoke(sender, e);
         }
 
         public void AddCompany(CompanyModel company)
@@ -1800,6 +1816,7 @@ namespace Licencjat_new.Controls
                 element1 = element;
             }
 
+            BoundAlphabetList.Elements = CompaniesUsedAlphabet;
             elementsToDelete.ForEach(obj => _companiesStack.Children.Remove(obj));
         }
 

@@ -120,12 +120,22 @@ namespace Licencjat_new.Windows
 
             _contactList.RenameCompany += _contactList_RenameCompany;
             _contactList.RemoveCompanyEvent += _contactList_RemoveCompany;
+            _contactList.PersonShowDetails += _contactList_PersonShowDetails;
 
             ToolBarButton addButton = new ToolBarButton("",
                 new Uri("pack://application:,,,/resources/add.png"));
             addButton.Click += AddButton_Click;
 
             MainMenuStrip.AddButton(addButton, Dock.Left);
+        }
+
+        private void _contactList_PersonShowDetails(object sender, EventArgs e)
+        {
+            ContactPersonListItem personItem = (ContactPersonListItem)sender;
+            PersonDetails details = new PersonDetails(personItem.Person);
+
+            _parent.Darkened = true;
+            _parent.mainCanvas.Children.Add(details);
         }
 
         private void _contactList_RemoveCompany(object sender, EventArgs e)

@@ -1,0 +1,59 @@
+﻿<UserControl x:Class="Licencjat_new.Windows.HelperWindows.PersonDetails"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Licencjat_new.Windows.HelperWindows"
+             xmlns:controls="clr-namespace:Licencjat_new.Controls"
+             xmlns:gif="http://wpfanimatedgif.codeplex.com"
+             mc:Ignorable="d" 
+             Panel.ZIndex="301" 
+             Height="{Binding ActualHeight, ElementName=mainCanvas}" 
+             Width="{Binding ActualWidth, ElementName=mainCanvas}">
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <DockPanel x:Name="MainDock" Background="#fdfdfd" Width="600" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <DockPanel Height="30" VerticalAlignment="Center" LastChildFill="False" Background="#1c9ad2" DockPanel.Dock="Top"  HorizontalAlignment="Stretch">
+                <Grid x:Name="CloseButton" Height="30" Width="30" Background="#1c9ad2" DockPanel.Dock="Right">
+                    <Image x:Name="CloseImage" Height="15" Width="15"  Margin="7.5" Source="pack://application:,,,/resources/close_light.png"/>
+                </Grid>
+                <DockPanel.Effect>
+                    <DropShadowEffect Color="Black" Direction="320" ShadowDepth="-10" Opacity="0.4"  BlurRadius="5" />
+                </DockPanel.Effect>
+            </DockPanel>
+            <StackPanel Height="15" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="#1c9ad2" DockPanel.Dock="Bottom"/>
+            <StackPanel Orientation="Vertical" DockPanel.Dock="Top">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <controls:RoundedTextBox x:Name="FirstNameTextBox"  Grid.Column="0" Caption="Imię"></controls:RoundedTextBox>
+                    <controls:RoundedTextBox x:Name="LastNameTextBox"  Grid.Column="1" Caption="Nazwisko"></controls:RoundedTextBox>
+                </Grid>
+                <DockPanel>
+                    <Border BorderBrush="#c2c2c2" DockPanel.Dock="Left"  BorderThickness="1" Height="40" CornerRadius="10" HorizontalAlignment="Left" Margin="7">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,6,0">
+                            <TextBlock FontSize="16" Margin="15,10,5,0" Text="Płeć:" Foreground="#1c9ad2"></TextBlock>
+                            <controls:CustomComboBox x:Name="GenderComboBox" HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Border>
+                    <controls:RoundedButton Margin="7" DockPanel.Dock="Right"  BackgroundColor="#1c9ad2" BorderColor="#fdfdfd" Text="Zmień"></controls:RoundedButton>
+                    <controls:RoundedTextBox x:Name="CompanyTextBox" Caption="Firma" Enabled="False"></controls:RoundedTextBox>
+                </DockPanel>
+                <Border BorderBrush="#1c9ad2" BorderThickness="1" CornerRadius="10" Margin="10">
+                    <StackPanel>
+                        <TextBlock FontSize="16" Margin="20,5,10,0" Text="Adresy e-mail" Foreground="#1c9ad2"></TextBlock>
+                    </StackPanel>
+                </Border>
+                <Border BorderBrush="#1c9ad2" BorderThickness="1" CornerRadius="10" Margin="10,5,10,10">
+                    <StackPanel>
+                        <TextBlock FontSize="16" Margin="20,5,10,0" Text="Numery telefonów" Foreground="#1c9ad2"></TextBlock>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </DockPanel>
+        <Border x:Name="loadingOverlay" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="#bbffffff" Visibility="Collapsed" Opacity="0.8">
+            <Image gif:ImageBehavior.AnimatedSource="pack://application:,,,/resources/loading.gif" VerticalAlignment="Center" HorizontalAlignment="Center" Width="100" Height="100" />
+        </Border>
+    </Grid>
+</UserControl>

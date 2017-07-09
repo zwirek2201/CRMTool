@@ -1199,12 +1199,26 @@ namespace Licencjat_new.Controls
         private Popup _mainPopup;
         private StackPanel _popupStack;
         private TextBlock _textBlock;
+        private CustomComboBoxItem _selectedItem;
 
         public List<CustomComboBoxItem> Items = new List<CustomComboBoxItem>();
 
         public event EventHandler SelectedItemChanged;
 
-        public CustomComboBoxItem SelectedItem { get; set; }
+        public CustomComboBoxItem SelectedItem
+        {
+            get { return _selectedItem; } 
+            set
+            {
+                if (_selectedItem != null)
+                    _selectedItem.Selected = false;
+
+                _selectedItem = value;
+                _selectedItem.Selected = true;
+
+                _textBlock.Text = SelectedItem.Caption;
+            }
+        }
 
         public CustomComboBox()
         {   
@@ -1315,7 +1329,6 @@ namespace Licencjat_new.Controls
             if (Items.Count == 0)
             {
                 SelectedItem = item;
-                item.Selected = true;
                 _textBlock.Text = item.Caption;
             }
 
