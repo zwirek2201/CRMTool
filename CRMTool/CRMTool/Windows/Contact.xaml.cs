@@ -134,6 +134,17 @@ namespace Licencjat_new.Windows
             ContactPersonListItem personItem = (ContactPersonListItem)sender;
             PersonDetails details = new PersonDetails(_parent, personItem.Person);
 
+            details.ReadyButtonClicked += (s, ea) =>
+            {
+                _parent.Client.UpdatePersonDetails(details.Person.Id, details.FirstNameTextBox.Text,
+                    details.LastNameTextBox.Text,
+                    details.GenderComboBox.SelectedItem == details.GenderComboBox.Items.First()
+                        ? Gender.Female
+                        : Gender.Male, details.Company,
+                    details.EmailItems.Select(obj => (EmailAddressModel) obj.ChildObject).ToList(),
+                    details.PhoneItems.Select(obj => (PhoneNumberModel) obj.ChildObject).ToList());
+            };
+
             _parent.Darkened = true;
             _parent.mainCanvas.Children.Add(details);
         }

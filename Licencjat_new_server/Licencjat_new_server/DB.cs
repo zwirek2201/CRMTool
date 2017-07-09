@@ -966,6 +966,24 @@ namespace Licencjat_new_server
 
             return returnTable.Rows[0][0].ToString();
         }
+
+        public static void UpdatePersonDetails(string id, string firstName, string lastName, int gender, string companyId, List<EmailAddressResultInfo> emailAddressesList, List<PhoneNumberResultInfo> phoneNumbersList)
+        {
+            DataTable parameters = DB.GetParametersDataTable();
+            parameters.Rows.Add("id", id);
+            parameters.Rows.Add("firstName", firstName);
+            parameters.Rows.Add("lastName", lastName);
+            parameters.Rows.Add("gender", gender);
+            DB.RunSimpleCommand("update Persons set FirstName = @firstName, LastName = @lastName, Gender = @gender WHERE Id = @id", parameters);
+
+            parameters.Clear();
+            parameters.Rows.Add("personId", id);
+            parameters.Rows.Add("companyId", companyId);
+
+            DB.RunSimpleCommand("IF EXISTS (Select * from ContactPersons where Person = @personId) UPDATE ContactPersons Set Company = @companyId WHERE Person = @personId ELSE INSERT INTO ContactPersons (Person, Company) values (@personId, @companyId)", parameters);
+
+            //DOKONCZYC
+        }
     }
 
     public class EmailResultInfo

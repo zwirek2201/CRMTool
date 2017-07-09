@@ -5,6 +5,7 @@ FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\Conversa
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\Document.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\Email.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\AdditionalChoose.xaml;;
+FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\ChooseCompany.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\ChooseFiles.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\ChoosePerson.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\CompanyDetails.xaml;;
@@ -12,16 +13,14 @@ FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWi
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\ConversationMessageDetails.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\ConversationSettings.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\CustomMessageBox.xaml;;
-FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\NewCompany.xaml;;
+FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\NewEmailAddress.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\NewEmailMessage.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\NewPhoneConversationMessage.xaml;;
+FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\PersonDetails.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\Rename.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HomePage.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\Login.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\MainWindow.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\Scanning.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\ScanningWindows\ScanningAutomatic.xaml;;
-FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\NewEmailAddress.xaml;;
-FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\PersonDetails.xaml;;
-FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\ChooseCompany.xaml;;
 

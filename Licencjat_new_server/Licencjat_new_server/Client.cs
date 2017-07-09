@@ -812,6 +812,45 @@ namespace Licencjat_new_server
 
                             NotifyAllUsersAboutCompanyRemoved(companyId, companyName);
                             break;
+                        #endregion
+
+                        #region UpdatePersonDetails
+                        case MessageDictionary.UpdatePersonDetails:
+                            _writer.Write(MessageDictionary.OK);
+                            string id = _reader.ReadString();
+                            string firstName = _reader.ReadString();
+                            string lastName = _reader.ReadString();
+                            int gender = _reader.ReadInt32();
+                            companyId = _reader.ReadString();
+
+                            List<EmailAddressResultInfo> emailAddressesList = new List<EmailAddressResultInfo>();
+
+                            int emailCount = _reader.ReadInt32();
+                            for (int i = 0; i < emailCount; i++)
+                            {
+                                emailId = _reader.ReadString();
+                                string emailName = _reader.ReadString();
+                                string emailAddress = _reader.ReadString();
+
+                                emailAddressesList.Add(new EmailAddressResultInfo(emailId, emailName, emailAddress, true, true));
+                            }
+
+                            List<PhoneNumberResultInfo> phoneNumbersList = new List<PhoneNumberResultInfo>();
+
+                            int phoneCount = _reader.ReadInt32();
+                            for (int i = 0; i < phoneCount; i++)
+                            {
+                                string phoneId = _reader.ReadString();
+                                string phoneName = _reader.ReadString();
+                                string phoneNumber = _reader.ReadString();
+
+                                phoneNumbersList.Add(new PhoneNumberResultInfo(phoneId, phoneName, phoneNumber, true, true));
+                            }
+
+                            DBApi.UpdatePersonDetails(id, firstName, lastName, gender, companyId, emailAddressesList,
+                                phoneNumbersList);
+
+                            break;
                             #endregion
                     }
                 }

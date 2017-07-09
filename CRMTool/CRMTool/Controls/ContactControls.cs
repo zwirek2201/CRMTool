@@ -1948,6 +1948,81 @@ namespace Licencjat_new.Controls
 
     #endregion
 
+    public class PersonDetailListItem : DockPanel
+    {
+        private string _name;
+        private string _detailValue;
+
+        public object ChildObject { get; private set; }
+
+        private RoundedTextBox _nameTextBox;
+        private RoundedTextBox _valueTextBox;
+
+        public event EventHandler RemoveDetail;
+
+        public string Name
+        {
+            get { return _nameTextBox.Text; }
+        }
+
+        public string DetailValue
+        {
+            get { return _valueTextBox.Text; }
+        }
+        
+        public PersonDetailListItem(object childObject)
+        {
+            ChildObject = childObject;
+
+            _nameTextBox = new RoundedTextBox()
+            {
+              Margin = new Thickness(7),
+              Caption = "Nazwa"
+            };
+
+            DockPanel.SetDock(_nameTextBox, Dock.Left);
+
+            _valueTextBox = new RoundedTextBox()
+            {
+                Margin = new Thickness(7),
+            };
+
+            RoundedButton deleteButton = new RoundedButton("Usuń", new SolidColorBrush(ColorScheme.GlobalBlue),
+                new SolidColorBrush(ColorScheme.MenuLight));
+
+            deleteButton.Margin = new Thickness(7);
+
+            DockPanel.SetDock(deleteButton, Dock.Right);
+
+            Children.Add(_nameTextBox);
+            Children.Add(deleteButton);
+            Children.Add(_valueTextBox);
+
+            if (childObject is EmailAddressModel)
+            {
+                EmailAddressModel email = (EmailAddressModel) ChildObject;
+                
+                _nameTextBox.Text = email.Name;
+                _valueTextBox.Text = email.Address;
+                _valueTextBox.Caption = "Adres";
+            }
+            else if (childObject is PhoneNumberModel)
+            {
+                PhoneNumberModel number = (PhoneNumberModel)ChildObject;
+                _nameTextBox.Text = number.Name;
+                _valueTextBox.Text = number.Number;
+                _valueTextBox.Caption = "Numer";
+            }
+
+            deleteButton.Clicked += DeleteButton_Clicked;
+        }
+
+        private void DeleteButton_Clicked(object sender, EventArgs e)
+        {
+            RemoveDetail?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
     #region Enums
     public enum ContactTabControlMode
     {
