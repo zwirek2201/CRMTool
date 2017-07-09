@@ -156,6 +156,9 @@
     <Compile Include="Windows\HelperWindows\AdditionalChoose.xaml.cs">
       <DependentUpon>AdditionalChoose.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\HelperWindows\ChooseCompany.xaml.cs">
+      <DependentUpon>ChooseCompany.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\HelperWindows\ChooseFiles.xaml.cs">
       <DependentUpon>ChooseFiles.xaml</DependentUpon>
     </Compile>
@@ -224,6 +227,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\HelperWindows\AdditionalChoose.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\HelperWindows\ChooseCompany.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

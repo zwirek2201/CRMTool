@@ -26,12 +26,12 @@ namespace Licencjat_new.Windows
     {
         #region Variables
 
-            #region Other
+        #region Other
         private MainWindow _parent;
         private List<String> _alphabetUsed;
         #endregion
 
-            #region Lists
+        #region Lists
         private List<PersonModel> _persons;
         private List<CompanyModel> _companies;
 
@@ -116,7 +116,7 @@ namespace Licencjat_new.Windows
                 }
             };
 
-                ContactMainContainer.Children.Add(_contactList);
+            ContactMainContainer.Children.Add(_contactList);
 
             _contactList.RenameCompany += _contactList_RenameCompany;
             _contactList.RemoveCompanyEvent += _contactList_RemoveCompany;
@@ -132,7 +132,7 @@ namespace Licencjat_new.Windows
         private void _contactList_PersonShowDetails(object sender, EventArgs e)
         {
             ContactPersonListItem personItem = (ContactPersonListItem)sender;
-            PersonDetails details = new PersonDetails(personItem.Person);
+            PersonDetails details = new PersonDetails(_parent, personItem.Person);
 
             _parent.Darkened = true;
             _parent.mainCanvas.Children.Add(details);
@@ -178,7 +178,7 @@ namespace Licencjat_new.Windows
 
             rename.ReadyButtonClicked += (s, ea) =>
             {
-                ContactCompanyListItem companyItem = (ContactCompanyListItem) sender;
+                ContactCompanyListItem companyItem = (ContactCompanyListItem)sender;
                 CompanyModel company = companyItem.Company;
                 _parent.Client.RenameCompany(company, rename.NewName);
 

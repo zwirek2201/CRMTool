@@ -32,9 +32,9 @@ namespace Licencjat_new.Windows.HelperWindows
             else
                 companyMembers = company.Persons;
                             
-            ContactList contactList = new ContactList(companyMembers, new List<CompanyModel>(), false, false);
+            //ContactList contactList = new ContactList(companyMembers, new List<CompanyModel>(), false, false);
 
-            MainDock.Children.Add(contactList);
+            //MainDock.Children.Add(contactList);
         }
     }
 }

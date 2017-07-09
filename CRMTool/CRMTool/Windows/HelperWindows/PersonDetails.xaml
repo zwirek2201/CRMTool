@@ -11,7 +11,7 @@
              Height="{Binding ActualHeight, ElementName=mainCanvas}" 
              Width="{Binding ActualWidth, ElementName=mainCanvas}">
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-        <DockPanel x:Name="MainDock" Background="#fdfdfd" Width="600" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <DockPanel x:Name="MainDock" Background="#fdfdfd" Width="800" VerticalAlignment="Center" HorizontalAlignment="Center">
             <DockPanel Height="30" VerticalAlignment="Center" LastChildFill="False" Background="#1c9ad2" DockPanel.Dock="Top"  HorizontalAlignment="Stretch">
                 <Grid x:Name="CloseButton" Height="30" Width="30" Background="#1c9ad2" DockPanel.Dock="Right">
                     <Image x:Name="CloseImage" Height="15" Width="15"  Margin="7.5" Source="pack://application:,,,/resources/close_light.png"/>
@@ -21,6 +21,12 @@
                 </DockPanel.Effect>
             </DockPanel>
             <StackPanel Height="15" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="#1c9ad2" DockPanel.Dock="Bottom"/>
+            <Border BorderBrush="#1c9ad2" BorderThickness="0,1,0,0" DockPanel.Dock="Bottom">
+                <DockPanel Height="50" Background="#fdfdfd" LastChildFill="False">
+                    <controls:RoundedButton x:Name="ReadyButton" BackgroundColor="#1c9ad2" BorderColor="#fdfdfd" Text="Zapisz" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
+                    <controls:RoundedButton x:Name="CancelButton" BackgroundColor="#fdfdfd" BorderColor="#1c9ad2" Text="Anuluj" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
+                </DockPanel>
+            </Border>
             <StackPanel Orientation="Vertical" DockPanel.Dock="Top">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -37,17 +43,23 @@
                             <controls:CustomComboBox x:Name="GenderComboBox" HorizontalAlignment="Left"/>
                         </StackPanel>
                     </Border>
-                    <controls:RoundedButton Margin="7" DockPanel.Dock="Right"  BackgroundColor="#1c9ad2" BorderColor="#fdfdfd" Text="Zmień"></controls:RoundedButton>
+                    <controls:RoundedButton x:Name="ChangeCompanyButton"   Margin="7" DockPanel.Dock="Right"  BackgroundColor="#1c9ad2" BorderColor="#fdfdfd" Text="Zmień"></controls:RoundedButton>
                     <controls:RoundedTextBox x:Name="CompanyTextBox" Caption="Firma" Enabled="False"></controls:RoundedTextBox>
                 </DockPanel>
-                <Border BorderBrush="#1c9ad2" BorderThickness="1" CornerRadius="10" Margin="10">
+                <Border BorderBrush="#c2c2c2" BorderThickness="1" CornerRadius="10" Margin="10">
                     <StackPanel>
-                        <TextBlock FontSize="16" Margin="20,5,10,0" Text="Adresy e-mail" Foreground="#1c9ad2"></TextBlock>
+                        <DockPanel>
+                            <controls:RoundedButton x:Name="addEmailButton" BackgroundColor="#fdfdfd" BorderColor="#1c9ad2" Text="Dodaj" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
+                            <TextBlock FontSize="20" Margin="20,7,10,0" Text="Adresy e-mail" Foreground="#1c9ad2"></TextBlock>
+                        </DockPanel>
                     </StackPanel>
                 </Border>
-                <Border BorderBrush="#1c9ad2" BorderThickness="1" CornerRadius="10" Margin="10,5,10,10">
+                <Border BorderBrush="#c2c2c2" BorderThickness="1" CornerRadius="10" Margin="10,5,10,10">
                     <StackPanel>
-                        <TextBlock FontSize="16" Margin="20,5,10,0" Text="Numery telefonów" Foreground="#1c9ad2"></TextBlock>
+                        <DockPanel>
+                            <controls:RoundedButton x:Name="addPhoneNumberButton" BackgroundColor="#fdfdfd" BorderColor="#1c9ad2" Text="Dodaj" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
+                            <TextBlock FontSize="20" Margin="20,7,10,0" Text="Numery telefonów" Foreground="#1c9ad2"></TextBlock>
+                        </DockPanel>
                     </StackPanel>
                 </Border>
             </StackPanel>

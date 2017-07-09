@@ -1,0 +1,34 @@
+﻿<UserControl x:Class="Licencjat_new.Windows.ChooseCompany"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Licencjat_new.Windows"
+             xmlns:controls="clr-namespace:Licencjat_new.Controls"
+             mc:Ignorable="d" 
+            Panel.ZIndex="301" 
+             Height="{Binding ActualHeight, ElementName=mainCanvas}" 
+             Width="{Binding ActualWidth, ElementName=mainCanvas}">
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
+        <DockPanel x:Name="MainDock" Background="#fdfdfd" Height="650" Width="1100" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Label Height="30" FontSize="14" VerticalAlignment="Center" Background="#1c9ad2" DockPanel.Dock="Top" Foreground="White" Content="Wybierz firmę" Padding="10,0,0,0" VerticalContentAlignment="Center" HorizontalAlignment="Stretch">
+                <Label.Effect>
+                    <DropShadowEffect Color="Black" Direction="320" ShadowDepth="-10" Opacity="0.4"  BlurRadius="5" />
+                </Label.Effect>
+            </Label>
+            <StackPanel Height="15" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="#1c9ad2" DockPanel.Dock="Bottom"/>
+            <Border BorderBrush="#1c9ad2" BorderThickness="0,1,0,0" DockPanel.Dock="Bottom">
+                <DockPanel Height="50" Background="#fdfdfd" LastChildFill="False">
+                    <controls:RoundedButton x:Name="ReadyButton" BackgroundColor="#1c9ad2" BorderColor="#fdfdfd" Text="Gotowe" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
+                    <controls:RoundedButton x:Name="CancelButton" BackgroundColor="#fdfdfd" BorderColor="#1c9ad2" Text="Anuluj" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
+                    <Label x:Name="SelectedCountLabel" Foreground="#1c9ad2" Height="50" Content="2 osoby" VerticalContentAlignment="Center" FontSize="15" Padding="20,0,0,0"/>
+                </DockPanel>
+            </Border>
+            <DockPanel x:Name="InnerDock" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                <controls:AlphabetList x:Name="AlphabetList" DockPanel.Dock="Right" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"></controls:AlphabetList>
+                <controls:ContactTabControl x:Name="ContactTabControl" DockPanel.Dock="Top" DefaultMode="Companies"  SelectionMode="True" Height="0"/>
+            </DockPanel>
+        </DockPanel>
+        <Border x:Name="DarkenerPanel" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="#bb000000" Visibility="Collapsed" Opacity="0.8"/>
+    </Grid>
+</UserControl>

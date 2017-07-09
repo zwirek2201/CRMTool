@@ -120,7 +120,7 @@ namespace Licencjat_new.Windows.HelperWindows
         {
             if (_parent.Persons != null)
             {
-                _persons = _parent.Persons;              
+                _persons = _parent.Persons;
             }
 
             if (_parent.Companies != null)
@@ -133,7 +133,7 @@ namespace Licencjat_new.Windows.HelperWindows
 
         private void InitializeContactList()
         {
-            _contactList = new ContactList(_parent.Persons.Where(obj => !_blockedPersons.Contains(obj)).ToList(), _parent.Companies, true, _multipleSelection);
+            _contactList = new ContactList(_parent.Persons.Where(obj => !_blockedPersons.Contains(obj)).ToList(), _parent.Companies, true, SelectionModeType.PersonSelect, _multipleSelection);
             _contactList.BoundAlphabetList = AlphabetList;
             _contactList.BoundTabControl = ContactTabControl;
             _contactList.SelectedItemsChanged += _contactList_SelectedItemsChanged;
