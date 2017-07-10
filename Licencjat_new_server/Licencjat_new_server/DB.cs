@@ -982,6 +982,143 @@ namespace Licencjat_new_server
 
             DB.RunSimpleCommand("IF EXISTS (Select * from ContactPersons where Person = @personId) UPDATE ContactPersons Set Company = @companyId WHERE Person = @personId ELSE INSERT INTO ContactPersons (Person, Company) values (@personId, @companyId)", parameters);
 
+            parameters.Clear();
+            parameters.Rows.Add("personId", id);
+
+            DataTable personEmailAddresses = DB.RunSelectCommand("SELECT Id, [Name], [Address] FROM PersonEmailAddresses WHERE Person = @personId", parameters);
+
+            List<EmailAddressResultInfo> emailsToAdd = new List<EmailAddressResultInfo>();
+            List<EmailAddressResultInfo> emailsToUpdate = new List<EmailAddressResultInfo>();
+            List<string> emailsToDelete = new List<string>();
+
+
+            foreach (DataRow row in personEmailAddresses.Rows)
+            {
+                EmailAddressResultInfo email = emailAddressesList.Find(obj => obj.Id == row[0].ToString());
+                if (email == null)
+                {
+                    emailsToDelete.Add(row[0].ToString());
+                }
+                else
+                {
+                    emailsToUpdate.Add(email);
+                }
+            }
+
+            foreach (EmailAddressResultInfo email in emailAddressesList)
+            {
+                bool exists = false;
+
+                for (int i = 0; i < personEmailAddresses.Rows.Count; i++)
+                {
+                    if (personEmailAddresses.Rows[i][0].ToString() == email.Id)
+                    {
+                        exists = true;
+                    }
+                }
+
+                if (!exists)
+                {
+                    emailsToAdd.Add(email);
+                }
+            }
+
+            foreach (EmailAddressResultInfo email in emailsToAdd)
+            {
+                parameters.Clear();
+                parameters.Rows.Add("personId", id);
+                parameters.Rows.Add("emailName", email.Name);
+                parameters.Rows.Add("emailAddress", email.Address);
+                DataTable returnTable = DB.RunSelectCommand("insert into PersonEmailAddresses ([Person], [Name], [Address], [Default]) values (@personId, @emailName, @emailAddress, 0); select scope_identity()", parameters);
+                email.Id = returnTable.Rows[0][0].ToString();
+            }
+
+            foreach (EmailAddressResultInfo email in emailsToUpdate)
+            {
+                parameters.Clear();
+                parameters.Rows.Add("emailId", email.Id);
+                parameters.Rows.Add("emailName", email.Name);
+                parameters.Rows.Add("emailAddress", email.Address);
+                DB.RunSimpleCommand("update PersonEmailAddresses set [Name] = @emailName, Address = @emailAddress WHERE Id = @emailId", parameters);
+            }
+
+            foreach (string email in emailsToDelete)
+            {
+                parameters.Clear();
+                parameters.Rows.Add("emailId", email);
+                parameters.Rows.Add("personId", id);
+                DB.RunSimpleCommand("delete from PersonEmailAddresses WHERE Id = @emailId", parameters);
+            }
+
+            // PHONES
+
+            parameters.Clear();
+            parameters.Rows.Add("personId", id);
+
+            DataTable personPhoneNumbers = DB.RunSelectCommand("SELECT Id, [Name], [PhoneNumber] FROM PersonPhoneNumbers WHERE Person = @personId", parameters);
+
+            List<PhoneNumberResultInfo> phonesToAdd = new List<PhoneNumberResultInfo>();
+            List<PhoneNumberResultInfo> phonesToUpdate = new List<PhoneNumberResultInfo>();
+            List<string> phonesToDelete = new List<string>();
+
+            foreach (DataRow row in personPhoneNumbers.Rows)
+            {
+                PhoneNumberResultInfo phone = phoneNumbersList.Find(obj => obj.Id == row[0].ToString());
+                if (phone == null)
+                {
+                    phonesToDelete.Add(row[0].ToString());
+                }
+                else
+                {
+                    phonesToUpdate.Add(phone);
+                }
+            }
+
+            foreach (PhoneNumberResultInfo phone in phoneNumbersList)
+            {
+                bool exists = false;
+
+                for (int i = 0; i < personPhoneNumbers.Rows.Count; i++)
+                {
+                    if (personPhoneNumbers.Rows[i][0].ToString() == phone.Id)
+                    {
+                        exists = true;
+                    }
+                }
+
+                if (!exists)
+                {
+                    phonesToAdd.Add(phone);
+                }
+            }
+
+            foreach (PhoneNumberResultInfo phone in phonesToAdd)
+            {
+                parameters.Clear();
+                parameters.Rows.Add("personId", id);
+                parameters.Rows.Add("phoneName", phone.Name);
+                parameters.Rows.Add("phoneNumber", phone.Number);
+                DataTable returnTable = DB.RunSelectCommand("insert into PersonPhoneNumbers ([Person], [Name], [PhoneNumber], [Default]) values (@personId, @phoneName, @phoneNumber, 0); select scope_identity()", parameters);
+
+                phone.Id = returnTable.Rows[0][0].ToString();
+            }
+
+            foreach (PhoneNumberResultInfo phone in phonesToUpdate)
+            {
+                parameters.Clear();
+                parameters.Rows.Add("emailId", phone.Id);
+                parameters.Rows.Add("phoneName", phone.Name);
+                parameters.Rows.Add("phoneNumber", phone.Number);
+                DB.RunSimpleCommand("update PersonPhoneNumbers set [Name] = @phoneName, PhoneNumber = @phoneNumber WHERE Id = @emailId", parameters);
+            }
+
+            foreach (string phone in phonesToDelete)
+            {
+                parameters.Clear();
+                parameters.Rows.Add("phoneId", phone);
+                DB.RunSimpleCommand("delete from PersonPhoneNumbers WHERE Id = @emailId", parameters);
+            }
+
             //DOKONCZYC
         }
     }

@@ -45,6 +45,7 @@ namespace Licencjat_new.Server
         public event EventHandler<CompanyRenamedEventArgs> CompanyRenamed;
         public event EventHandler<NewEmailAddressEventArgs> NewEmailAddress;
         public event EventHandler<CompanyRemovedEventArgs> CompanyRemoved;
+        public event EventHandler<ContactDetailsUpdatedEventArgs> ContactDetailsUpdated;
         #endregion
 
         #region Constructors
@@ -112,6 +113,8 @@ namespace Licencjat_new.Server
                 string conversationId = "";
                 string id = "";
                 bool notifyContactPersons = false;
+                string emailId = "";
+                string emailAddress = "";
                 while (_client.Connected)
                 {
                     byte response = _reader.ReadByte();
@@ -191,7 +194,8 @@ namespace Licencjat_new.Server
                                                 bool answered = _reader.ReadBoolean();
 
                                                 ConversationPhoneMessageModel phoneMessage =
-                                                    new ConversationPhoneMessageModel(message, recipientPhoneNumber, description, answered);
+                                                    new ConversationPhoneMessageModel(message, recipientPhoneNumber,
+                                                        description, answered);
                                                 message = phoneMessage;
                                                 break;
                                         }
@@ -206,6 +210,7 @@ namespace Licencjat_new.Server
                                                         notificationDate, false)
                                             });
                                         break;
+
                                         #endregion
 
                                         #region RenameConversation
@@ -270,6 +275,7 @@ namespace Licencjat_new.Server
                                         #endregion
 
                                         #region RemoveConversationMember
+
                                     case MessageDictionary.RemoveConversationMember:
                                         conversationId = _reader.ReadString();
                                         personId = _reader.ReadString();
@@ -284,9 +290,11 @@ namespace Licencjat_new.Server
                                                     notificationDate, false)
                                             });
                                         break;
-                                    #endregion
 
-                                    #region ConversationSettingsChanged
+                                        #endregion
+
+                                        #region ConversationSettingsChanged
+
                                     case MessageDictionary.ChangeConversationSettings:
                                         conversationId = _reader.ReadString();
                                         notifyContactPersons = _reader.ReadBoolean();
@@ -300,8 +308,11 @@ namespace Licencjat_new.Server
                                                     notificationDate, false)
                                             });
                                         break;
-                                    #endregion
-                                    #region NewCompany
+
+                                        #endregion
+
+                                        #region NewCompany
+
                                     case MessageDictionary.NewCompany:
                                         string companyId = _reader.ReadString();
                                         string companyName = _reader.ReadString();
@@ -314,8 +325,11 @@ namespace Licencjat_new.Server
                                                 notificationDate, false)
                                         });
                                         break;
-                                    #endregion
-                                    #region RenameCompany
+
+                                        #endregion
+
+                                        #region RenameCompany
+
                                     case MessageDictionary.RenameCompany:
                                         companyId = _reader.ReadString();
                                         newName = _reader.ReadString();
@@ -329,8 +343,11 @@ namespace Licencjat_new.Server
                                                 notificationDate, false)
                                         });
                                         break;
-                                    #endregion
-                                    #region RemoveCompanyEvent
+
+                                        #endregion
+
+                                        #region RemoveCompanyEvent
+
                                     case MessageDictionary.RemoveCompany:
                                         companyId = _reader.ReadString();
 
@@ -342,12 +359,70 @@ namespace Licencjat_new.Server
                                                 notificationDate, false)
                                         });
                                         break;
+
+                                    #endregion
+
+                                    #region UpdatePersonDetails
+
+                                    case MessageDictionary.UpdatePersonDetails:
+                                        _writer.Write(MessageDictionary.OK);
+
+                                        string PersonId = _reader.ReadString();
+                                        string PersonFirstName = _reader.ReadString();
+                                        string PersonLastName = _reader.ReadString();
+                                        string PersonGenderCode = _reader.ReadString();
+                                        string PersonCompanyId = _reader.ReadString();
+
+                                        Gender PersonGender = (Gender)Convert.ToInt32(PersonGenderCode);
+
+                                        PersonModel contactPerson = new PersonModel(PersonId, PersonFirstName, PersonLastName,
+                                            PersonGender,
+                                            PersonCompanyId, true);
+
+                                        int emailAddressCount = _reader.ReadInt32();
+
+                                        for (int j = 0; j < emailAddressCount; j++)
+                                        {
+                                            emailId = _reader.ReadString();
+                                            string emailName = _reader.ReadString();
+                                            emailAddress = _reader.ReadString();
+
+                                            EmailAddressModel emailAddressModel = new EmailAddressModel(emailId, emailAddress,
+                                                emailName,
+                                                true, true);
+                                            contactPerson.EmailAddresses.Add(emailAddressModel);
+                                        }
+
+                                        int phoneNumberCount = _reader.ReadInt32();
+
+                                        for (int j = 0; j < phoneNumberCount; j++)
+                                        {
+                                            string phoneNumberId = _reader.ReadString();
+                                            string phoneName = _reader.ReadString();
+                                            string phoneNumber = _reader.ReadString();
+
+                                            PhoneNumberModel phoneNumberModel = new PhoneNumberModel(phoneNumberId, phoneNumber,
+                                                phoneName,
+                                                true, true);
+                                            contactPerson.PhoneNumbers.Add(phoneNumberModel);
+                                        }
+
+                                        ContactDetailsUpdated?.Invoke(this, new ContactDetailsUpdatedEventArgs()
+                                        {
+                                            NewData = contactPerson,
+                                            Notification = new NotificationModel(notificationId, notificationText,
+                                                referenceFields,
+                                                notificationDate, false)
+                                        });
+                                        break;
+
                                         #endregion
                                 }
                             }
                             break;
 
                             #region NewFiles
+
                         case MessageDictionary.NewFiles:
                             List<FileModel> files = new List<FileModel>();
                             files.Clear();
@@ -377,6 +452,7 @@ namespace Licencjat_new.Server
                             #endregion
 
                             #region NewConversation
+
                         case MessageDictionary.NewConversation:
                             _writer.Write(MessageDictionary.OK);
 
@@ -483,20 +559,23 @@ namespace Licencjat_new.Server
                             #endregion
 
                             #region RemoveConversation
+
                         case MessageDictionary.RemoveConversation:
                             _writer.Write(MessageDictionary.OK);
                             conversationId = _reader.ReadString();
                             ConversationRemoved?.Invoke(this,
                                 new ConversationRemovedEventArgs() {ConversationId = conversationId});
                             break;
-                        #endregion
 
-                        #region NewEmailAddress
+                            #endregion
+
+                            #region NewEmailAddress
+
                         case MessageDictionary.AddEmailAddress:
                             _writer.Write(MessageDictionary.OK);
 
-                            string emailId = _reader.ReadString();
-                            string emailAddress = _reader.ReadString();
+                            emailId = _reader.ReadString();
+                            emailAddress = _reader.ReadString();
                             string login = _reader.ReadString();
                             string imapHost = _reader.ReadString();
                             int imapPort = _reader.ReadInt32();
@@ -521,6 +600,7 @@ namespace Licencjat_new.Server
                             });
 
                             break;
+
                             #endregion
                     }
                 }
@@ -551,6 +631,12 @@ namespace Licencjat_new.Server
             return file.ToArray();
         }
         #endregion
+    }
+
+    public class ContactDetailsUpdatedEventArgs
+    {
+        public PersonModel NewData { get; set; }
+        public NotificationModel Notification { get; set; }
     }
 
     public class CompanyRemovedEventArgs

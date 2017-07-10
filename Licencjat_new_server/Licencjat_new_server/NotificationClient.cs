@@ -402,6 +402,49 @@ namespace Licencjat_new_server
             }
         }
 
+        public void PersonDetailsChanged(string id, string firstName, string lastName, int gender, string companyId, List<EmailAddressResultInfo> emailAddressesList, List<PhoneNumberResultInfo> phoneNumbersList, NotificationModel notification)
+        {
+            _writer.Write(MessageDictionary.NewNotification);
+
+            if (_reader.Read() == MessageDictionary.OK)
+            {
+                _writer.Write(notification.NotificationId);
+                _writer.Write(notification.NotificationText);
+                _writer.Write(notification.NotificationDate.ToString("dd-MM-yyyy HH:mm:ss"));
+                _writer.Write(notification.NotificationReferenceFields.Count);
+
+                foreach (string referenceField in notification.NotificationReferenceFields)
+                {
+                    _writer.Write(referenceField);
+                }
+
+                _writer.Write(MessageDictionary.EndOfMessage);
+                _writer.Write(MessageDictionary.UpdatePersonDetails);
+
+                _writer.Write(id);
+                _writer.Write(firstName);
+                _writer.Write(lastName);
+                _writer.Write(gender.ToString());
+                _writer.Write(companyId);
+
+                _writer.Write(emailAddressesList.Count);
+                foreach (EmailAddressResultInfo emailAddress in emailAddressesList)
+                {
+                    _writer.Write(emailAddress.Id);
+                    _writer.Write(emailAddress.Name);
+                    _writer.Write(emailAddress.Address);
+                }
+
+                _writer.Write(phoneNumbersList.Count);
+                foreach (PhoneNumberResultInfo phoneNumber in phoneNumbersList)
+                {
+                    _writer.Write(phoneNumber.Id);
+                    _writer.Write(phoneNumber.Name);
+                    _writer.Write(phoneNumber.Number);
+                }
+            }
+        }
+
         private byte[] ReceiveFile()
         {
             byte[] buffer = new byte[1024 * 8];

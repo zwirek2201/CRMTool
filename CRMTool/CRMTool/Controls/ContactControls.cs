@@ -173,6 +173,8 @@ namespace Licencjat_new.Controls
         public event EventHandler ShowDetails;
         public PersonModel Person { get; private set; }
 
+        public event EventHandler DataChanged;
+
         public bool Selected
         {
             get { return _selected; }
@@ -191,6 +193,7 @@ namespace Licencjat_new.Controls
         public ContactPersonListItem(PersonModel person, bool selectionMode = false)
         {
             Person = person;
+
             _selectionMode = selectionMode;
             Redraw();
 
@@ -237,6 +240,14 @@ namespace Licencjat_new.Controls
             contextMenu.Items.Add(removeItem);
 
             ContextMenu = contextMenu;
+
+            person.DataChanged += Person_DataChanged;
+        }
+  
+        internal void Person_DataChanged(object sender, EventArgs e)
+        {
+            Redraw();
+            DataChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private void DetailsItem_Click(object sender, RoutedEventArgs e)
@@ -1585,39 +1596,43 @@ namespace Licencjat_new.Controls
 
             #region Adding person
 
-            string personNameChar = person.LastName.First().ToString().ToUpper();
-
-            usedList.Add(person);
-            usedList = usedList.OrderBy(obj => obj.LastName).ToList();
-
-            if (!usedAlphabet.Contains(personNameChar))
+            if (!usedList.Contains(person))
             {
-                usedAlphabet.Add(personNameChar);
-            }
-            else
-            {
-                nameCharExists = true;
-                listIndex += 1;
-            }
+                string personNameChar = person.LastName.First().ToString().ToUpper();
 
-            usedAlphabet.Sort();
+                usedList.Add(person);
+                usedList = usedList.OrderBy(obj => obj.LastName).ToList();
 
-            listIndex += usedList.IndexOf(person) + usedAlphabet.IndexOf(personNameChar);
+                if (!usedAlphabet.Contains(personNameChar))
+                {
+                    usedAlphabet.Add(personNameChar);
+                }
+                else
+                {
+                    nameCharExists = true;
+                    listIndex += 1;
+                }
 
-            personItem = new ContactPersonListItem(person, SelectionMode);
-            personItem.ShowDetails += Item_ShowDetails;
-            personItem.Click += PersonItem_Click;
+                usedAlphabet.Sort();
 
-            if (nameCharExists)
-            {
-                layoutPanel.Children.Insert(listIndex, personItem);
-            }
-            else
-            {
-                AlphabetElementListItem alphabetItem = new AlphabetElementListItem(personNameChar);
-                layoutPanel.Children.Insert(listIndex, alphabetItem);
-                usedAlphabetElements.Add(alphabetItem);
-                layoutPanel.Children.Insert(listIndex + 1, personItem);
+                listIndex += usedList.IndexOf(person) + usedAlphabet.IndexOf(personNameChar);
+
+                personItem = new ContactPersonListItem(person, SelectionMode);
+                personItem.ShowDetails += Item_ShowDetails;
+                personItem.Click += PersonItem_Click;
+                personItem.DataChanged += PersonItem_DataChanged;
+
+                if (nameCharExists)
+                {
+                    layoutPanel.Children.Insert(listIndex, personItem);
+                }
+                else
+                {
+                    AlphabetElementListItem alphabetItem = new AlphabetElementListItem(personNameChar);
+                    layoutPanel.Children.Insert(listIndex, alphabetItem);
+                    usedAlphabetElements.Add(alphabetItem);
+                    layoutPanel.Children.Insert(listIndex + 1, personItem);
+                }
             }
 
             #endregion
@@ -1685,14 +1700,22 @@ namespace Licencjat_new.Controls
 
             #region Adding grouped person
 
-            listIndex = 0;
+                listIndex = 0;
 
             if (person.Company != null)
             {
                 string companyNameChar = person.Company.Name.First().ToString().ToUpper();
 
 
-                List<PersonModel> newUsed = usedList.Where(obj => obj.Company != null).ToList().OrderBy(obj => obj.Company.Name).ThenBy(obj => obj.FullName).ToList();
+                List<PersonModel> newUsed =
+                    usedList.Where(obj => obj.Company != null)
+                        .ToList()
+                        .OrderBy(obj => obj.Company.Name)
+                        .ThenBy(obj => obj.FullName)
+                        .ToList();
+                //
+                // USED COMPANIES ZAWIERA FIRMY KTÓRE NIE MAJĄ ŻADNYCH PRACOWNIKÓW - PSUJE LICZNIK
+                //
 
                 _usedCompanies = _usedCompanies.OrderBy(obj => obj.Name).ToList();
                 CompaniesUsedAlphabet.Sort();
@@ -1705,7 +1728,8 @@ namespace Licencjat_new.Controls
 
                 listIndex += _usedCompanies.IndexOf(person.Company) + CompaniesUsedAlphabet.IndexOf(companyNameChar) +
                              newUsed.IndexOf(person);
-                companyItem = new ContactCompanyListItem(person.Company, SelectionType == SelectionModeType.CompanySelect && SelectionMode);
+                companyItem = new ContactCompanyListItem(person.Company,
+                    SelectionType == SelectionModeType.CompanySelect && SelectionMode);
                 companyItem.Click += CompanyItem_Click;
                 companyItem.DataChanged += CompanyItem_DataChanged;
                 companyItem.Rename += CompanyItem_Rename;
@@ -1714,6 +1738,7 @@ namespace Licencjat_new.Controls
                 personItem = new ContactPersonListItem(person, SelectionMode);
                 personItem.ShowDetails += Item_ShowDetails;
                 personItem.Click += PersonItem_Click;
+                personItem.DataChanged += PersonItem_DataChanged;
 
                 if (!companyExists)
                 {
@@ -1826,6 +1851,63 @@ namespace Licencjat_new.Controls
             {
 
             }
+        }
+
+        private void PersonItem_DataChanged(object sender, EventArgs e)
+        {
+            List<ContactPersonListItem> toDelete = new List<ContactPersonListItem>();
+
+            ContactPersonListItem item = (ContactPersonListItem)sender;
+            foreach (UIElement child in _externalGroupedContactsStack.Children)
+            {
+                if (child is ContactPersonListItem)
+                {
+                    ContactPersonListItem personItem = (ContactPersonListItem)child;
+                    if (personItem.Person.Id == item.Person.Id)
+                        toDelete.Add(personItem);
+                }    
+            }
+
+            toDelete.ForEach(obj => _externalGroupedContactsStack.Children.Remove(obj));
+
+            toDelete.Clear();
+
+            item = (ContactPersonListItem)sender;
+            foreach (UIElement child in _externalContactsStack.Children)
+            {
+                if (child is ContactPersonListItem)
+                {
+                    ContactPersonListItem personItem = (ContactPersonListItem)child;
+                    if (personItem.Person.Id == item.Person.Id)
+                        toDelete.Add(personItem);
+                }
+            }
+
+            toDelete.ForEach(obj => _externalContactsStack.Children.Remove(obj));
+
+            _usedExternalContacts.Remove(item.Person);
+            item.Person.DataChanged -= item.Person_DataChanged;
+            AddPerson(item.Person);
+            ClearAlphabetElements();
+        }
+
+        public void RemovePerson(string personId)
+        {
+            foreach (UIElement item in _externalGroupedContactsStack.Children)
+            {
+                if (item is ContactPersonListItem)
+                {
+                    ContactPersonListItem personItem = (ContactPersonListItem)item;
+                    if (personItem.Person.Id == personId)
+                    {
+                        _externalGroupedContactsStack.Children.Remove(personItem);
+                        break;
+                    }
+                }
+            }
+
+            _usedExternalContacts.Remove(_usedExternalContacts.Find(obj => obj.Id == personId));
+            ClearAlphabetElements();
         }
 
         public void RemoveCompany(string companyId)
@@ -1953,7 +2035,7 @@ namespace Licencjat_new.Controls
         private string _name;
         private string _detailValue;
 
-        public object ChildObject { get; private set; }
+        public object ChildObject { get; set; }
 
         private RoundedTextBox _nameTextBox;
         private RoundedTextBox _valueTextBox;

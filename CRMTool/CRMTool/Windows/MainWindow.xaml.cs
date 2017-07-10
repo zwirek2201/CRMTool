@@ -1063,6 +1063,7 @@ namespace Licencjat_new.Windows
                     NotificationClient.CompanyRenamed += NotificationClient_CompanyRenamed;
                     NotificationClient.NewEmailAddress += NotificationClient_NewEmailAddress;
                     NotificationClient.CompanyRemoved += NotificationClient_CompanyRemoved;
+                    NotificationClient.ContactDetailsUpdated += NotificationClient_ContactDetailsUpdated;
 
                     _notificationPanel = new NotificationsPanel(mainCanvas.ActualWidth,
                         mainCanvas.ActualHeight - 60);
@@ -1091,6 +1092,39 @@ namespace Licencjat_new.Windows
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
             }
+        }
+
+        private void NotificationClient_ContactDetailsUpdated(object sender, ContactDetailsUpdatedEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                PersonModel person = Persons.Find(obj => obj.Id == e.NewData.Id);
+
+                if (person.FirstName != e.NewData.FirstName)
+                    person.FirstName = e.NewData.FirstName;
+
+                if (person.LastName != e.NewData.LastName)
+                    person.LastName = e.NewData.LastName;
+
+                if (person.Company.Id != e.NewData.CompanyId)
+                {
+                    person.Company = Companies.Find(obj => obj.Id == e.NewData.CompanyId);
+                }
+
+                if (person.Gender != e.NewData.Gender)
+                    person.Gender = e.NewData.Gender;
+
+                if (person.EmailAddresses != e.NewData.EmailAddresses)
+                    person.EmailAddresses = e.NewData.EmailAddresses;
+
+                if (person.PhoneNumbers != e.NewData.PhoneNumbers)
+                    person.PhoneNumbers = e.NewData.PhoneNumbers;
+
+                person.OnDataChanged();
+
+                NotificationModel notification = ProcessNotification(e.Notification);
+                RaiseNotification(notification);
+            });
         }
 
         private void NotificationClient_CompanyRemoved(object sender, CompanyRemovedEventArgs e)

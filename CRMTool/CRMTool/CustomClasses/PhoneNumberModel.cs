@@ -10,8 +10,8 @@ namespace Licencjat_new.CustomClasses
     {
         #region Properties
         public string Id { get; private set; }
-        public string Number { get; private set; }
-        public string Name { get; private set; }
+        public string Number { get; set; }
+        public string Name { get; set; }
         public bool Active { get; private set; }
 
         public bool Default { get; private set; }

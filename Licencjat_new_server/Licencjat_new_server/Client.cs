@@ -850,6 +850,9 @@ namespace Licencjat_new_server
                             DBApi.UpdatePersonDetails(id, firstName, lastName, gender, companyId, emailAddressesList,
                                 phoneNumbersList);
 
+                            NotifyAllUsersAboutPersonDetailsChanged(id, firstName, lastName, gender, companyId,
+                                emailAddressesList, phoneNumbersList);
+
                             break;
                             #endregion
                     }
@@ -868,7 +871,6 @@ namespace Licencjat_new_server
                 }
             }
         }
-
 
         private byte[] ReceiveFile()
         {
@@ -903,6 +905,44 @@ namespace Licencjat_new_server
                 int count;
                 while ((count = stream.Read(buffer, 0, buffer.Length)) > 0)
                     _writer.Write(buffer, 0, count);
+            }
+        }
+
+        private void NotifyAllUsersAboutPersonDetailsChanged(string id, string firstName, string lastName, int gender, string companyId, List<EmailAddressResultInfo> emailAddressesList, List<PhoneNumberResultInfo> phoneNumbersList)
+        {
+            try
+            {
+                DateTime notificationDate = DateTime.Now;
+
+                NotificationResultInfo notificationResultInfo = new NotificationResultInfo()
+                {
+                    Type = NotificationType.UpdatePersonDetails,
+                    SenderId = UserInfo.PersonId,
+                    PersonId = id,
+                    NotificationDate = notificationDate,
+                };
+
+                NotificationModel notification = NotificationHandler.ProcessNotification(notificationResultInfo);
+
+                List<string> subscribedUsersId = DBApi.GetAllUsers();
+
+                foreach (string userId in subscribedUsersId)
+                {
+                    NotificationResultInfo recipientNotificationResultInfo = notificationResultInfo;
+                    recipientNotificationResultInfo.RecipientId = userId;
+                    string notificationId = DBApi.AddNewNotification(recipientNotificationResultInfo);
+
+                    notification.NotificationId = notificationId;
+
+                    Client userClient = Program.GetClientById(userId);
+                    if (userClient == null) return;
+
+                    userClient.NotificationClient.PersonDetailsChanged(id, firstName, lastName, gender, companyId, emailAddressesList, phoneNumbersList, notification);
+                }
+            }
+            catch (Exception ex)
+            {
+                
             }
         }
 

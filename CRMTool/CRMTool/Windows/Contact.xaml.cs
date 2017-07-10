@@ -136,6 +136,25 @@ namespace Licencjat_new.Windows
 
             details.ReadyButtonClicked += (s, ea) =>
             {
+                List<PersonDetailListItem> emailItems = details.EmailItems;
+                List<PersonDetailListItem> phoneItems = details.PhoneItems;
+
+                foreach (PersonDetailListItem detail in emailItems)
+                {
+                    EmailAddressModel emailAdress = (EmailAddressModel) detail.ChildObject;
+                    emailAdress.Name = detail.Name;
+                    emailAdress.Address = detail.DetailValue;
+                    detail.ChildObject = emailAdress;
+                }
+
+                foreach (PersonDetailListItem detail in phoneItems)
+                {
+                    PhoneNumberModel phoneNumber = (PhoneNumberModel)detail.ChildObject;
+                    phoneNumber.Name = detail.Name;
+                    phoneNumber.Number = detail.DetailValue;
+                    detail.ChildObject = phoneNumber;
+                }
+
                 _parent.Client.UpdatePersonDetails(details.Person.Id, details.FirstNameTextBox.Text,
                     details.LastNameTextBox.Text,
                     details.GenderComboBox.SelectedItem == details.GenderComboBox.Items.First()
@@ -143,6 +162,9 @@ namespace Licencjat_new.Windows
                         : Gender.Male, details.Company,
                     details.EmailItems.Select(obj => (EmailAddressModel) obj.ChildObject).ToList(),
                     details.PhoneItems.Select(obj => (PhoneNumberModel) obj.ChildObject).ToList());
+
+                _parent.Darkened = false;
+                _parent.mainCanvas.Children.Remove(details);
             };
 
             _parent.Darkened = true;
