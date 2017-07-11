@@ -947,6 +947,44 @@ namespace Licencjat_new.Server
             }
         }
 
+        public void AddExternalContact(string firstName, string lastName, Gender gender, CompanyModel company, List<EmailAddressModel> emailList, List<PhoneNumberModel> phoneList)
+        {
+            try
+            {
+                _writer.Write(MessageDictionary.NewExternalContact);
+                if (_reader.Read() == MessageDictionary.OK)
+                {
+                    _writer.Write(firstName);
+                    _writer.Write(lastName);
+                    _writer.Write(Convert.ToInt32(gender));
+                    _writer.Write(company != null ? company.Id : "");
+
+                    _writer.Write(emailList.Count);
+                    foreach (EmailAddressModel email in emailList)
+                    {
+                        _writer.Write(email.Id);
+                        _writer.Write(email.Name);
+                        _writer.Write(email.Address);
+                    }
+
+                    _writer.Write(phoneList.Count);
+                    foreach (PhoneNumberModel phone in phoneList)
+                    {
+                        _writer.Write(phone.Id);
+                        _writer.Write(phone.Name);
+                        _writer.Write(phone.Number);
+                    }
+                    return;
+                }
+                throw new Exception("Connection unsynced");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                ErrorHelper.LogError(ex);
+            }
+        }
+
         public void AddNewEmailAddress(NewEmailAddressEventArgs ea)
         {
             try

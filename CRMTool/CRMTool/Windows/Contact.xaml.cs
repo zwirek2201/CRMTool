@@ -167,6 +167,12 @@ namespace Licencjat_new.Windows
                 _parent.mainCanvas.Children.Remove(details);
             };
 
+            details.CancelButtonClicked += (s, ea) =>
+            {
+                _parent.Darkened = false;
+                _parent.mainCanvas.Children.Remove(details);
+            };
+
             _parent.Darkened = true;
             _parent.mainCanvas.Children.Add(details);
         }
@@ -225,6 +231,49 @@ namespace Licencjat_new.Windows
             switch (ContactTabControl.SelectedMode)
             {
                 case ContactTabControlMode.Contacts:
+                    PersonDetails details = new PersonDetails(_parent, null);
+
+                    details.ReadyButtonClicked += (s, ea) =>
+                    {
+                        List<PersonDetailListItem> emailItems = details.EmailItems;
+                        List<PersonDetailListItem> phoneItems = details.PhoneItems;
+
+                        foreach (PersonDetailListItem detail in emailItems)
+                        {
+                            EmailAddressModel emailAdress = (EmailAddressModel)detail.ChildObject;
+                            emailAdress.Name = detail.Name;
+                            emailAdress.Address = detail.DetailValue;
+                            detail.ChildObject = emailAdress;
+                        }
+
+                        foreach (PersonDetailListItem detail in phoneItems)
+                        {
+                            PhoneNumberModel phoneNumber = (PhoneNumberModel)detail.ChildObject;
+                            phoneNumber.Name = detail.Name;
+                            phoneNumber.Number = detail.DetailValue;
+                            detail.ChildObject = phoneNumber;
+                        }
+
+                        _parent.Client.AddExternalContact( details.FirstNameTextBox.Text,
+                            details.LastNameTextBox.Text,
+                            details.GenderComboBox.SelectedItem == details.GenderComboBox.Items.First()
+                                ? Gender.Female
+                                : Gender.Male, details.Company,
+                            details.EmailItems.Select(obj => (EmailAddressModel)obj.ChildObject).ToList(),
+                            details.PhoneItems.Select(obj => (PhoneNumberModel)obj.ChildObject).ToList());
+
+                        _parent.Darkened = false;
+                        _parent.mainCanvas.Children.Remove(details);
+                    };
+
+                    details.CancelButtonClicked += (s, ea) =>
+                    {
+                        _parent.Darkened = false;
+                        _parent.mainCanvas.Children.Remove(details);
+                    };
+
+                    _parent.Darkened = true;
+                    _parent.mainCanvas.Children.Add(details);
                     break;
                 case ContactTabControlMode.Companies:
                     Rename newCompany = new Rename();

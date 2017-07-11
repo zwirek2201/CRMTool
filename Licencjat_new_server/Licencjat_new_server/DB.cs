@@ -1121,6 +1121,46 @@ namespace Licencjat_new_server
 
             //DOKONCZYC
         }
+
+        public static string NewExternalContact(string firstName, string lastName, int gender, string companyId, List<EmailAddressResultInfo> emailAddressesList, List<PhoneNumberResultInfo> phoneNumbersList)
+        {
+            DataTable parameters = DB.GetParametersDataTable();
+            parameters.Rows.Add("firstName", firstName);
+            parameters.Rows.Add("lastName", lastName);
+            parameters.Rows.Add("gender", gender);
+            DataTable returnTable = DB.RunSelectCommand("insert into Persons (FirstName, LastName, Gender) values (@firstName, @lastName, @gender);select scope_identity()", parameters);
+
+            string id = returnTable.Rows[0][0].ToString();
+
+            parameters.Clear();
+            parameters.Rows.Add("personId", id);
+            parameters.Rows.Add("companyId", companyId);
+
+            DB.RunSimpleCommand("INSERT INTO ContactPersons (Person, Company) values (@personId, @companyId)", parameters);
+
+            foreach (EmailAddressResultInfo email in emailAddressesList)
+            {
+                parameters.Clear();
+                parameters.Rows.Add("personId", id);
+                parameters.Rows.Add("emailName", email.Name);
+                parameters.Rows.Add("emailAddress", email.Address);
+                returnTable = DB.RunSelectCommand("insert into PersonEmailAddresses ([Person], [Name], [Address], [Default]) values (@personId, @emailName, @emailAddress, 0); select scope_identity()", parameters);
+                email.Id = returnTable.Rows[0][0].ToString();
+            }
+
+            foreach (PhoneNumberResultInfo phone in phoneNumbersList)
+            {
+                parameters.Clear();
+                parameters.Rows.Add("personId", id);
+                parameters.Rows.Add("phoneName", phone.Name);
+                parameters.Rows.Add("phoneNumber", phone.Number);
+                returnTable = DB.RunSelectCommand("insert into PersonPhoneNumbers ([Person], [Name], [PhoneNumber], [Default]) values (@personId, @phoneName, @phoneNumber, 0); select scope_identity()", parameters);
+
+                phone.Id = returnTable.Rows[0][0].ToString();
+            }
+
+            return id;
+        }
     }
 
     public class EmailResultInfo

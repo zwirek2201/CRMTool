@@ -854,6 +854,47 @@ namespace Licencjat_new_server
                                 emailAddressesList, phoneNumbersList);
 
                             break;
+                        #endregion
+
+                        #region NewExternalContact
+                        case MessageDictionary.NewExternalContact:
+                            _writer.Write(MessageDictionary.OK);
+                            firstName = _reader.ReadString();
+                            lastName = _reader.ReadString();
+                            gender = _reader.ReadInt32();
+                            companyId = _reader.ReadString();
+
+                            emailAddressesList = new List<EmailAddressResultInfo>();
+
+                            emailCount = _reader.ReadInt32();
+                            for (int i = 0; i < emailCount; i++)
+                            {
+                                emailId = _reader.ReadString();
+                                string emailName = _reader.ReadString();
+                                string emailAddress = _reader.ReadString();
+
+                                emailAddressesList.Add(new EmailAddressResultInfo(emailId, emailName, emailAddress, true, true));
+                            }
+
+                            phoneNumbersList = new List<PhoneNumberResultInfo>();
+
+                            phoneCount = _reader.ReadInt32();
+                            for (int i = 0; i < phoneCount; i++)
+                            {
+                                string phoneId = _reader.ReadString();
+                                string phoneName = _reader.ReadString();
+                                string phoneNumber = _reader.ReadString();
+
+                                phoneNumbersList.Add(new PhoneNumberResultInfo(phoneId, phoneName, phoneNumber, true, true));
+                            }
+
+                            string personId = DBApi.NewExternalContact(firstName, lastName, gender, companyId, emailAddressesList,
+                                phoneNumbersList);
+
+                            //NotifyAllUsersAboutPersonDetailsChanged(id, firstName, lastName, gender, companyId,
+                            //    emailAddressesList, phoneNumbersList);
+
+                            break;
                             #endregion
                     }
                 }

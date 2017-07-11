@@ -30,51 +30,65 @@ namespace Licencjat_new.Windows.HelperWindows
         public List<PersonDetailListItem> PhoneItems = new List<PersonDetailListItem>();
 
         public event EventHandler ReadyButtonClicked;
+        public event EventHandler CancelButtonClicked;
+
 
         public PersonDetails(MainWindow parent, PersonModel person)
         {
             Person = person;
-            Company = person.Company;
             _parent = parent;
 
             InitializeComponent();
 
-            FirstNameTextBox.Text = person.FirstName;
-            LastNameTextBox.Text = person.LastName;
-
-            if (person.Company != null)
-                CompanyTextBox.Text = person.Company.Name;
-
-            CompanyTextBox.IsEnabled = false;
             ChangeCompanyButton.Clicked += ChangeCompanyButton_Clicked;
 
             GenderComboBox.AddItem("Kobieta");
             GenderComboBox.AddItem("Mężczyzna");
 
-            if (person.Gender == Gender.Female)
-                GenderComboBox.SelectedItem = GenderComboBox.Items[0];
-            else
-                GenderComboBox.SelectedItem = GenderComboBox.Items[1];
 
-            foreach (EmailAddressModel emailAddress in person.EmailAddresses)
+            if (Person != null)
             {
-                PersonDetailListItem detail = new PersonDetailListItem(emailAddress);
-                detail.RemoveDetail += Detail_RemoveDetail;
-                EmailItems.Add(detail);
-                EmailList.Children.Add(detail);
-            }
+                Company = person.Company;
 
-            foreach (PhoneNumberModel phoneNumber in person.PhoneNumbers)
-            {
-                PersonDetailListItem detail = new PersonDetailListItem(phoneNumber);
-                detail.RemoveDetail += Detail_RemoveDetail;
-                PhoneItems.Add(detail);
-                PhoneList.Children.Add(detail);
+                FirstNameTextBox.Text = person.FirstName;
+                LastNameTextBox.Text = person.LastName;
+
+                if (person.Company != null)
+                    CompanyTextBox.Text = person.Company.Name;
+
+                CompanyTextBox.IsEnabled = false;
+
+                if (person.Gender == Gender.Female)
+                    GenderComboBox.SelectedItem = GenderComboBox.Items[0];
+                else
+                    GenderComboBox.SelectedItem = GenderComboBox.Items[1];
+
+                foreach (EmailAddressModel emailAddress in person.EmailAddresses)
+                {
+                    PersonDetailListItem detail = new PersonDetailListItem(emailAddress);
+                    detail.RemoveDetail += Detail_RemoveDetail;
+                    EmailItems.Add(detail);
+                    EmailList.Children.Add(detail);
+                }
+
+                foreach (PhoneNumberModel phoneNumber in person.PhoneNumbers)
+                {
+                    PersonDetailListItem detail = new PersonDetailListItem(phoneNumber);
+                    detail.RemoveDetail += Detail_RemoveDetail;
+                    PhoneItems.Add(detail);
+                    PhoneList.Children.Add(detail);
+                }
             }
 
             addEmailButton.Clicked += AddEmailButton_Clicked;
             addPhoneNumberButton.Clicked += AddPhoneNumberButton_Clicked;
             ReadyButton.Clicked += ReadyButton_Clicked;
+            CancelButton.Clicked += CancelButton_Clicked;
+        }
+
+        private void CancelButton_Clicked(object sender, EventArgs e)
+        {
+            CancelButtonClicked?.Invoke(this, EventArgs.Empty);
         }
 
         private void Detail_RemoveDetail(object sender, EventArgs e)
