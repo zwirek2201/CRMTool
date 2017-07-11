@@ -1132,6 +1132,7 @@ namespace Licencjat_new.Controls
 
         private List<PersonModel> _usedInternalContacts = new List<PersonModel>();
         private List<PersonModel> _usedExternalContacts = new List<PersonModel>();
+        private List<CompanyModel> _usedGroupedCompanies = new List<CompanyModel>();
         private List<CompanyModel> _usedCompanies = new List<CompanyModel>();
 
         public event EventHandler RenameCompany;
@@ -1144,6 +1145,8 @@ namespace Licencjat_new.Controls
         private List<string> InternalContactsUsedAlphabet { get; set; } = new List<string>();
         private List<string> ExternalContactsUsedAlphabet { get; set; } = new List<string>();
         private List<string> CompaniesUsedAlphabet { get; set; } = new List<string>();
+        private List<string> GroupedCompaniesUsedAlphabet { get; set; } = new List<string>();
+
 
 
         private readonly List<AlphabetElementListItem> _internalContactsAlphabetElements =
@@ -1701,11 +1704,24 @@ namespace Licencjat_new.Controls
             #region Adding grouped person
 
                 listIndex = 0;
+            nameCharExists = false;
+            companyExists = false;
 
             if (person.Company != null)
             {
-                string companyNameChar = person.Company.Name.First().ToString().ToUpper();
 
+                if (!_usedGroupedCompanies.Contains(person.Company))
+                {
+                    _usedGroupedCompanies.Add(person.Company);
+                }
+                else
+                {
+                    companyExists = true;
+                }
+
+                _usedGroupedCompanies = _usedGroupedCompanies.OrderBy(obj => obj.Name).ToList();
+
+                string companyNameChar = person.Company.Name.First().ToString().ToUpper();
 
                 List<PersonModel> newUsed =
                     usedList.Where(obj => obj.Company != null)
@@ -1713,12 +1729,19 @@ namespace Licencjat_new.Controls
                         .OrderBy(obj => obj.Company.Name)
                         .ThenBy(obj => obj.FullName)
                         .ToList();
-                //
-                // USED COMPANIES ZAWIERA FIRMY KTÓRE NIE MAJĄ ŻADNYCH PRACOWNIKÓW - PSUJE LICZNIK
-                //
 
-                _usedCompanies = _usedCompanies.OrderBy(obj => obj.Name).ToList();
-                CompaniesUsedAlphabet.Sort();
+                _usedGroupedCompanies = _usedGroupedCompanies.OrderBy(obj => obj.Name).ToList();
+
+                if (!GroupedCompaniesUsedAlphabet.Contains(companyNameChar))
+                {
+                    GroupedCompaniesUsedAlphabet.Add(companyNameChar);
+                }
+                else
+                {
+                    nameCharExists = true;
+                }
+
+                GroupedCompaniesUsedAlphabet.Sort();
 
                 if (nameCharExists)
                     listIndex++;
@@ -1726,7 +1749,7 @@ namespace Licencjat_new.Controls
                 if (companyExists)
                     listIndex++;
 
-                listIndex += _usedCompanies.IndexOf(person.Company) + CompaniesUsedAlphabet.IndexOf(companyNameChar) +
+                listIndex += _usedGroupedCompanies.IndexOf(person.Company) + GroupedCompaniesUsedAlphabet.IndexOf(companyNameChar) +
                              newUsed.IndexOf(person);
                 companyItem = new ContactCompanyListItem(person.Company,
                     SelectionType == SelectionModeType.CompanySelect && SelectionMode);
@@ -1963,6 +1986,33 @@ namespace Licencjat_new.Controls
 
             BoundAlphabetList.Elements = CompaniesUsedAlphabet;
             elementsToDelete.ForEach(obj => _companiesStack.Children.Remove(obj));
+
+            elementsToDelete.Clear();
+
+            for (int i = 0; i < _externalGroupedContactsStack.Children.Count;i++)
+            {
+                if (i != 0)
+                {
+                    if (_externalGroupedContactsStack.Children[i] is AlphabetElementListItem &&
+                        _externalGroupedContactsStack.Children[i - 1] is ContactCompanyListItem)
+                    {
+                        AlphabetElementListItem item =
+                            (AlphabetElementListItem) (_externalGroupedContactsStack.Children[i - 2]);
+
+                        ContactCompanyListItem item2 =
+                            (ContactCompanyListItem) (_externalGroupedContactsStack.Children[i - 1]);
+
+                        GroupedCompaniesUsedAlphabet.Remove(item.Element);
+                        _usedGroupedCompanies.Remove(item2.Company);
+
+                        elementsToDelete.Add(_externalGroupedContactsStack.Children[i - 1]);
+                        elementsToDelete.Add(_externalGroupedContactsStack.Children[i - 2]);
+                    }
+                }
+            }
+
+            elementsToDelete.ForEach(obj => _externalGroupedContactsStack.Children.Remove(obj));
+
         }
 
         private void PersonItem_Click(object sender, EventArgs e)
