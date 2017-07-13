@@ -2074,7 +2074,16 @@ namespace Licencjat_new.Controls
             {
                 if (MultipleSelection)
                 {
-                    SelectedPersons.Add(item);
+                    if (SelectedPersons.Contains(item))
+                    {
+                        SelectedPersons.Remove(item);
+                        item.Selected = false;
+                    }
+                    else
+                    {
+                        SelectedPersons.Add(item);
+                        item.Selected = true;
+                    }
                 }
                 else
                 {
@@ -2082,9 +2091,9 @@ namespace Licencjat_new.Controls
                     SelectedPersons.Clear();
 
                     SelectedPersons.Add(item);
+                    item.Selected = true;
                 }
 
-                item.Selected = true;
                 SelectedItemsChanged?.Invoke(this, EventArgs.Empty);
             }
             else
