@@ -901,7 +901,18 @@ namespace Licencjat_new_server
                                 emailAddressesList, phoneNumbersList);
 
                             break;
-                            #endregion
+                        #endregion
+
+                        #region RemoveExternalContact
+                        case MessageDictionary.RemoveExternalContact:
+                            _writer.Write(MessageDictionary.OK);
+                            personId = _reader.ReadString();
+
+                            string personName = DBApi.RemoveExternalContact(personId);
+
+                            NotifyAllUsersAboutExternalContactRemoved(personId, personName);
+                            break;
+                            #endregion;
                     }
                 }
             }
@@ -952,6 +963,37 @@ namespace Licencjat_new_server
                 int count;
                 while ((count = stream.Read(buffer, 0, buffer.Length)) > 0)
                     _writer.Write(buffer, 0, count);
+            }
+        }
+
+        private void NotifyAllUsersAboutExternalContactRemoved(string personId, string personName)
+        {
+            DateTime notificationDate = DateTime.Now;
+
+            NotificationResultInfo notificationResultInfo = new NotificationResultInfo()
+            {
+                Type = NotificationType.ExternalContactRemoved,
+                SenderId = UserInfo.PersonId,
+                OldName = personName,
+                NotificationDate = notificationDate,
+            };
+
+            NotificationModel notification = NotificationHandler.ProcessNotification(notificationResultInfo);
+
+            List<string> subscribedUsersId = DBApi.GetAllUsers();
+
+            foreach (string userId in subscribedUsersId)
+            {
+                NotificationResultInfo recipientNotificationResultInfo = notificationResultInfo;
+                recipientNotificationResultInfo.RecipientId = userId;
+                string notificationId = DBApi.AddNewNotification(recipientNotificationResultInfo);
+
+                notification.NotificationId = notificationId;
+
+                Client userClient = Program.GetClientById(userId);
+                if (userClient == null) return;
+
+                userClient.NotificationClient.ExternalContactRemoved(personId, notification);
             }
         }
 

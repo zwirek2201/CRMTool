@@ -49,6 +49,7 @@ namespace Licencjat_new.Windows
         public event EventHandler<NewEmailAddressEventArgs> NewEmailAddress;
         public event EventHandler<CompanyRemovedEventArgs> CompanyRemoved;
         public event EventHandler<NewExternalContactEventArgs> NewExternalContact;
+        public event EventHandler<ExternalContactRemovedEventArgs> ExternalContactRemoved;
 
         #endregion
 
@@ -1066,6 +1067,7 @@ namespace Licencjat_new.Windows
                     NotificationClient.CompanyRemoved += NotificationClient_CompanyRemoved;
                     NotificationClient.ContactDetailsUpdated += NotificationClient_ContactDetailsUpdated;
                     NotificationClient.NewExternalContact += NotificationClient_NewExternalContact;
+                    NotificationClient.ExternalContactRemoved += NotificationClient_ExternalContactRemoved;
 
                     _notificationPanel = new NotificationsPanel(mainCanvas.ActualWidth,
                         mainCanvas.ActualHeight - 60);
@@ -1096,11 +1098,27 @@ namespace Licencjat_new.Windows
             }
         }
 
+        private void NotificationClient_ExternalContactRemoved(object sender, ExternalContactRemovedEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                NotificationModel notification = ProcessNotification(e.Notification);
+                RaiseNotification(notification);
+
+                ExternalContactRemoved?.Invoke(this, e);
+                Persons.Remove(Persons.Find(obj => obj.Id == e.PersonId));
+            });
+        }
+
         private void NotificationClient_NewExternalContact(object sender, NewExternalContactEventArgs e)
         {
             Dispatcher.Invoke(() =>
             {
                 e.NewData.IsInternalUser = false;
+                if (e.NewData.CompanyId != "")
+                {
+                    e.NewData.Company = Companies.Find(obj => obj.Id == e.NewData.CompanyId);
+                }
                 Persons.Add(e.NewData);
 
                 NotificationModel notification = ProcessNotification(e.Notification);

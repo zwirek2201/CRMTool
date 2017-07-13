@@ -59,6 +59,7 @@ namespace Licencjat_new.Server
         public const byte GetAllContacts = 50;
         public const byte UpdatePersonDetails = 51;
         public const byte NewExternalContact = 52;
+        public const byte RemoveExternalContact = 53;
 
         //Companies
         public const byte GetAllCompanies = 60;

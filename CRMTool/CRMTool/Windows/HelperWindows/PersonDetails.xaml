@@ -23,6 +23,7 @@
             <StackPanel Height="15" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="#1c9ad2" DockPanel.Dock="Bottom"/>
             <Border BorderBrush="#1c9ad2" BorderThickness="0,1,0,0" DockPanel.Dock="Bottom">
                 <DockPanel Height="50" Background="#fdfdfd" LastChildFill="False">
+                    <TextBlock x:Name="ErrorLabel" VerticalAlignment="Center" FontSize="18" Text="" Margin="20,0,0,0"  DockPanel.Dock="Left"  Foreground="#bb0000"></TextBlock>
                     <controls:RoundedButton x:Name="ReadyButton" BackgroundColor="#1c9ad2" BorderColor="#fdfdfd" Text="Zapisz" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
                     <controls:RoundedButton x:Name="CancelButton" BackgroundColor="#fdfdfd" BorderColor="#1c9ad2" Text="Anuluj" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
                 </DockPanel>
@@ -53,6 +54,7 @@
                             <controls:RoundedButton x:Name="addEmailButton" BackgroundColor="#fdfdfd" BorderColor="#1c9ad2" Text="Dodaj" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
                             <TextBlock FontSize="20" Margin="20,7,10,0" Text="Adresy e-mail" Foreground="#1c9ad2"></TextBlock>
                         </DockPanel>
+                        <TextBlock x:Name="NoEmailsLabel" Visibility="Collapsed"  FontSize="16" Text="Brak adresów e-mail" Margin="0,0,0,10"  HorizontalAlignment="Center" Foreground="#c2c2c2"></TextBlock>
                         <StackPanel x:Name="EmailList"/>
                         </StackPanel>
                 </Border>
@@ -62,6 +64,7 @@
                             <controls:RoundedButton x:Name="addPhoneNumberButton" BackgroundColor="#fdfdfd" BorderColor="#1c9ad2" Text="Dodaj" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
                             <TextBlock FontSize="20" Margin="20,7,10,0" Text="Numery telefonów" Foreground="#1c9ad2"></TextBlock>
                         </DockPanel>
+                        <TextBlock x:Name="NoPhoneLabel" Visibility="Collapsed" FontSize="16" Text="Brak numerów telefonu" Margin="0,0,0,10"  HorizontalAlignment="Center" Foreground="#c2c2c2"></TextBlock>
                         <StackPanel x:Name="PhoneList"/>
                     </StackPanel>
                 </Border>

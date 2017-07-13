@@ -47,6 +47,7 @@ namespace Licencjat_new.Server
         public event EventHandler<CompanyRemovedEventArgs> CompanyRemoved;
         public event EventHandler<ContactDetailsUpdatedEventArgs> ContactDetailsUpdated;
         public event EventHandler<NewExternalContactEventArgs> NewExternalContact;
+        public event EventHandler<ExternalContactRemovedEventArgs> ExternalContactRemoved;
         #endregion
 
         #region Constructors
@@ -366,7 +367,6 @@ namespace Licencjat_new.Server
                                     #region UpdatePersonDetails
 
                                     case MessageDictionary.UpdatePersonDetails:
-                                        _writer.Write(MessageDictionary.OK);
 
                                         string PersonId = _reader.ReadString();
                                         string PersonFirstName = _reader.ReadString();
@@ -473,6 +473,22 @@ namespace Licencjat_new.Server
                                         });
                                         break;
 
+                                    #endregion
+
+                                    #region NewExternalContact
+
+                                    case MessageDictionary.RemoveExternalContact:
+
+                                        personId = _reader.ReadString();
+
+                                        ExternalContactRemoved?.Invoke(this, new ExternalContactRemovedEventArgs()
+                                        {
+                                            PersonId = personId,
+                                            Notification = new NotificationModel(notificationId, notificationText,
+                                                referenceFields,
+                                                notificationDate, false)
+                                        });
+                                        break;
                                         #endregion
                                 }
                             }
@@ -688,6 +704,12 @@ namespace Licencjat_new.Server
             return file.ToArray();
         }
         #endregion
+    }
+
+    public class ExternalContactRemovedEventArgs
+    {
+        public string PersonId { get;set; }
+        public NotificationModel Notification { get; set; }
     }
 
     public class NewExternalContactEventArgs

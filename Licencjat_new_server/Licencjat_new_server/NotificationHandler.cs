@@ -21,8 +21,8 @@ namespace Licencjat_new_server
             new NotificationRule(NotificationType.RenamedCompany,"{SenderId} zmienił nazwę firmy [OldName] na [NewName]",new List<string>() { "Persons.FullName" }),
             new NotificationRule(NotificationType.RemovedCompany,"{SenderId} usunął firmę [OldName] z książki kontaktów",new List<string>() { "Persons.FullName" }),
             new NotificationRule(NotificationType.UpdatePersonDetails,"{SenderId} zmienił dane osoby {PersonId}",new List<string>() { "Persons.FullName", "Persons.FullName" }),
-            new NotificationRule(NotificationType.NewExternalContact,"{SenderId} dodał osobę {PersonId} do listy kontaktów",new List<string>() { "Persons.FullName", "Persons.FullName" })
-
+            new NotificationRule(NotificationType.NewExternalContact,"{SenderId} dodał osobę {PersonId} do listy kontaktów",new List<string>() { "Persons.FullName", "Persons.FullName" }),
+            new NotificationRule(NotificationType.ExternalContactRemoved,"{SenderId} usunął osobę [OldName] z listy kontaktów",new List<string>() { "Persons.FullName", })
         };
 
         public static NotificationModel ProcessNotification(NotificationResultInfo notification)
@@ -112,6 +112,7 @@ namespace Licencjat_new_server
         RenamedCompany,
         RemovedCompany,
         UpdatePersonDetails,
-        NewExternalContact
+        NewExternalContact,
+        ExternalContactRemoved
     }
 }

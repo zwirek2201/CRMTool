@@ -985,6 +985,25 @@ namespace Licencjat_new.Server
             }
         }
 
+        public void RemoveExternalContact(PersonModel person)
+        {
+            try
+            {
+                _writer.Write(MessageDictionary.RemoveExternalContact);
+                if (_reader.Read() == MessageDictionary.OK)
+                {
+                    _writer.Write(person.Id);
+                    return;
+                }
+                throw new Exception("Connection unsynced");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                ErrorHelper.LogError(ex);
+            }
+        }
+
         public void AddNewEmailAddress(NewEmailAddressEventArgs ea)
         {
             try

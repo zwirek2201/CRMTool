@@ -81,10 +81,16 @@ namespace Licencjat_new.Windows
             _parent.NewCompanyArrived += _parent_NewCompanyArrived;
             _parent.CompanyRemoved += _parent_CompanyRemoved;
             _parent.NewExternalContact += _parent_NewExternalContact;
+            _parent.ExternalContactRemoved += _parent_ExternalContactRemoved;
 
             //ContactSearchBox searchBox = ContactSearchBox;
             //ContactList.BoundSearchBox = searchBox;
             WindowInitialized = true;
+        }
+
+        private void _parent_ExternalContactRemoved(object sender, Server.ExternalContactRemovedEventArgs e)
+        {
+            _contactList.RemovePerson(e.PersonId);
         }
 
         private void _parent_NewExternalContact(object sender, Server.NewExternalContactEventArgs e)
@@ -127,12 +133,64 @@ namespace Licencjat_new.Windows
             _contactList.RenameCompany += _contactList_RenameCompany;
             _contactList.RemoveCompanyEvent += _contactList_RemoveCompany;
             _contactList.PersonShowDetails += _contactList_PersonShowDetails;
+            _contactList.RemoveExternalContact += _contactList_RemoveExternalContact;
 
             ToolBarButton addButton = new ToolBarButton("",
                 new Uri("pack://application:,,,/resources/add.png"));
             addButton.Click += AddButton_Click;
 
             MainMenuStrip.AddButton(addButton, Dock.Left);
+        }
+
+        private void _contactList_RemoveExternalContact(object sender, EventArgs e)
+        {
+            bool isMember = false;
+            ContactPersonListItem contactItem = (ContactPersonListItem)sender;
+            foreach (ConversationModel conversation in _parent.Conversations)
+            {
+                if (conversation.Members.Contains(contactItem.Person))
+                    isMember = true;
+            }
+
+            if (isMember)
+            {
+                CustomMessageBox messageBox =
+                    new CustomMessageBox(
+                        "Nie można usunąć tej osoby, ponieważ jest członkiem konwersacji.",
+                        MessageBoxButton.OK);
+
+                messageBox.OKButtonClicked += (s, ea) =>
+                {
+                    _parent.Darkened = false;
+                    _parent.mainCanvas.Children.Remove(messageBox);
+                };
+
+                _parent.Darkened = true;
+                _parent.mainCanvas.Children.Add(messageBox);
+            }
+            else
+            {
+                CustomMessageBox messageBox =
+                new CustomMessageBox(
+                    "Czy na pewno chcesz usunąć ten kontakt?",
+                    MessageBoxButton.YesNo);
+
+                messageBox.YesButtonClicked += (s, ea) =>
+                {
+                    _parent.Client.RemoveExternalContact(contactItem.Person);
+                    _parent.Darkened = false;
+                    _parent.mainCanvas.Children.Remove(messageBox);
+                };
+
+                messageBox.NoButtonClicked += (s, ea) =>
+                {
+                    _parent.Darkened = false;
+                    _parent.mainCanvas.Children.Remove(messageBox);
+                };
+
+                _parent.Darkened = true;
+                _parent.mainCanvas.Children.Add(messageBox);
+            }             
         }
 
         private void _contactList_PersonShowDetails(object sender, EventArgs e)

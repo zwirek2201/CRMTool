@@ -79,6 +79,12 @@ namespace Licencjat_new.Windows.HelperWindows
                 }
             }
 
+            if (EmailItems.Count == 0)
+                NoEmailsLabel.Visibility = Visibility.Visible;
+
+            if (PhoneItems.Count == 0)
+                NoPhoneLabel.Visibility = Visibility.Visible;
+
             addEmailButton.Clicked += AddEmailButton_Clicked;
             addPhoneNumberButton.Clicked += AddPhoneNumberButton_Clicked;
             ReadyButton.Clicked += ReadyButton_Clicked;
@@ -100,36 +106,73 @@ namespace Licencjat_new.Windows.HelperWindows
         private void Detail_RemoveDetail(object sender, EventArgs e)
         {
             PersonDetailListItem detail = (PersonDetailListItem)sender;
-            string messageString = detail.ChildObject is EmailAddressModel
-                ? "Czy na pewno chcesz usunąć ten adres e-mail?"
-                : "Czy na pewno chcesz usunąć ten numer telefonu?";
-            CustomMessageBox message = new CustomMessageBox(messageString, MessageBoxButton.YesNo);
 
-            message.YesButtonClicked += (s, ea) =>
+            if (detail.Name != "" || detail.DetailValue != "")
+            {
+                string messageString = detail.ChildObject is EmailAddressModel
+                    ? "Czy na pewno chcesz usunąć ten adres e-mail?"
+                    : "Czy na pewno chcesz usunąć ten numer telefonu?";
+                CustomMessageBox message = new CustomMessageBox(messageString, MessageBoxButton.YesNo);
+
+                message.YesButtonClicked += (s, ea) =>
+                {
+                    if (detail.ChildObject is PhoneNumberModel)
+                    {
+                        PhoneItems.Remove(detail);
+                        PhoneList.Children.Remove(detail);
+
+                        if (PhoneItems.Count == 0)
+                            NoPhoneLabel.Visibility = Visibility.Visible;
+                        else
+                            NoPhoneLabel.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        EmailItems.Remove(detail);
+                        EmailList.Children.Remove(detail);
+
+                        if (EmailItems.Count == 0)
+                            NoEmailsLabel.Visibility = Visibility.Visible;
+                        else
+                            NoEmailsLabel.Visibility = Visibility.Collapsed;
+                    }
+
+                    DarkenerPanel.Visibility = Visibility.Collapsed;
+                    _parent.mainCanvas.Children.Remove(message);
+                };
+
+                message.NoButtonClicked += (s, ea) =>
+                {
+                    DarkenerPanel.Visibility = Visibility.Collapsed;
+                    _parent.mainCanvas.Children.Remove(message);
+                };
+
+                DarkenerPanel.Visibility = Visibility.Visible;
+                _parent.mainCanvas.Children.Add(message);
+            }
+            else
             {
                 if (detail.ChildObject is PhoneNumberModel)
                 {
                     PhoneItems.Remove(detail);
                     PhoneList.Children.Remove(detail);
+
+                    if (PhoneItems.Count == 0)
+                        NoPhoneLabel.Visibility = Visibility.Visible;
+                    else
+                        NoPhoneLabel.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
                     EmailItems.Remove(detail);
                     EmailList.Children.Remove(detail);
+
+                    if (EmailItems.Count == 0)
+                        NoEmailsLabel.Visibility = Visibility.Visible;
+                    else
+                        NoEmailsLabel.Visibility = Visibility.Collapsed;
                 }
-
-                DarkenerPanel.Visibility = Visibility.Collapsed;
-                _parent.mainCanvas.Children.Remove(message);
-            };
-
-            message.NoButtonClicked += (s, ea) =>
-            {
-                DarkenerPanel.Visibility = Visibility.Collapsed;
-                _parent.mainCanvas.Children.Remove(message);
-            };
-
-            DarkenerPanel.Visibility = Visibility.Visible;
-            _parent.mainCanvas.Children.Add(message);
+            }
         }
 
         private void AddPhoneNumberButton_Clicked(object sender, EventArgs e)
@@ -138,6 +181,8 @@ namespace Licencjat_new.Windows.HelperWindows
             detail.RemoveDetail += Detail_RemoveDetail;
             PhoneItems.Add(detail);
             PhoneList.Children.Add(detail);
+
+            NoPhoneLabel.Visibility = Visibility.Collapsed;
         }
 
         private void AddEmailButton_Clicked(object sender, EventArgs e)
@@ -146,6 +191,8 @@ namespace Licencjat_new.Windows.HelperWindows
             detail.RemoveDetail += Detail_RemoveDetail;
             EmailItems.Add(detail);
             EmailList.Children.Add(detail);
+
+            NoEmailsLabel.Visibility = Visibility.Collapsed;
         }
 
         private void ReadyButton_Clicked(object sender, EventArgs e)
@@ -157,6 +204,10 @@ namespace Licencjat_new.Windows.HelperWindows
             if (!stop)
             {
                 ReadyButtonClicked?.Invoke(this, EventArgs.Empty);
+            }
+            else
+            {
+                ErrorLabel.Text = "Uzupełnij wszystkie dane!";
             }
         }
 
