@@ -46,6 +46,7 @@ namespace Licencjat_new.Server
         public event EventHandler<NewEmailAddressEventArgs> NewEmailAddress;
         public event EventHandler<CompanyRemovedEventArgs> CompanyRemoved;
         public event EventHandler<ContactDetailsUpdatedEventArgs> ContactDetailsUpdated;
+        public event EventHandler<NewExternalContactEventArgs> NewExternalContact;
         #endregion
 
         #region Constructors
@@ -416,6 +417,62 @@ namespace Licencjat_new.Server
                                         });
                                         break;
 
+                                    #endregion
+
+                                    #region NewExternalContact
+
+                                    case MessageDictionary.NewExternalContact:
+                                        _writer.Write(MessageDictionary.OK);
+
+                                        PersonId = _reader.ReadString();
+                                        PersonFirstName = _reader.ReadString();
+                                        PersonLastName = _reader.ReadString();
+                                        PersonGenderCode = _reader.ReadString();
+                                        PersonCompanyId = _reader.ReadString();
+
+                                        PersonGender = (Gender)Convert.ToInt32(PersonGenderCode);
+
+                                        contactPerson = new PersonModel(PersonId, PersonFirstName, PersonLastName,
+                                            PersonGender,
+                                            PersonCompanyId, true);
+
+                                        emailAddressCount = _reader.ReadInt32();
+
+                                        for (int j = 0; j < emailAddressCount; j++)
+                                        {
+                                            emailId = _reader.ReadString();
+                                            string emailName = _reader.ReadString();
+                                            emailAddress = _reader.ReadString();
+
+                                            EmailAddressModel emailAddressModel = new EmailAddressModel(emailId, emailAddress,
+                                                emailName,
+                                                true, true);
+                                            contactPerson.EmailAddresses.Add(emailAddressModel);
+                                        }
+
+                                        phoneNumberCount = _reader.ReadInt32();
+
+                                        for (int j = 0; j < phoneNumberCount; j++)
+                                        {
+                                            string phoneNumberId = _reader.ReadString();
+                                            string phoneName = _reader.ReadString();
+                                            string phoneNumber = _reader.ReadString();
+
+                                            PhoneNumberModel phoneNumberModel = new PhoneNumberModel(phoneNumberId, phoneNumber,
+                                                phoneName,
+                                                true, true);
+                                            contactPerson.PhoneNumbers.Add(phoneNumberModel);
+                                        }
+
+                                        NewExternalContact?.Invoke(this, new NewExternalContactEventArgs()
+                                        {
+                                            NewData = contactPerson,
+                                            Notification = new NotificationModel(notificationId, notificationText,
+                                                referenceFields,
+                                                notificationDate, false)
+                                        });
+                                        break;
+
                                         #endregion
                                 }
                             }
@@ -631,6 +688,12 @@ namespace Licencjat_new.Server
             return file.ToArray();
         }
         #endregion
+    }
+
+    public class NewExternalContactEventArgs
+    {
+        public PersonModel NewData { get; set; }
+        public NotificationModel Notification { get; set; }
     }
 
     public class ContactDetailsUpdatedEventArgs

@@ -77,7 +77,7 @@ namespace Licencjat_new.CustomClasses
             }
         }
 
-        public bool IsInternalUser { get; private set; }
+        public bool IsInternalUser { get; set; }
         #endregion
 
         public event EventHandler DataChanged;

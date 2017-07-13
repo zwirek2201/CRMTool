@@ -976,11 +976,23 @@ namespace Licencjat_new_server
             parameters.Rows.Add("gender", gender);
             DB.RunSimpleCommand("update Persons set FirstName = @firstName, LastName = @lastName, Gender = @gender WHERE Id = @id", parameters);
 
-            parameters.Clear();
-            parameters.Rows.Add("personId", id);
-            parameters.Rows.Add("companyId", companyId);
+            if (companyId != "")
+            {
+                parameters.Clear();
+                parameters.Rows.Add("personId", id);
+                parameters.Rows.Add("companyId", companyId);
 
-            DB.RunSimpleCommand("IF EXISTS (Select * from ContactPersons where Person = @personId) UPDATE ContactPersons Set Company = @companyId WHERE Person = @personId ELSE INSERT INTO ContactPersons (Person, Company) values (@personId, @companyId)", parameters);
+                DB.RunSimpleCommand(
+                    "IF EXISTS (Select * from ContactPersons where Person = @personId) UPDATE ContactPersons Set Company = @companyId WHERE Person = @personId ELSE INSERT INTO ContactPersons (Person, Company) values (@personId, @companyId)",
+                    parameters);
+            }
+            else
+            {
+                parameters.Clear();
+                parameters.Rows.Add("personId", id);
+
+                DB.RunSimpleCommand("delete from ContactPersons where Person = @personId",parameters);
+            }
 
             parameters.Clear();
             parameters.Rows.Add("personId", id);
@@ -1118,8 +1130,6 @@ namespace Licencjat_new_server
                 parameters.Rows.Add("phoneId", phone);
                 DB.RunSimpleCommand("delete from PersonPhoneNumbers WHERE Id = @emailId", parameters);
             }
-
-            //DOKONCZYC
         }
 
         public static string NewExternalContact(string firstName, string lastName, int gender, string companyId, List<EmailAddressResultInfo> emailAddressesList, List<PhoneNumberResultInfo> phoneNumbersList)
@@ -1132,11 +1142,15 @@ namespace Licencjat_new_server
 
             string id = returnTable.Rows[0][0].ToString();
 
-            parameters.Clear();
-            parameters.Rows.Add("personId", id);
-            parameters.Rows.Add("companyId", companyId);
+            if (companyId != "")
+            {
+                parameters.Clear();
+                parameters.Rows.Add("personId", id);
+                parameters.Rows.Add("companyId", companyId);
 
-            DB.RunSimpleCommand("INSERT INTO ContactPersons (Person, Company) values (@personId, @companyId)", parameters);
+                DB.RunSimpleCommand("INSERT INTO ContactPersons (Person, Company) values (@personId, @companyId)",
+                    parameters);
+            }
 
             foreach (EmailAddressResultInfo email in emailAddressesList)
             {

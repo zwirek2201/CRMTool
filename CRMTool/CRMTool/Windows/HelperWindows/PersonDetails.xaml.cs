@@ -45,6 +45,7 @@ namespace Licencjat_new.Windows.HelperWindows
             GenderComboBox.AddItem("Kobieta");
             GenderComboBox.AddItem("Mężczyzna");
 
+            CompanyTextBox.IsEnabled = false;
 
             if (Person != null)
             {
@@ -55,8 +56,6 @@ namespace Licencjat_new.Windows.HelperWindows
 
                 if (person.Company != null)
                     CompanyTextBox.Text = person.Company.Name;
-
-                CompanyTextBox.IsEnabled = false;
 
                 if (person.Gender == Gender.Female)
                     GenderComboBox.SelectedItem = GenderComboBox.Items[0];
@@ -84,6 +83,13 @@ namespace Licencjat_new.Windows.HelperWindows
             addPhoneNumberButton.Clicked += AddPhoneNumberButton_Clicked;
             ReadyButton.Clicked += ReadyButton_Clicked;
             CancelButton.Clicked += CancelButton_Clicked;
+            RemoveCompanyButton.Clicked += RemoveCompanyButton_Clicked;
+        }
+
+        private void RemoveCompanyButton_Clicked(object sender, EventArgs e)
+        {
+            CompanyTextBox.Text = "";
+            Company = null;
         }
 
         private void CancelButton_Clicked(object sender, EventArgs e)

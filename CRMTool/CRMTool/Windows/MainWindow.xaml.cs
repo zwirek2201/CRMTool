@@ -48,6 +48,7 @@ namespace Licencjat_new.Windows
         public event EventHandler<CompanyRenamedEventArgs> CompanyRenamed;
         public event EventHandler<NewEmailAddressEventArgs> NewEmailAddress;
         public event EventHandler<CompanyRemovedEventArgs> CompanyRemoved;
+        public event EventHandler<NewExternalContactEventArgs> NewExternalContact;
 
         #endregion
 
@@ -1064,6 +1065,7 @@ namespace Licencjat_new.Windows
                     NotificationClient.NewEmailAddress += NotificationClient_NewEmailAddress;
                     NotificationClient.CompanyRemoved += NotificationClient_CompanyRemoved;
                     NotificationClient.ContactDetailsUpdated += NotificationClient_ContactDetailsUpdated;
+                    NotificationClient.NewExternalContact += NotificationClient_NewExternalContact;
 
                     _notificationPanel = new NotificationsPanel(mainCanvas.ActualWidth,
                         mainCanvas.ActualHeight - 60);
@@ -1094,6 +1096,20 @@ namespace Licencjat_new.Windows
             }
         }
 
+        private void NotificationClient_NewExternalContact(object sender, NewExternalContactEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                e.NewData.IsInternalUser = false;
+                Persons.Add(e.NewData);
+
+                NotificationModel notification = ProcessNotification(e.Notification);
+                RaiseNotification(notification);
+
+                NewExternalContact?.Invoke(this, e);
+            });
+        }
+
         private void NotificationClient_ContactDetailsUpdated(object sender, ContactDetailsUpdatedEventArgs e)
         {
             Dispatcher.Invoke(() =>
@@ -1106,9 +1122,19 @@ namespace Licencjat_new.Windows
                 if (person.LastName != e.NewData.LastName)
                     person.LastName = e.NewData.LastName;
 
-                if (person.Company.Id != e.NewData.CompanyId)
+                if (person.Company != null)
                 {
-                    person.Company = Companies.Find(obj => obj.Id == e.NewData.CompanyId);
+                    if (person.Company.Id != e.NewData.CompanyId)
+                    {
+                        person.Company = Companies.Find(obj => obj.Id == e.NewData.CompanyId);
+                    }
+                }
+                else
+                {
+                    if (e.NewData.CompanyId != "")
+                    {
+                        person.Company = Companies.Find(obj => obj.Id == e.NewData.CompanyId);
+                    }
                 }
 
                 if (person.Gender != e.NewData.Gender)

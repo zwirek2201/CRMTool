@@ -80,10 +80,16 @@ namespace Licencjat_new.Windows
 
             _parent.NewCompanyArrived += _parent_NewCompanyArrived;
             _parent.CompanyRemoved += _parent_CompanyRemoved;
+            _parent.NewExternalContact += _parent_NewExternalContact;
 
             //ContactSearchBox searchBox = ContactSearchBox;
             //ContactList.BoundSearchBox = searchBox;
             WindowInitialized = true;
+        }
+
+        private void _parent_NewExternalContact(object sender, Server.NewExternalContactEventArgs e)
+        {
+            _contactList.AddPerson(e.NewData);
         }
 
         private void _parent_CompanyRemoved(object sender, Server.CompanyRemovedEventArgs e)

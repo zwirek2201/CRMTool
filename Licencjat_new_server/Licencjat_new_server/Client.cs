@@ -554,11 +554,17 @@ namespace Licencjat_new_server
                                 NotificationModel notificationModel =
                                     NotificationHandler.ProcessNotification(notification);
 
-                                _writer.Write(notificationModel.NotificationId);
-                                _writer.Write(notificationModel.NotificationText);
-                                _writer.Write(notificationModel.NotificationDate.ToString("dd-MM-yyyy HH:mm:ss"));
-                                _writer.Write(notificationModel.NotificationRead);
-
+                                try
+                                {
+                                    _writer.Write(notificationModel.NotificationId);
+                                    _writer.Write(notificationModel.NotificationText);
+                                    _writer.Write(notificationModel.NotificationDate.ToString("dd-MM-yyyy HH:mm:ss"));
+                                    _writer.Write(notificationModel.NotificationRead);
+                                }
+                                catch (Exception ex)
+                                {
+                                    
+                                }
                                 _writer.Write(notificationModel.NotificationReferenceFields.Count);
 
                                 foreach (string referenceField in notificationModel.NotificationReferenceFields)
@@ -891,8 +897,8 @@ namespace Licencjat_new_server
                             string personId = DBApi.NewExternalContact(firstName, lastName, gender, companyId, emailAddressesList,
                                 phoneNumbersList);
 
-                            //NotifyAllUsersAboutPersonDetailsChanged(id, firstName, lastName, gender, companyId,
-                            //    emailAddressesList, phoneNumbersList);
+                            NotifyAllUsersAboutNewExternalContact(personId, firstName, lastName, gender, companyId,
+                                emailAddressesList, phoneNumbersList);
 
                             break;
                             #endregion
@@ -946,6 +952,37 @@ namespace Licencjat_new_server
                 int count;
                 while ((count = stream.Read(buffer, 0, buffer.Length)) > 0)
                     _writer.Write(buffer, 0, count);
+            }
+        }
+
+        private void NotifyAllUsersAboutNewExternalContact(string id, string firstName, string lastName, int gender, string companyId, List<EmailAddressResultInfo> emailAddressesList, List<PhoneNumberResultInfo> phoneNumbersList)
+        {
+            DateTime notificationDate = DateTime.Now;
+
+            NotificationResultInfo notificationResultInfo = new NotificationResultInfo()
+            {
+                Type = NotificationType.NewExternalContact,
+                SenderId = UserInfo.PersonId,
+                PersonId = id,
+                NotificationDate = notificationDate,
+            };
+
+            NotificationModel notification = NotificationHandler.ProcessNotification(notificationResultInfo);
+
+            List<string> subscribedUsersId = DBApi.GetAllUsers();
+
+            foreach (string userId in subscribedUsersId)
+            {
+                NotificationResultInfo recipientNotificationResultInfo = notificationResultInfo;
+                recipientNotificationResultInfo.RecipientId = userId;
+                string notificationId = DBApi.AddNewNotification(recipientNotificationResultInfo);
+
+                notification.NotificationId = notificationId;
+
+                Client userClient = Program.GetClientById(userId);
+                if (userClient == null) return;
+
+                userClient.NotificationClient.NewExternalContact(id, firstName, lastName, gender, companyId, emailAddressesList, phoneNumbersList, notification);
             }
         }
 
