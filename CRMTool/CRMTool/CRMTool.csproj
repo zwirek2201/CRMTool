@@ -156,6 +156,9 @@
     <Compile Include="Windows\HelperWindows\AdditionalChoose.xaml.cs">
       <DependentUpon>AdditionalChoose.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\HelperWindows\ChooseCompany.xaml.cs">
+      <DependentUpon>ChooseCompany.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\HelperWindows\ChooseFiles.xaml.cs">
       <DependentUpon>ChooseFiles.xaml</DependentUpon>
     </Compile>
@@ -177,9 +180,6 @@
     <Compile Include="Windows\HelperWindows\CustomMessageBox.xaml.cs">
       <DependentUpon>CustomMessageBox.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\HelperWindows\NewCompany.xaml.cs">
-      <DependentUpon>NewCompany.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Windows\HelperWindows\NewEmailAddress.xaml.cs">
       <DependentUpon>NewEmailAddress.xaml</DependentUpon>
     </Compile>
@@ -188,6 +188,9 @@
     </Compile>
     <Compile Include="Windows\HelperWindows\NewPhoneConversationMessage.xaml.cs">
       <DependentUpon>NewPhoneConversationMessage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\HelperWindows\PersonDetails.xaml.cs">
+      <DependentUpon>PersonDetails.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\HelperWindows\Rename.xaml.cs">
       <DependentUpon>Rename.xaml</DependentUpon>
@@ -224,6 +227,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Windows\HelperWindows\ChooseCompany.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\HelperWindows\ChooseFiles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -252,10 +259,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\HelperWindows\NewCompany.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Windows\HelperWindows\NewEmailAddress.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -265,6 +268,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\HelperWindows\NewPhoneConversationMessage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\HelperWindows\PersonDetails.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
