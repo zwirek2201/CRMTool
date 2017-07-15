@@ -621,7 +621,7 @@ namespace Licencjat_new.Controls
 
             #region TextMatching
 
-            MatchCollection matches = Regex.Matches(NotificationText, @"(\{.[^\{\}]+\})|(\[.[^\[\]]+\])");
+            MatchCollection matches = Regex.Matches(NotificationText, @"(\{.[^\{\}]*\})|(\[.[^\[\]]*\])");
 
             if (matches.Count > 0)
             {

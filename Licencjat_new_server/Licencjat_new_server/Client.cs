@@ -1315,9 +1315,8 @@ namespace Licencjat_new_server
                     notification.NotificationId = notificationId;
 
                     Client userClient = Program.GetClientById(userId);
-                    if (userClient == null) return;
 
-                    userClient.NotificationClient.ConversationRenamed(conversationId, oldName, newName, notification);
+                    userClient?.NotificationClient.ConversationRenamed(conversationId, oldName, newName, notification);
 
                 }
             }

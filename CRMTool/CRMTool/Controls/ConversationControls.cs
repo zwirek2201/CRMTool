@@ -195,6 +195,7 @@ namespace Licencjat_new.Controls
             foreach (ConversationModel conversation in conversations)
             {
                 ConversationListItem conversationItem = new ConversationListItem(conversation);
+                conversationItem.PreviewMouseRightButtonDown += ConversationItem_PreviewMouseRightButtonDown;
                 conversationItem.ConversationList = this;
                 conversationItem.RemoveConversation += ConversationItem_RemoveConversation;
                 conversationItem.RenameConversation += ConversationItem_RenameConversation;
@@ -211,9 +212,16 @@ namespace Licencjat_new.Controls
             }
         }
 
+        private void ConversationItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            ConversationListItem item = (ConversationListItem)sender;
+            SelectedConversationItem = item;
+        }
+
         public void AddConversation(ConversationListItem conversationItem)
         {
             conversationItem.ConversationList = this;
+            conversationItem.PreviewMouseRightButtonDown += ConversationItem_PreviewMouseRightButtonDown;
             conversationItem.RemoveConversation += ConversationItem_RemoveConversation;
             conversationItem.RenameConversation += ConversationItem_RenameConversation;
             conversationItem.ShowConversationDetails += ConversationItem_ShowConversationDetails;

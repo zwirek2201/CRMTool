@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Licencjat_new.Controls;
 using Licencjat_new.CustomClasses;
+using Licencjat_new.Server;
 using Licencjat_new.Windows.HelperWindows;
 
 namespace Licencjat_new.Windows
@@ -172,9 +173,33 @@ namespace Licencjat_new.Windows
             FileListItem fileItem = (FileListItem)sender;
 
             if (fileItem.File.Data == null)
-                _parent.DownloadClient.DownloadFile(fileItem.File);
+            {
+                EventHandler<FileDownloadedEventArgs> eventDelegate = null;
 
-            DownloadHelper.DownloadFile(fileItem.File);
+                eventDelegate = (s, args) =>
+                {
+                    if (fileItem.File.Downloaded)
+                    {
+                        DownloadHelper.DownloadFile(fileItem.File);
+
+                        _parent.RaiseNotification(new NotificationModel("", "", null,
+                            DateTime.Now, false, true)
+                        { Text = "Plik został pobrany" });
+
+                        _parent.DownloadClient.FileDownloaded -= eventDelegate;
+                    }
+                };
+                _parent.DownloadClient.FileDownloaded += eventDelegate;
+                _parent.DownloadClient.DownloadQueue.Add(fileItem.File);
+            }
+            else
+            {
+                DownloadHelper.DownloadFile(fileItem.File);
+
+                _parent.RaiseNotification(new NotificationModel("", "", null,
+                    DateTime.Now, false, true)
+                { Text = "Plik został pobrany" });
+            }
         }
         #endregion
 
