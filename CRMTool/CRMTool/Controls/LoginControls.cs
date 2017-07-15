@@ -116,6 +116,7 @@ namespace Licencjat_new.Controls
             {
                 Foreground = new SolidColorBrush(Colors.Black),
                 FontSize = 16,
+                MinWidth = 20,
                 BorderThickness = new Thickness(0),
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 HorizontalContentAlignment = HorizontalAlignment.Left,
@@ -131,6 +132,7 @@ namespace Licencjat_new.Controls
             {
                 Foreground = new SolidColorBrush(Colors.Black),
                 FontSize = 16,
+                MinWidth = 20,
                 BorderThickness = new Thickness(0),
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 HorizontalContentAlignment = HorizontalAlignment.Left,
@@ -158,6 +160,13 @@ namespace Licencjat_new.Controls
         public string Text
         {
             get { return IsPassword ? _passwordBox.Password : _textBox.Text; }
+            set
+            {
+                if (IsPassword)
+                    _passwordBox.Password = value;
+                else
+                    _textBox.Text = value;
+            }
         }
 
         private void _textBox_GotFocus(object sender, RoutedEventArgs e)

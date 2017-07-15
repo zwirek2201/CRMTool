@@ -47,6 +47,9 @@ namespace Licencjat_new.Windows
         public event EventHandler<NewCompanyEventArgs> NewCompanyArrived;
         public event EventHandler<CompanyRenamedEventArgs> CompanyRenamed;
         public event EventHandler<NewEmailAddressEventArgs> NewEmailAddress;
+        public event EventHandler<CompanyRemovedEventArgs> CompanyRemoved;
+        public event EventHandler<NewExternalContactEventArgs> NewExternalContact;
+        public event EventHandler<ExternalContactRemovedEventArgs> ExternalContactRemoved;
 
         #endregion
 
@@ -836,7 +839,7 @@ namespace Licencjat_new.Windows
 
                 if (author != null)
                 {
-                    if (author.Company == null)
+                    if (author.IsInternalUser)
                         message.Received = false;
                     message.Color = conversation.ColorDictionary[author];
 
@@ -1061,6 +1064,10 @@ namespace Licencjat_new.Windows
                     NotificationClient.NewCompanyArrived += NotificationClient_NewCompanyArrived;
                     NotificationClient.CompanyRenamed += NotificationClient_CompanyRenamed;
                     NotificationClient.NewEmailAddress += NotificationClient_NewEmailAddress;
+                    NotificationClient.CompanyRemoved += NotificationClient_CompanyRemoved;
+                    NotificationClient.ContactDetailsUpdated += NotificationClient_ContactDetailsUpdated;
+                    NotificationClient.NewExternalContact += NotificationClient_NewExternalContact;
+                    NotificationClient.ExternalContactRemoved += NotificationClient_ExternalContactRemoved;
 
                     _notificationPanel = new NotificationsPanel(mainCanvas.ActualWidth,
                         mainCanvas.ActualHeight - 60);
@@ -1091,6 +1098,97 @@ namespace Licencjat_new.Windows
             }
         }
 
+        private void NotificationClient_ExternalContactRemoved(object sender, ExternalContactRemovedEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                NotificationModel notification = ProcessNotification(e.Notification);
+                RaiseNotification(notification);
+
+                ExternalContactRemoved?.Invoke(this, e);
+                Persons.Remove(Persons.Find(obj => obj.Id == e.PersonId));
+            });
+        }
+
+        private void NotificationClient_NewExternalContact(object sender, NewExternalContactEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                e.NewData.IsInternalUser = false;
+                if (e.NewData.CompanyId != "")
+                {
+                    e.NewData.Company = Companies.Find(obj => obj.Id == e.NewData.CompanyId);
+                }
+                Persons.Add(e.NewData);
+
+                NotificationModel notification = ProcessNotification(e.Notification);
+                RaiseNotification(notification);
+
+                NewExternalContact?.Invoke(this, e);
+            });
+        }
+
+        private void NotificationClient_ContactDetailsUpdated(object sender, ContactDetailsUpdatedEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                PersonModel person = Persons.Find(obj => obj.Id == e.NewData.Id);
+
+                if (person.FirstName != e.NewData.FirstName)
+                    person.FirstName = e.NewData.FirstName;
+
+                if (person.LastName != e.NewData.LastName)
+                    person.LastName = e.NewData.LastName;
+
+                if (person.Company != null)
+                {
+                    if (person.Company.Id != e.NewData.CompanyId)
+                    {
+                        person.Company = Companies.Find(obj => obj.Id == e.NewData.CompanyId);
+                    }
+                }
+                else
+                {
+                    if (e.NewData.CompanyId != "")
+                    {
+                        person.Company = Companies.Find(obj => obj.Id == e.NewData.CompanyId);
+                    }
+                }
+
+                if (person.Gender != e.NewData.Gender)
+                    person.Gender = e.NewData.Gender;
+
+                if (person.EmailAddresses != e.NewData.EmailAddresses)
+                    person.EmailAddresses = e.NewData.EmailAddresses;
+
+                if (person.PhoneNumbers != e.NewData.PhoneNumbers)
+                    person.PhoneNumbers = e.NewData.PhoneNumbers;
+
+                person.OnDataChanged();
+
+                NotificationModel notification = ProcessNotification(e.Notification);
+                RaiseNotification(notification);
+            });
+        }
+
+        private void NotificationClient_CompanyRemoved(object sender, CompanyRemovedEventArgs e)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                Persons.Where(obj => obj.Company == Companies.Find(obj2 => obj2.Id == e.CompanyId))
+                    .ToList()
+                    .ForEach(obj => obj.Company = null);
+
+                NotificationModel notification = ProcessNotification(e.Notification);
+                RaiseNotification(notification);
+
+                Companies.Find(obj => obj.Id == e.CompanyId).Name = "";
+                Companies.Remove(Companies.Find(obj => obj.Id == e.CompanyId));
+
+                CompanyRemoved?.Invoke(sender, e);
+            });
+        }
+
         private void NotificationClient_NewEmailAddress(object sender, NewEmailAddressEventArgs e)
         {
             EmailModel email = new EmailModel(e.Id, e.Address, e.Login, e.ImapHost, e.ImapPort, e.ImapUseSsl, e.SmtpHost,
@@ -1118,7 +1216,7 @@ namespace Licencjat_new.Windows
             this.Dispatcher.Invoke(() =>
             {
                 Companies.Find(obj => obj.Id == e.CompanyId).Name = e.NewName;
-                //CompanyRenamed?.Invoke(sender, e);
+                CompanyRenamed?.Invoke(sender, e);
 
                 NotificationModel notification = ProcessNotification(e.Notification);
 

@@ -499,6 +499,7 @@ namespace Licencjat_new_server
                                     _writer.Write(contact.LastName);
                                     _writer.Write(contact.Gender);
                                     _writer.Write(contact.CompanyId);
+                                    _writer.Write(contact.IsInternalUser);
 
                                     _writer.Write(contact.EmailAddresses.Count);
                                     foreach (EmailAddressResultInfo emailAddress in contact.EmailAddresses)
@@ -553,11 +554,17 @@ namespace Licencjat_new_server
                                 NotificationModel notificationModel =
                                     NotificationHandler.ProcessNotification(notification);
 
-                                _writer.Write(notificationModel.NotificationId);
-                                _writer.Write(notificationModel.NotificationText);
-                                _writer.Write(notificationModel.NotificationDate.ToString("dd-MM-yyyy HH:mm:ss"));
-                                _writer.Write(notificationModel.NotificationRead);
-
+                                try
+                                {
+                                    _writer.Write(notificationModel.NotificationId);
+                                    _writer.Write(notificationModel.NotificationText);
+                                    _writer.Write(notificationModel.NotificationDate.ToString("dd-MM-yyyy HH:mm:ss"));
+                                    _writer.Write(notificationModel.NotificationRead);
+                                }
+                                catch (Exception ex)
+                                {
+                                    
+                                }
                                 _writer.Write(notificationModel.NotificationReferenceFields.Count);
 
                                 foreach (string referenceField in notificationModel.NotificationReferenceFields)
@@ -781,6 +788,7 @@ namespace Licencjat_new_server
                             NotifyAllUsersAboutCompanyRenamed(companyId, oldName, newName);
                             break;
                         #endregion
+                        #region AddEmailAddress
                         case MessageDictionary.AddEmailAddress:
                             _writer.Write(MessageDictionary.OK);
                             newEmailAddress = _reader.ReadString();
@@ -799,6 +807,112 @@ namespace Licencjat_new_server
                                 imapUseSsl, smtpHost, smtpPort, smtpUseSsl, name);
 
                             break;
+                        #endregion
+                        #region RemoveCompany
+                        case MessageDictionary.RemoveCompany:
+                            _writer.Write(MessageDictionary.OK);
+                            companyId = _reader.ReadString();
+
+                            companyName = DBApi.RemoveCompany(companyId);
+
+
+                            NotifyAllUsersAboutCompanyRemoved(companyId, companyName);
+                            break;
+                        #endregion
+
+                        #region UpdatePersonDetails
+                        case MessageDictionary.UpdatePersonDetails:
+                            _writer.Write(MessageDictionary.OK);
+                            string id = _reader.ReadString();
+                            string firstName = _reader.ReadString();
+                            string lastName = _reader.ReadString();
+                            int gender = _reader.ReadInt32();
+                            companyId = _reader.ReadString();
+
+                            List<EmailAddressResultInfo> emailAddressesList = new List<EmailAddressResultInfo>();
+
+                            int emailCount = _reader.ReadInt32();
+                            for (int i = 0; i < emailCount; i++)
+                            {
+                                emailId = _reader.ReadString();
+                                string emailName = _reader.ReadString();
+                                string emailAddress = _reader.ReadString();
+
+                                emailAddressesList.Add(new EmailAddressResultInfo(emailId, emailName, emailAddress, true, true));
+                            }
+
+                            List<PhoneNumberResultInfo> phoneNumbersList = new List<PhoneNumberResultInfo>();
+
+                            int phoneCount = _reader.ReadInt32();
+                            for (int i = 0; i < phoneCount; i++)
+                            {
+                                string phoneId = _reader.ReadString();
+                                string phoneName = _reader.ReadString();
+                                string phoneNumber = _reader.ReadString();
+
+                                phoneNumbersList.Add(new PhoneNumberResultInfo(phoneId, phoneName, phoneNumber, true, true));
+                            }
+
+                            DBApi.UpdatePersonDetails(id, firstName, lastName, gender, companyId, emailAddressesList,
+                                phoneNumbersList);
+
+                            NotifyAllUsersAboutPersonDetailsChanged(id, firstName, lastName, gender, companyId,
+                                emailAddressesList, phoneNumbersList);
+
+                            break;
+                        #endregion
+
+                        #region NewExternalContact
+                        case MessageDictionary.NewExternalContact:
+                            _writer.Write(MessageDictionary.OK);
+                            firstName = _reader.ReadString();
+                            lastName = _reader.ReadString();
+                            gender = _reader.ReadInt32();
+                            companyId = _reader.ReadString();
+
+                            emailAddressesList = new List<EmailAddressResultInfo>();
+
+                            emailCount = _reader.ReadInt32();
+                            for (int i = 0; i < emailCount; i++)
+                            {
+                                emailId = _reader.ReadString();
+                                string emailName = _reader.ReadString();
+                                string emailAddress = _reader.ReadString();
+
+                                emailAddressesList.Add(new EmailAddressResultInfo(emailId, emailName, emailAddress, true, true));
+                            }
+
+                            phoneNumbersList = new List<PhoneNumberResultInfo>();
+
+                            phoneCount = _reader.ReadInt32();
+                            for (int i = 0; i < phoneCount; i++)
+                            {
+                                string phoneId = _reader.ReadString();
+                                string phoneName = _reader.ReadString();
+                                string phoneNumber = _reader.ReadString();
+
+                                phoneNumbersList.Add(new PhoneNumberResultInfo(phoneId, phoneName, phoneNumber, true, true));
+                            }
+
+                            string personId = DBApi.NewExternalContact(firstName, lastName, gender, companyId, emailAddressesList,
+                                phoneNumbersList);
+
+                            NotifyAllUsersAboutNewExternalContact(personId, firstName, lastName, gender, companyId,
+                                emailAddressesList, phoneNumbersList);
+
+                            break;
+                        #endregion
+
+                        #region RemoveExternalContact
+                        case MessageDictionary.RemoveExternalContact:
+                            _writer.Write(MessageDictionary.OK);
+                            personId = _reader.ReadString();
+
+                            string personName = DBApi.RemoveExternalContact(personId);
+
+                            NotifyAllUsersAboutExternalContactRemoved(personId, personName);
+                            break;
+                            #endregion;
                     }
                 }
             }
@@ -849,6 +963,144 @@ namespace Licencjat_new_server
                 int count;
                 while ((count = stream.Read(buffer, 0, buffer.Length)) > 0)
                     _writer.Write(buffer, 0, count);
+            }
+        }
+
+        private void NotifyAllUsersAboutExternalContactRemoved(string personId, string personName)
+        {
+            DateTime notificationDate = DateTime.Now;
+
+            NotificationResultInfo notificationResultInfo = new NotificationResultInfo()
+            {
+                Type = NotificationType.ExternalContactRemoved,
+                SenderId = UserInfo.PersonId,
+                OldName = personName,
+                NotificationDate = notificationDate,
+            };
+
+            NotificationModel notification = NotificationHandler.ProcessNotification(notificationResultInfo);
+
+            List<string> subscribedUsersId = DBApi.GetAllUsers();
+
+            foreach (string userId in subscribedUsersId)
+            {
+                NotificationResultInfo recipientNotificationResultInfo = notificationResultInfo;
+                recipientNotificationResultInfo.RecipientId = userId;
+                string notificationId = DBApi.AddNewNotification(recipientNotificationResultInfo);
+
+                notification.NotificationId = notificationId;
+
+                Client userClient = Program.GetClientById(userId);
+                if (userClient == null) return;
+
+                userClient.NotificationClient.ExternalContactRemoved(personId, notification);
+            }
+        }
+
+        private void NotifyAllUsersAboutNewExternalContact(string id, string firstName, string lastName, int gender, string companyId, List<EmailAddressResultInfo> emailAddressesList, List<PhoneNumberResultInfo> phoneNumbersList)
+        {
+            DateTime notificationDate = DateTime.Now;
+
+            NotificationResultInfo notificationResultInfo = new NotificationResultInfo()
+            {
+                Type = NotificationType.NewExternalContact,
+                SenderId = UserInfo.PersonId,
+                PersonId = id,
+                NotificationDate = notificationDate,
+            };
+
+            NotificationModel notification = NotificationHandler.ProcessNotification(notificationResultInfo);
+
+            List<string> subscribedUsersId = DBApi.GetAllUsers();
+
+            foreach (string userId in subscribedUsersId)
+            {
+                NotificationResultInfo recipientNotificationResultInfo = notificationResultInfo;
+                recipientNotificationResultInfo.RecipientId = userId;
+                string notificationId = DBApi.AddNewNotification(recipientNotificationResultInfo);
+
+                notification.NotificationId = notificationId;
+
+                Client userClient = Program.GetClientById(userId);
+                if (userClient == null) return;
+
+                userClient.NotificationClient.NewExternalContact(id, firstName, lastName, gender, companyId, emailAddressesList, phoneNumbersList, notification);
+            }
+        }
+
+        private void NotifyAllUsersAboutPersonDetailsChanged(string id, string firstName, string lastName, int gender, string companyId, List<EmailAddressResultInfo> emailAddressesList, List<PhoneNumberResultInfo> phoneNumbersList)
+        {
+            try
+            {
+                DateTime notificationDate = DateTime.Now;
+
+                NotificationResultInfo notificationResultInfo = new NotificationResultInfo()
+                {
+                    Type = NotificationType.UpdatePersonDetails,
+                    SenderId = UserInfo.PersonId,
+                    PersonId = id,
+                    NotificationDate = notificationDate,
+                };
+
+                NotificationModel notification = NotificationHandler.ProcessNotification(notificationResultInfo);
+
+                List<string> subscribedUsersId = DBApi.GetAllUsers();
+
+                foreach (string userId in subscribedUsersId)
+                {
+                    NotificationResultInfo recipientNotificationResultInfo = notificationResultInfo;
+                    recipientNotificationResultInfo.RecipientId = userId;
+                    string notificationId = DBApi.AddNewNotification(recipientNotificationResultInfo);
+
+                    notification.NotificationId = notificationId;
+
+                    Client userClient = Program.GetClientById(userId);
+                    if (userClient == null) return;
+
+                    userClient.NotificationClient.PersonDetailsChanged(id, firstName, lastName, gender, companyId, emailAddressesList, phoneNumbersList, notification);
+                }
+            }
+            catch (Exception ex)
+            {
+                
+            }
+        }
+
+        private void NotifyAllUsersAboutCompanyRemoved(string companyId, string companyName)
+        {
+            try
+            {
+                DateTime notificationDate = DateTime.Now;
+
+                NotificationResultInfo notificationResultInfo = new NotificationResultInfo()
+                {
+                    Type = NotificationType.RemovedCompany,
+                    SenderId = UserInfo.PersonId,
+                    OldName = companyName,
+                    NotificationDate = notificationDate,
+                };
+
+                NotificationModel notification = NotificationHandler.ProcessNotification(notificationResultInfo);
+
+                List<string> subscribedUsersId = DBApi.GetAllUsers();
+
+                foreach (string userId in subscribedUsersId)
+                {
+                    NotificationResultInfo recipientNotificationResultInfo = notificationResultInfo;
+                    recipientNotificationResultInfo.RecipientId = userId;
+                    string notificationId = DBApi.AddNewNotification(recipientNotificationResultInfo);
+
+                    notification.NotificationId = notificationId;
+
+                    Client userClient = Program.GetClientById(userId);
+                    if (userClient == null) return;
+
+                    userClient.NotificationClient.CompanyRemoved(companyId, notification);
+                }
+            }
+            catch (Exception ex)
+            {
+
             }
         }
 
@@ -1063,9 +1315,8 @@ namespace Licencjat_new_server
                     notification.NotificationId = notificationId;
 
                     Client userClient = Program.GetClientById(userId);
-                    if (userClient == null) return;
 
-                    userClient.NotificationClient.ConversationRenamed(conversationId, oldName, newName, notification);
+                    userClient?.NotificationClient.ConversationRenamed(conversationId, oldName, newName, notification);
 
                 }
             }

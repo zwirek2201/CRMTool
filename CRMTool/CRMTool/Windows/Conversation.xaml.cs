@@ -284,7 +284,7 @@ namespace Licencjat_new.Windows
 
                             foreach (PersonModel recipient in conversation.Members)
                             {
-                                if (recipient.Company != null)
+                                if (!recipient.IsInternalUser)
                                 {
                                     recipient.EmailAddresses.Where(obj => obj.Default)
                                         .ToList()
@@ -452,12 +452,41 @@ namespace Licencjat_new.Windows
 
         private void MessageList_DownloadFile(object sender, EventArgs e)
         {
-            MessageBox.Show("Here");
+            FileListItem fileItem = (FileListItem)sender;
+
+            if (fileItem.File.Data == null)
+            {
+                EventHandler<FileDownloadedEventArgs> eventDelegate = null;
+
+                eventDelegate = (s, args) =>
+                {
+                    if (fileItem.File.Downloaded)
+                    {
+                        DownloadHelper.DownloadFile(fileItem.File);
+
+                        _parent.RaiseNotification(new NotificationModel("", "", null,
+                            DateTime.Now, false, true)
+                        {Text = "Plik został pobrany"});
+
+                        _parent.DownloadClient.FileDownloaded -= eventDelegate;
+                    }
+                };
+                _parent.DownloadClient.FileDownloaded += eventDelegate;
+                _parent.DownloadClient.DownloadQueue.Add(fileItem.File);
+            }
+            else
+            {
+                DownloadHelper.DownloadFile(fileItem.File);
+
+                _parent.RaiseNotification(new NotificationModel("", "", null,
+                    DateTime.Now, false, true)
+                { Text = "Plik został pobrany" });
+            }
         }
 
         private void MessageList_RenameFile(object sender, System.EventArgs e)
         {
-                        FileListItem item = (FileListItem)sender;
+            FileListItem item = (FileListItem)sender;
 
             _parent.Darkened = true;
 

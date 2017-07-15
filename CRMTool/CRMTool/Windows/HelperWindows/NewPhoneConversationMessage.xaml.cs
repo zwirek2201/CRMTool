@@ -220,7 +220,7 @@ namespace Licencjat_new.Windows.HelperWindows
         private void ChooseSender_Clicked(object sender, EventArgs e)
         {
             Darkened = true;
-            ChoosePerson choose = new ChoosePerson(_parent, _parent.Persons.Where(obj => !_conversation.Members.Contains(obj) || obj.Company == null).ToList(), false, ChoosePersonMode.ChoosePhoneNumber);
+            ChoosePerson choose = new ChoosePerson(_parent, _parent.Persons.Where(obj => !_conversation.Members.Contains(obj) || obj.IsInternalUser).ToList(), false, ChoosePersonMode.ChoosePhoneNumber);
             _parent.mainCanvas.Children.Add(choose);
 
             choose.ReadyButtonClicked += Choose_ReadyButtonClicked;

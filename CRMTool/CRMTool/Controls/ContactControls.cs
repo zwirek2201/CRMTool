@@ -4,6 +4,7 @@ using System.Linq;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using Licencjat_new.CustomClasses;
 
@@ -146,7 +147,7 @@ namespace Licencjat_new.Controls
     #endregion
 
     #region MainContainer
-        class ContactMainContainer :DockPanel
+    class ContactMainContainer : DockPanel
     {
         public ContactMainContainer()
         {
@@ -156,7 +157,7 @@ namespace Licencjat_new.Controls
         }
     }
 
-        #region ContactList
+    #region ContactList
 
     #region ContactListItems
 
@@ -169,7 +170,12 @@ namespace Licencjat_new.Controls
         private bool _selected;
 
         public event EventHandler Click;
+        public event EventHandler ShowDetails;
+        public event EventHandler RemoveItem;
+
         public PersonModel Person { get; private set; }
+
+        public event EventHandler DataChanged;
 
         public bool Selected
         {
@@ -189,6 +195,7 @@ namespace Licencjat_new.Controls
         public ContactPersonListItem(PersonModel person, bool selectionMode = false)
         {
             Person = person;
+
             _selectionMode = selectionMode;
             Redraw();
 
@@ -216,7 +223,7 @@ namespace Licencjat_new.Controls
                             ImageHelper.UriToImageSource(new Uri(@"pack://application:,,,/resources/info_context.png"))
                     }
             };
-            //renameItem.Click += RenameItem_Click;
+            detailsItem.Click += DetailsItem_Click;
             contextMenu.Items.Add(detailsItem);
 
             contextMenu.Items.Add(new Separator());
@@ -231,10 +238,28 @@ namespace Licencjat_new.Controls
                             ImageHelper.UriToImageSource(new Uri(@"pack://application:,,,/resources/remove_context.png"))
                     }
             };
-            //renameItem.Click += RenameItem_Click;
+            removeItem.Click += RemoveItem_Click; ;
             contextMenu.Items.Add(removeItem);
 
             ContextMenu = contextMenu;
+
+            person.DataChanged += Person_DataChanged;
+        }
+
+        private void RemoveItem_Click(object sender, RoutedEventArgs e)
+        {
+            RemoveItem?.Invoke(this,EventArgs.Empty);
+        }
+
+        internal void Person_DataChanged(object sender, EventArgs e)
+        {
+            Redraw();
+            DataChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void DetailsItem_Click(object sender, RoutedEventArgs e)
+        {
+            ShowDetails?.Invoke(this, EventArgs.Empty);
         }
 
         private void ContactPersonListItem_PreviewMouseLeftButtonDown(object sender,
@@ -466,7 +491,7 @@ namespace Licencjat_new.Controls
     class AlphabetElementListItem : Border
     {
         private int _height = 50;
-        public string Element { get; private set;}
+        public string Element { get; private set; }
 
         public AlphabetElementListItem(string element)
         {
@@ -499,7 +524,7 @@ namespace Licencjat_new.Controls
                 Text = Element.ToString(),
                 FontSize = 40,
                 Margin = new Thickness(0),
-                Padding = new Thickness(20,0,0,0),
+                Padding = new Thickness(20, 0, 0, 0),
                 FontWeight = FontWeights.Medium,
                 Foreground = new SolidColorBrush(ColorScheme.GlobalBlue),
                 LineHeight = 40,
@@ -514,21 +539,47 @@ namespace Licencjat_new.Controls
         }
     }
 
-    class ContactCompanyListItem : Border
+    public class ContactCompanyListItem : Border
     {
         private int _height = 50;
         private DockPanel _innerPanel;
-        public CompanyModel Company  { get; private set; }
+        public CompanyModel Company { get; private set; }
+        private bool _selected;
+        private bool _selectionMode;
+        private Image _selectImage;
+
+        public event EventHandler Click;
 
         public event EventHandler DataChanged;
         public event EventHandler Rename;
+        public event EventHandler Remove;
 
-        public ContactCompanyListItem(CompanyModel company)
+        public bool Selected
+        {
+            get { return _selected; }
+            set
+            {
+                _selected = value;
+                if (Selected)
+                    _selectImage.Source =
+                        ImageHelper.UriToImageSource(new Uri(@"pack://application:,,,/resources/select_on.png"));
+                else
+                    _selectImage.Source =
+                        ImageHelper.UriToImageSource(new Uri(@"pack://application:,,,/resources/select_off.png"));
+            }
+        }
+
+        public ContactCompanyListItem(CompanyModel company, bool selectionMode)
         {
             Company = company;
 
             Company.DataChanged += Company_DataChanged;
+            _selectionMode = selectionMode;
             Redraw();
+
+            MouseEnter += ContactCompanyListItem_MouseEnter;
+            MouseLeave += ContactCompanyListItem_MouseLeave;
+            PreviewMouseLeftButtonDown += ContactCompanyListItem_PreviewMouseLeftButtonDown;
 
             ContextMenu contextMenu = new ContextMenu();
 
@@ -571,10 +622,27 @@ namespace Licencjat_new.Controls
                             ImageHelper.UriToImageSource(new Uri(@"pack://application:,,,/resources/remove_context.png"))
                     }
             };
-            //renameItem.Click += RenameItem_Click;
+            removeItem.Click += RemoveItem_Click; ;
             contextMenu.Items.Add(removeItem);
 
             ContextMenu = contextMenu;
+        }
+
+        private void ContactCompanyListItem_PreviewMouseLeftButtonDown(object sender,
+            System.Windows.Input.MouseButtonEventArgs e)
+        {
+            PreviewMouseLeftButtonUp += ContactCompanyListItem_PreviewMouseLeftButtonUp;
+        }
+
+        private void ContactCompanyListItem_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            Click?.Invoke(this, EventArgs.Empty);
+            PreviewMouseLeftButtonUp -= ContactCompanyListItem_PreviewMouseLeftButtonUp;
+        }
+
+        private void RemoveItem_Click(object sender, RoutedEventArgs e)
+        {
+            Remove?.Invoke(this, EventArgs.Empty);
         }
 
         internal void Company_DataChanged(object sender, EventArgs e)
@@ -604,6 +672,22 @@ namespace Licencjat_new.Controls
                 VerticalAlignment = VerticalAlignment.Stretch,
                 HorizontalAlignment = HorizontalAlignment.Stretch
             };
+
+            if (_selectionMode)
+            {
+                _selectImage = new Image()
+                {
+                    Height = 29,
+                    Width = 29,
+                    Margin = new Thickness(10),
+                    Source = ImageHelper.UriToImageSource(new Uri(@"pack://application:,,,/resources/select_off.png"))
+                };
+
+                RenderOptions.SetBitmapScalingMode(_selectImage, BitmapScalingMode.HighQuality);
+
+                DockPanel.SetDock(_selectImage, Dock.Left);
+                _innerPanel.Children.Add(_selectImage);
+            }
 
             DockPanel leftPanel = new DockPanel()
             {
@@ -636,12 +720,12 @@ namespace Licencjat_new.Controls
             Child = _innerPanel;
         }
 
-        private void ContactPersonListItem_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        private void ContactCompanyListItem_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
         {
             _innerPanel.Background = new SolidColorBrush(Colors.White);
         }
 
-        private void ContactPersonListItem_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        private void ContactCompanyListItem_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
         {
             _innerPanel.Background = new SolidColorBrush(ColorScheme.MenuDarker);
         }
@@ -699,8 +783,8 @@ namespace Licencjat_new.Controls
     #endregion
     #endregion
 
-        #region AlphabetList
-            public class AlphabetList : Grid
+    #region AlphabetList
+    public class AlphabetList : Grid
     {
         #region Variables
         List<string> _alphabet = "A,Ą,B,C,Ć,D,E,Ę,F,G,H,I,J,K,L,Ł,M,N,Ń,O,Ó,P,Q,R,S,Ś,T,U,V,W,X,Y,Z,Ź,Ż".Split(',').ToList();
@@ -816,7 +900,7 @@ namespace Licencjat_new.Controls
 
         public void AddToUsedAlphabet(string character)
         {
-            if(!_usedAlphabet.Contains(character))
+            if (!_usedAlphabet.Contains(character))
                 _usedAlphabet.Add(character);
 
             Label foundLabel = _alphabetLabels.Single(obj => obj.Content.ToString() == character);
@@ -832,8 +916,8 @@ namespace Licencjat_new.Controls
     }
     #endregion
 
-        #region TabControl
-            public sealed class ContactTabControl:Border
+    #region TabControl
+    public sealed class ContactTabControl : Border
     {
 
         #region Variables
@@ -877,15 +961,15 @@ namespace Licencjat_new.Controls
             }
         }
 
-                public bool SelectionMode
-                {
-                    get { return _selectionMode; }
-                    set
-                    {
-                        _selectionMode = value;
-                        if (SelectionMode)
-                            RemoveItem(ContactTabControlMode.Companies);
-                    }
+        public bool SelectionMode
+        {
+            get { return _selectionMode; }
+            set
+            {
+                _selectionMode = value;
+                if (SelectionMode)
+                    RemoveItem(ContactTabControlMode.Companies);
+            }
         }
         #endregion
 
@@ -944,22 +1028,22 @@ namespace Licencjat_new.Controls
         #region Methods
         public void AddItem(string text, ContactTabControlMode mode)
         {
-            ContactTabControlItem item = new ContactTabControlItem(text) {ContactTabControlMode = mode};
+            ContactTabControlItem item = new ContactTabControlItem(text) { ContactTabControlMode = mode };
             item.PreviewMouseLeftButtonDown += Item_PreviewMouseLeftButtonDown;
             Items.Add(item);
             _innerStack.Children.Add(item);
         }
 
-                public void RemoveItem(ContactTabControlMode mode)
-                {
-                    ContactTabControlItem item = Items.Find(obj => obj.ContactTabControlMode == mode);
-                    _innerStack.Children.Remove(item);
-                    Items.Remove(item);
-                }
+        public void RemoveItem(ContactTabControlMode mode)
+        {
+            ContactTabControlItem item = Items.Find(obj => obj.ContactTabControlMode == mode);
+            _innerStack.Children.Remove(item);
+            Items.Remove(item);
+        }
         #endregion
     }
 
-            public sealed class ContactTabControlItem : Border
+    public sealed class ContactTabControlItem : Border
     {
         #region Variables
         private bool _toggled;
@@ -1005,7 +1089,7 @@ namespace Licencjat_new.Controls
                 VerticalAlignment = VerticalAlignment.Bottom,
                 HorizontalContentAlignment = HorizontalAlignment.Center,
                 VerticalContentAlignment = VerticalAlignment.Bottom,
-                Padding= new Thickness(10,0,10,5),
+                Padding = new Thickness(10, 0, 10, 5),
                 FontSize = 15,
                 Margin = new Thickness(0)
             };
@@ -1017,7 +1101,7 @@ namespace Licencjat_new.Controls
         #region Methods
         public void SetToggled(bool toggled)
         {
-            Toggled = toggled;   
+            Toggled = toggled;
         }
         #endregion
     }
@@ -1029,6 +1113,7 @@ namespace Licencjat_new.Controls
         private bool _multipleSelection;
 
         public List<ContactPersonListItem> SelectedPersons = new List<ContactPersonListItem>();
+        public List<ContactCompanyListItem> SelectedCompanies = new List<ContactCompanyListItem>();
 
         private StackPanel _internalContactsStack;
         private StackPanel _externalContactsStack;
@@ -1054,21 +1139,28 @@ namespace Licencjat_new.Controls
 
         private List<PersonModel> _usedInternalContacts = new List<PersonModel>();
         private List<PersonModel> _usedExternalContacts = new List<PersonModel>();
+        private List<CompanyModel> _usedGroupedCompanies = new List<CompanyModel>();
         private List<CompanyModel> _usedCompanies = new List<CompanyModel>();
 
         public event EventHandler RenameCompany;
+        public event EventHandler RemoveCompanyEvent;
+
+        public event EventHandler PersonShowDetails;
+        public event EventHandler RemoveExternalContact;
 
         //public List<PersonModel> BlockedPersons { get; private set; }
 
         private List<string> InternalContactsUsedAlphabet { get; set; } = new List<string>();
         private List<string> ExternalContactsUsedAlphabet { get; set; } = new List<string>();
         private List<string> CompaniesUsedAlphabet { get; set; } = new List<string>();
+        private List<string> GroupedCompaniesUsedAlphabet { get; set; } = new List<string>();
+
 
 
         private readonly List<AlphabetElementListItem> _internalContactsAlphabetElements =
             new List<AlphabetElementListItem>();
 
-        private readonly List<AlphabetElementListItem> _companyiesAlphabetElements = new List<AlphabetElementListItem>();
+        private readonly List<AlphabetElementListItem> _companiesAlphabetElements = new List<AlphabetElementListItem>();
 
         private readonly List<AlphabetElementListItem> _externalContactsAlphabetElements =
             new List<AlphabetElementListItem>();
@@ -1104,7 +1196,7 @@ namespace Licencjat_new.Controls
                     case ContactTabControlMode.Companies:
                         Content = _companiesStack;
                         _currentStack = _companiesStack;
-                        _currentAlphabetElementList = _companyiesAlphabetElements;
+                        _currentAlphabetElementList = _companiesAlphabetElements;
 
                         if (BoundAlphabetList != null)
                             BoundAlphabetList.Elements = CompaniesUsedAlphabet;
@@ -1172,16 +1264,19 @@ namespace Licencjat_new.Controls
             set { _multipleSelection = value; }
         }
 
+        public SelectionModeType SelectionType { get; set; }
+
         #region Constructors
 
-        public ContactList(List<PersonModel> persons, List<CompanyModel> companies, bool selectionMode = false,
+        public ContactList(List<PersonModel> persons, List<CompanyModel> companies, bool selectionMode = false, SelectionModeType selectionType = SelectionModeType.PersonSelect,
             bool multipleSelection = true)
         {
             SelectionMode = selectionMode;
+            SelectionType = selectionType;
             MultipleSelection = multipleSelection;
             Persons = persons;
-            InternalContacts = persons.Where(obj => obj.Company == null).ToList();
-            ExternalContacts = persons.Where(obj => obj.Company != null).ToList();
+            InternalContacts = Persons.Where(obj => obj.IsInternalUser).ToList();
+            ExternalContacts = Persons.Where(obj => !obj.IsInternalUser).ToList();
             Companies = companies;
 
             NoMatchPlaceholder = new Label()
@@ -1218,48 +1313,61 @@ namespace Licencjat_new.Controls
 
         private void _boundTabControl_SelectedModeChanged(object sender, EventArgs e)
         {
-            switch (BoundTabControl.SelectedMode)
+            UpdateAlphabetElements();
+        }
+
+        private void UpdateAlphabetElements()
+        {
+            if (BoundTabControl != null)
             {
-                case ContactTabControlMode.Contacts:
-                    if (_boundToggleButton != null && _boundToggleButton.Toggled)
-                    {
-                        Content = _externalGroupedContactsStack;
-                        _currentStack = _externalGroupedContactsStack;
-                        _currentAlphabetElementList = _externalGroupedContactsAlphabetElements;
-                    }
-                    else
-                    {
-                        Content = _externalContactsStack;
-                        _currentStack = _externalContactsStack;
-                        _currentAlphabetElementList = _externalContactsAlphabetElements;
-                    }
+                switch (BoundTabControl.SelectedMode)
+                {
+                    case ContactTabControlMode.Contacts:
+                        if (_boundToggleButton != null && _boundToggleButton.Toggled)
+                        {
+                            Content = _externalGroupedContactsStack;
+                            _currentStack = _externalGroupedContactsStack;
+                            _currentAlphabetElementList = _externalGroupedContactsAlphabetElements;
+                        }
+                        else
+                        {
+                            Content = _externalContactsStack;
+                            _currentStack = _externalContactsStack;
+                            _currentAlphabetElementList = _externalContactsAlphabetElements;
+                        }
 
-                    if (_boundToggleButton != null)
-                        _boundToggleButton.Visibility = Visibility.Visible;
+                        if (_boundToggleButton != null)
+                            _boundToggleButton.Visibility = Visibility.Visible;
 
-                    if (BoundAlphabetList != null)
-                        BoundAlphabetList.Elements = ExternalContactsUsedAlphabet;
-                    break;
-                case ContactTabControlMode.Companies:
-                    Content = _companiesStack;
-                    _currentStack = _companiesStack;
-                    _currentAlphabetElementList = _companyiesAlphabetElements;
-                    if (_boundToggleButton != null)
-                        _boundToggleButton.Visibility = Visibility.Collapsed;
+                        if (BoundAlphabetList != null)
+                        {
+                            if (_boundToggleButton.Toggled)
+                                BoundAlphabetList.Elements = GroupedCompaniesUsedAlphabet;
+                            else
+                                BoundAlphabetList.Elements = ExternalContactsUsedAlphabet;
+                        }
+                        break;
+                    case ContactTabControlMode.Companies:
+                        Content = _companiesStack;
+                        _currentStack = _companiesStack;
+                        _currentAlphabetElementList = _companiesAlphabetElements;
+                        if (_boundToggleButton != null)
+                            _boundToggleButton.Visibility = Visibility.Collapsed;
 
-                    if (BoundAlphabetList != null)
-                        BoundAlphabetList.Elements = CompaniesUsedAlphabet;
-                    break;
-                case ContactTabControlMode.InternalContacts:
-                    Content = _internalContactsStack;
-                    _currentStack = _internalContactsStack;
-                    _currentAlphabetElementList = _internalContactsAlphabetElements;
-                    if (_boundToggleButton != null)
-                        _boundToggleButton.Visibility = Visibility.Collapsed;
+                        if (BoundAlphabetList != null)
+                            BoundAlphabetList.Elements = CompaniesUsedAlphabet;
+                        break;
+                    case ContactTabControlMode.InternalContacts:
+                        Content = _internalContactsStack;
+                        _currentStack = _internalContactsStack;
+                        _currentAlphabetElementList = _internalContactsAlphabetElements;
+                        if (_boundToggleButton != null)
+                            _boundToggleButton.Visibility = Visibility.Collapsed;
 
-                    if (BoundAlphabetList != null)
-                        BoundAlphabetList.Elements = InternalContactsUsedAlphabet;
-                    break;
+                        if (BoundAlphabetList != null)
+                            BoundAlphabetList.Elements = InternalContactsUsedAlphabet;
+                        break;
+                }
             }
         }
 
@@ -1272,7 +1380,7 @@ namespace Licencjat_new.Controls
                 _currentAlphabetElementList = _externalGroupedContactsAlphabetElements;
 
                 if (BoundAlphabetList != null)
-                    BoundAlphabetList.Elements = CompaniesUsedAlphabet;
+                    BoundAlphabetList.Elements = GroupedCompaniesUsedAlphabet;
             }
             else
             {
@@ -1295,13 +1403,13 @@ namespace Licencjat_new.Controls
                 if (searchPhrase != "" && searchPhrase != "Wyszukaj")
                 {
                     List<PersonModel> searchedExternalContacts =
-                        ExternalContacts.Where(obj => ContainsSearchTerm(obj, searchPhrase)).ToList();
+                        Persons.Where(obj => !obj.IsInternalUser).Where(obj => ContainsSearchTerm(obj, searchPhrase)).ToList();
 
                     List<CompanyModel> searchedCompanies =
-                        Companies.Where(obj => ContainsSearchTerm(obj, searchPhrase)).ToList();
+                        Companies.ToList().Where(obj => ContainsSearchTerm(obj, searchPhrase)).ToList();
 
                     List<PersonModel> searchedInternalContacts =
-                        InternalContacts.Where(obj => ContainsSearchTerm(obj, searchPhrase)).ToList();
+                        Persons.Where(obj => obj.IsInternalUser).Where(obj => ContainsSearchTerm(obj, searchPhrase)).ToList();
 
                     _searchStack.Children.Clear();
 
@@ -1314,9 +1422,11 @@ namespace Licencjat_new.Controls
                             ContactPersonListItem item = new ContactPersonListItem(person);
                             item.Click += PersonItem_Click;
 
+                            item.ShowDetails += Item_ShowDetails;
+
                             _searchStack.Children.Add(item);
                         }
-                        matchFound = true;;
+                        matchFound = true; ;
                     }
 
                     if (searchedCompanies.Any())
@@ -1325,7 +1435,8 @@ namespace Licencjat_new.Controls
 
                         foreach (CompanyModel company in searchedCompanies)
                         {
-                            ContactCompanyListItem item = new ContactCompanyListItem(company);
+                            ContactCompanyListItem item = new ContactCompanyListItem(company, SelectionType == SelectionModeType.CompanySelect && SelectionMode);
+                            item.Click += CompanyItem_Click;
 
                             _searchStack.Children.Add(item);
                         }
@@ -1382,7 +1493,7 @@ namespace Licencjat_new.Controls
                         case ContactTabControlMode.Companies:
                             Content = _companiesStack;
                             _currentStack = _companiesStack;
-                            _currentAlphabetElementList = _companyiesAlphabetElements;
+                            _currentAlphabetElementList = _companiesAlphabetElements;
                             BoundAlphabetList.Elements = CompaniesUsedAlphabet;
                             break;
                         case ContactTabControlMode.InternalContacts:
@@ -1412,7 +1523,7 @@ namespace Licencjat_new.Controls
             searchTerm = searchTerm.ToLower();
             if (instance is PersonModel)
             {
-                PersonModel person = (PersonModel) instance;
+                PersonModel person = (PersonModel)instance;
 
                 return person.FirstName.ToLower().Contains(searchTerm) ||
                        person.LastName.ToLower().Contains(searchTerm) ||
@@ -1428,7 +1539,7 @@ namespace Licencjat_new.Controls
 
             if (instance is CompanyModel)
             {
-                CompanyModel company = (CompanyModel) instance;
+                CompanyModel company = (CompanyModel)instance;
 
                 return company.Name.ToLower().Contains(searchTerm);
             }
@@ -1450,21 +1561,6 @@ namespace Licencjat_new.Controls
             _externalContactsDivider = new ContactSearchDividerListItem("Kontakty");
             _companiesDivider = new ContactSearchDividerListItem("Firmy");
             _internalContactsDivider = new ContactSearchDividerListItem("Kontakty wewnętrzne");
-
-            //if (_listMode == ContactListMode.SearchMode)
-            //{
-            //    _personsDivider = new ContactSearchDividerListItem("Kontakty");
-            //    _companiesDivider = new ContactSearchDividerListItem("Firmy");
-            //    _internalContactsDivider = new ContactSearchDividerListItem("Wewnętrzne");
-
-            //    _personsDivider.Visibility = Visibility.Collapsed;
-            //    _companiesDivider.Visibility = Visibility.Collapsed;
-            //    _internalContactsDivider.Visibility = Visibility.Collapsed;
-
-            //    _innerStack.Children.Add(_personsDivider);
-            //    _innerStack.Children.Add(_companiesDivider);
-            //    _innerStack.Children.Add(_internalContactsDivider);
-            //}
         }
 
         private void HandleLayouts()
@@ -1486,62 +1582,67 @@ namespace Licencjat_new.Controls
         public void AddPerson(PersonModel person)
         {
             ContactPersonListItem personItem;
-
+            
             int listIndex = 0;
             bool nameCharExists = false;
             bool companyExists = false;
 
-            StackPanel layoutPanel = person.Company == null
+            StackPanel layoutPanel = person.IsInternalUser
                 ? _internalContactsStack
                 : _externalContactsStack;
 
-            List<string> usedAlphabet = person.Company == null
+            List<string> usedAlphabet = person.IsInternalUser
                 ? InternalContactsUsedAlphabet
                 : ExternalContactsUsedAlphabet;
 
-            List<PersonModel> usedList = person.Company == null
+            List<PersonModel> usedList = person.IsInternalUser
                 ? _usedInternalContacts
                 : _usedExternalContacts;
 
-            List<AlphabetElementListItem> usedAlphabetElements = person.Company == null
+            List<AlphabetElementListItem> usedAlphabetElements = person.IsInternalUser
                 ? _internalContactsAlphabetElements
                 : _externalContactsAlphabetElements;
 
             #region Adding person
 
-            string personNameChar = person.LastName.First().ToString().ToUpper();
-
-            usedList.Add(person);
-            usedList = usedList.OrderBy(obj => obj.LastName).ToList();
-
-            if (!usedAlphabet.Contains(personNameChar))
+            if (!usedList.Contains(person))
             {
-                usedAlphabet.Add(personNameChar);
-            }
-            else
-            {
-                nameCharExists = true;
-                listIndex += 1;
-            }
+                string personNameChar = person.LastName.First().ToString().ToUpper();
 
-            usedAlphabet.Sort();
+                usedList.Add(person);
+                usedList = usedList.OrderBy(obj => obj.LastName).ToList();
 
-            listIndex += usedList.IndexOf(person) + usedAlphabet.IndexOf(personNameChar);
+                if (!usedAlphabet.Contains(personNameChar))
+                {
+                    usedAlphabet.Add(personNameChar);
+                }
+                else
+                {
+                    nameCharExists = true;
+                    listIndex += 1;
+                }
 
-            personItem = new ContactPersonListItem(person, SelectionMode);
+                usedAlphabet.Sort();
 
-            personItem.Click += PersonItem_Click;
+                listIndex += usedList.IndexOf(person) + usedAlphabet.IndexOf(personNameChar);
 
-            if (nameCharExists)
-            {
-                layoutPanel.Children.Insert(listIndex, personItem);
-            }
-            else
-            {
-                AlphabetElementListItem alphabetItem = new AlphabetElementListItem(personNameChar);
-                layoutPanel.Children.Insert(listIndex, alphabetItem);
-                usedAlphabetElements.Add(alphabetItem);
-                layoutPanel.Children.Insert(listIndex + 1, personItem);
+                personItem = new ContactPersonListItem(person, SelectionMode);
+                personItem.ShowDetails += Item_ShowDetails;
+                personItem.Click += PersonItem_Click;
+                personItem.DataChanged += PersonItem_DataChanged;
+                personItem.RemoveItem += PersonItem_RemoveItem;
+
+                if (nameCharExists)
+                {
+                    layoutPanel.Children.Insert(listIndex, personItem);
+                }
+                else
+                {
+                    AlphabetElementListItem alphabetItem = new AlphabetElementListItem(personNameChar);
+                    layoutPanel.Children.Insert(listIndex, alphabetItem);
+                    usedAlphabetElements.Add(alphabetItem);
+                    layoutPanel.Children.Insert(listIndex + 1, personItem);
+                }
             }
 
             #endregion
@@ -1582,9 +1683,11 @@ namespace Licencjat_new.Controls
 
                 listIndex += _usedCompanies.IndexOf(person.Company) + CompaniesUsedAlphabet.IndexOf(companyNameChar);
 
-                companyItem = new ContactCompanyListItem(person.Company);
-
+                companyItem = new ContactCompanyListItem(person.Company, SelectionType == SelectionModeType.CompanySelect && SelectionMode);
+                companyItem.DataChanged += CompanyItem_DataChanged;
+                companyItem.Click += CompanyItem_Click;
                 companyItem.Rename += CompanyItem_Rename;
+                companyItem.Remove += CompanyItem_Remove;
                 //companyItem.Click += PersonItem_Click;
 
                 if (!companyExists)
@@ -1597,7 +1700,7 @@ namespace Licencjat_new.Controls
                     {
                         AlphabetElementListItem alphabetItem = new AlphabetElementListItem(companyNameChar);
                         _companiesStack.Children.Insert(listIndex, alphabetItem);
-                        _companyiesAlphabetElements.Add(alphabetItem);
+                        _companiesAlphabetElements.Add(alphabetItem);
                         _companiesStack.Children.Insert(listIndex + 1, companyItem);
                     }
                 }
@@ -1607,30 +1710,66 @@ namespace Licencjat_new.Controls
 
             #region Adding grouped person
 
-            listIndex = 0;
+                listIndex = 0;
+            nameCharExists = false;
+            companyExists = false;
 
             if (person.Company != null)
             {
+
+                if (!_usedGroupedCompanies.Contains(person.Company))
+                {
+                    _usedGroupedCompanies.Add(person.Company);
+                }
+                else
+                {
+                    companyExists = true;
+                }
+
+                _usedGroupedCompanies = _usedGroupedCompanies.OrderBy(obj => obj.Name).ToList();
+
                 string companyNameChar = person.Company.Name.First().ToString().ToUpper();
 
-                usedList = usedList.OrderBy(obj => obj.Company.Name).ThenBy(obj => obj.FullName).ToList();
-                _usedCompanies = _usedCompanies.OrderBy(obj => obj.Name).ToList();
-                CompaniesUsedAlphabet.Sort();
+                List<PersonModel> newUsed =
+                    usedList.Where(obj => obj.Company != null)
+                        .ToList()
+                        .OrderBy(obj => obj.Company.Name)
+                        .ThenBy(obj => obj.FullName)
+                        .ToList();
+
+                _usedGroupedCompanies = _usedGroupedCompanies.OrderBy(obj => obj.Name).ToList();
+
+                if (!GroupedCompaniesUsedAlphabet.Contains(companyNameChar))
+                {
+                    GroupedCompaniesUsedAlphabet.Add(companyNameChar);
+                }
+                else
+                {
+                    nameCharExists = true;
+                }
+
+                GroupedCompaniesUsedAlphabet.Sort();
 
                 if (nameCharExists)
-                    listIndex ++;
+                    listIndex++;
 
                 if (companyExists)
-                    listIndex ++;
+                    listIndex++;
 
-                listIndex += _usedCompanies.IndexOf(person.Company) + CompaniesUsedAlphabet.IndexOf(companyNameChar) +
-                             usedList.IndexOf(person);
-
-                companyItem = new ContactCompanyListItem(person.Company);
+                listIndex += _usedGroupedCompanies.IndexOf(person.Company) + GroupedCompaniesUsedAlphabet.IndexOf(companyNameChar) +
+                             newUsed.IndexOf(person);
+                companyItem = new ContactCompanyListItem(person.Company,
+                    SelectionType == SelectionModeType.CompanySelect && SelectionMode);
+                companyItem.Click += CompanyItem_Click;
+                companyItem.DataChanged += CompanyItem_DataChanged;
                 companyItem.Rename += CompanyItem_Rename;
+                companyItem.Remove += CompanyItem_Remove;
 
                 personItem = new ContactPersonListItem(person, SelectionMode);
+                personItem.ShowDetails += Item_ShowDetails;
                 personItem.Click += PersonItem_Click;
+                personItem.DataChanged += PersonItem_DataChanged;
+                personItem.RemoveItem += PersonItem_RemoveItem;
 
                 if (!companyExists)
                 {
@@ -1655,11 +1794,28 @@ namespace Licencjat_new.Controls
             }
 
             #endregion
+
+            UpdateAlphabetElements();
+        }
+
+        private void PersonItem_RemoveItem(object sender, EventArgs e)
+        {
+            RemoveExternalContact?.Invoke(sender, e);
+        }
+
+        private void CompanyItem_Remove(object sender, EventArgs e)
+        {
+            RemoveCompanyEvent?.Invoke(sender, e);
         }
 
         private void CompanyItem_Rename(object sender, EventArgs e)
         {
             RenameCompany?.Invoke(sender, e);
+        }
+
+        private void Item_ShowDetails(object sender, EventArgs e)
+        {
+            PersonShowDetails?.Invoke(sender, e);
         }
 
         public void AddCompany(CompanyModel company)
@@ -1701,9 +1857,11 @@ namespace Licencjat_new.Controls
 
                     listIndex += _usedCompanies.IndexOf(company) + CompaniesUsedAlphabet.IndexOf(companyNameChar);
 
-                    companyItem = new ContactCompanyListItem(company);
+                    companyItem = new ContactCompanyListItem(company, SelectionType == SelectionModeType.CompanySelect && SelectionMode);
+                    companyItem.Click += CompanyItem_Click;
                     companyItem.DataChanged += CompanyItem_DataChanged;
                     companyItem.Rename += CompanyItem_Rename;
+                    companyItem.Remove += CompanyItem_Remove;
 
                     //companyItem.Click += PersonItem_Click;
 
@@ -1717,7 +1875,7 @@ namespace Licencjat_new.Controls
                         {
                             AlphabetElementListItem alphabetItem = new AlphabetElementListItem(companyNameChar);
                             _companiesStack.Children.Insert(listIndex, alphabetItem);
-                            _companyiesAlphabetElements.Add(alphabetItem);
+                            _companiesAlphabetElements.Add(alphabetItem);
                             _companiesStack.Children.Insert(listIndex + 1, companyItem);
 
                             if (_boundTabControl.SelectedMode == ContactTabControlMode.Companies)
@@ -1725,7 +1883,7 @@ namespace Licencjat_new.Controls
                         }
                     }
                 }
-
+                UpdateAlphabetElements();
             }
             catch (Exception ex)
             {
@@ -1733,9 +1891,99 @@ namespace Licencjat_new.Controls
             }
         }
 
+        private void PersonItem_DataChanged(object sender, EventArgs e)
+        {
+            List<ContactPersonListItem> toDelete = new List<ContactPersonListItem>();
+
+            ContactPersonListItem item = (ContactPersonListItem)sender;
+            foreach (UIElement child in _externalGroupedContactsStack.Children)
+            {
+                if (child is ContactPersonListItem)
+                {
+                    ContactPersonListItem personItem = (ContactPersonListItem)child;
+                    if (personItem.Person.Id == item.Person.Id)
+                        toDelete.Add(personItem);
+                }    
+            }
+
+            toDelete.ForEach(obj => _externalGroupedContactsStack.Children.Remove(obj));
+
+            toDelete.Clear();
+
+            item = (ContactPersonListItem)sender;
+            foreach (UIElement child in _externalContactsStack.Children)
+            {
+                if (child is ContactPersonListItem)
+                {
+                    ContactPersonListItem personItem = (ContactPersonListItem)child;
+                    if (personItem.Person.Id == item.Person.Id)
+                        toDelete.Add(personItem);
+                }
+            }
+
+            toDelete.ForEach(obj => _externalContactsStack.Children.Remove(obj));
+
+            _usedExternalContacts.Remove(item.Person);
+            item.Person.DataChanged -= item.Person_DataChanged;
+            AddPerson(item.Person);
+            ClearAlphabetElements();
+        }
+
+        public void RemovePerson(string personId)
+        {
+            foreach (UIElement item in _externalGroupedContactsStack.Children)
+            {
+                if (item is ContactPersonListItem)
+                {
+                    ContactPersonListItem personItem = (ContactPersonListItem)item;
+                    if (personItem.Person.Id == personId)
+                    {
+                        _externalGroupedContactsStack.Children.Remove(personItem);
+                        break;
+                    }
+                }
+            }
+
+            foreach (UIElement item in _externalContactsStack.Children)
+            {
+                if (item is ContactPersonListItem)
+                {
+                    ContactPersonListItem personItem = (ContactPersonListItem)item;
+                    if (personItem.Person.Id == personId)
+                    {
+                        _externalContactsStack.Children.Remove(personItem);
+                        break;
+                    }
+                }
+            }
+
+            _usedExternalContacts.Remove(_usedExternalContacts.Find(obj => obj.Id == personId));
+      
+            ClearAlphabetElements();
+        }
+
+        public void RemoveCompany(string companyId)
+        {
+            foreach (UIElement item in _companiesStack.Children)
+            {
+                if (item is ContactCompanyListItem)
+                {
+                    ContactCompanyListItem companyItem = (ContactCompanyListItem)item;
+                    if (companyItem.Company.Id == companyId)
+                    {
+                        _companiesStack.Children.Remove(companyItem);
+                        break;
+                    }
+                }
+            }
+
+            _usedCompanies.Remove(_usedCompanies.Find(obj => obj.Id == companyId));
+            ClearAlphabetElements();
+        }
+
         private void CompanyItem_DataChanged(object sender, EventArgs e)
         {
-            ContactCompanyListItem item = (ContactCompanyListItem) sender;
+            ContactCompanyListItem item = (ContactCompanyListItem)sender;
             _companiesStack.Children.Remove(item);
             _usedCompanies.Remove(item.Company);
             item.Company.DataChanged -= item.Company_DataChanged;
@@ -1745,18 +1993,97 @@ namespace Licencjat_new.Controls
 
         private void ClearAlphabetElements()
         {
+            List<UIElement> elementsToDelete = new List<UIElement>();
+            UIElement element1 = null;
 
+            foreach (UIElement element in _externalContactsStack.Children)
+            {
+                if (element1 == null)
+                {
+                    element1 = element;
+                    continue;
+                }
+
+                if (element1 is AlphabetElementListItem && element is AlphabetElementListItem)
+                {
+                    AlphabetElementListItem item = (AlphabetElementListItem)element1;
+                    ExternalContactsUsedAlphabet.Remove(item.Element);
+                    elementsToDelete.Add(element1);
+                }
+
+                element1 = element;
+            }
+
+            elementsToDelete.ForEach(obj => _externalContactsStack.Children.Remove(obj));
+
+            elementsToDelete.Clear();
+
+            foreach (UIElement element in _companiesStack.Children)
+            {
+                if (element1 == null)
+                {
+                    element1 = element;
+                    continue;
+                }
+
+                if (element1 is AlphabetElementListItem && element is AlphabetElementListItem)
+                {
+                    AlphabetElementListItem item = (AlphabetElementListItem)element1;
+                    CompaniesUsedAlphabet.Remove(item.Element);
+                    elementsToDelete.Add(element1);
+                }
+
+                element1 = element;
+            }
+
+            elementsToDelete.ForEach(obj => _companiesStack.Children.Remove(obj));
+
+            elementsToDelete.Clear();
+
+            for (int i = 0; i < _externalGroupedContactsStack.Children.Count;i++)
+            {
+                if (i != 0)
+                {
+                    if (_externalGroupedContactsStack.Children[i] is AlphabetElementListItem &&
+                        _externalGroupedContactsStack.Children[i - 1] is ContactCompanyListItem)
+                    {
+                        AlphabetElementListItem item =
+                            (AlphabetElementListItem) (_externalGroupedContactsStack.Children[i - 2]);
+
+                        ContactCompanyListItem item2 =
+                            (ContactCompanyListItem) (_externalGroupedContactsStack.Children[i - 1]);
+
+                        GroupedCompaniesUsedAlphabet.Remove(item.Element);
+                        _usedGroupedCompanies.Remove(item2.Company);
+
+                        elementsToDelete.Add(_externalGroupedContactsStack.Children[i - 1]);
+                        elementsToDelete.Add(_externalGroupedContactsStack.Children[i - 2]);
+                    }
+                }
+            }
+
+            elementsToDelete.ForEach(obj => _externalGroupedContactsStack.Children.Remove(obj));
+            UpdateAlphabetElements();
         }
 
         private void PersonItem_Click(object sender, EventArgs e)
         {
-            ContactPersonListItem item = (ContactPersonListItem) sender;
+            ContactPersonListItem item = (ContactPersonListItem)sender;
 
-            if (SelectionMode)
+            if (SelectionMode && SelectionType == SelectionModeType.PersonSelect)
             {
                 if (MultipleSelection)
                 {
-                    SelectedPersons.Add(item);
+                    if (SelectedPersons.Contains(item))
+                    {
+                        SelectedPersons.Remove(item);
+                        item.Selected = false;
+                    }
+                    else
+                    {
+                        SelectedPersons.Add(item);
+                        item.Selected = true;
+                    }
                 }
                 else
                 {
@@ -1764,6 +2091,33 @@ namespace Licencjat_new.Controls
                     SelectedPersons.Clear();
 
                     SelectedPersons.Add(item);
+                    item.Selected = true;
+                }
+
+                SelectedItemsChanged?.Invoke(this, EventArgs.Empty);
+            }
+            else
+            {
+
+            }
+        }
+
+        private void CompanyItem_Click(object sender, EventArgs e)
+        {
+            ContactCompanyListItem item = (ContactCompanyListItem)sender;
+
+            if (SelectionMode && SelectionType == SelectionModeType.CompanySelect)
+            {
+                if (MultipleSelection)
+                {
+                    SelectedCompanies.Add(item);
+                }
+                else
+                {
+                    SelectedCompanies.ForEach(obj => obj.Selected = false);
+                    SelectedCompanies.Clear();
+
+                    SelectedCompanies.Add(item);
                 }
 
                 item.Selected = true;
@@ -1778,7 +2132,88 @@ namespace Licencjat_new.Controls
         #endregion
     }
 
+    public enum SelectionModeType
+    {
+        PersonSelect,
+        CompanySelect
+    }
+
     #endregion
+
+    public class PersonDetailListItem : DockPanel
+    {
+        private string _name;
+        private string _detailValue;
+
+        public object ChildObject { get; set; }
+
+        private RoundedTextBox _nameTextBox;
+        private RoundedTextBox _valueTextBox;
+
+        public event EventHandler RemoveDetail;
+
+        public string Name
+        {
+            get { return _nameTextBox.Text; }
+        }
+
+        public string DetailValue
+        {
+            get { return _valueTextBox.Text; }
+        }
+        
+        public PersonDetailListItem(object childObject)
+        {
+            ChildObject = childObject;
+
+            _nameTextBox = new RoundedTextBox()
+            {
+              Margin = new Thickness(7),
+              Caption = "Nazwa"
+            };
+
+            DockPanel.SetDock(_nameTextBox, Dock.Left);
+
+            _valueTextBox = new RoundedTextBox()
+            {
+                Margin = new Thickness(7),
+            };
+
+            RoundedButton deleteButton = new RoundedButton("Usuń", new SolidColorBrush(ColorScheme.GlobalBlue),
+                new SolidColorBrush(ColorScheme.MenuLight));
+
+            deleteButton.Margin = new Thickness(7);
+
+            DockPanel.SetDock(deleteButton, Dock.Right);
+
+            Children.Add(_nameTextBox);
+            Children.Add(deleteButton);
+            Children.Add(_valueTextBox);
+
+            if (childObject is EmailAddressModel)
+            {
+                EmailAddressModel email = (EmailAddressModel) ChildObject;
+                
+                _nameTextBox.Text = email.Name;
+                _valueTextBox.Text = email.Address;
+                _valueTextBox.Caption = "Adres";
+            }
+            else if (childObject is PhoneNumberModel)
+            {
+                PhoneNumberModel number = (PhoneNumberModel)ChildObject;
+                _nameTextBox.Text = number.Name;
+                _valueTextBox.Text = number.Number;
+                _valueTextBox.Caption = "Numer";
+            }
+
+            deleteButton.Clicked += DeleteButton_Clicked;
+        }
+
+        private void DeleteButton_Clicked(object sender, EventArgs e)
+        {
+            RemoveDetail?.Invoke(this, EventArgs.Empty);
+        }
+    }
 
     #region Enums
     public enum ContactTabControlMode

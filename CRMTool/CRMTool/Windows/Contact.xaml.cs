@@ -26,12 +26,12 @@ namespace Licencjat_new.Windows
     {
         #region Variables
 
-            #region Other
+        #region Other
         private MainWindow _parent;
         private List<String> _alphabetUsed;
         #endregion
 
-            #region Lists
+        #region Lists
         private List<PersonModel> _persons;
         private List<CompanyModel> _companies;
 
@@ -79,9 +79,28 @@ namespace Licencjat_new.Windows
 
 
             _parent.NewCompanyArrived += _parent_NewCompanyArrived;
+            _parent.CompanyRemoved += _parent_CompanyRemoved;
+            _parent.NewExternalContact += _parent_NewExternalContact;
+            _parent.ExternalContactRemoved += _parent_ExternalContactRemoved;
+
             //ContactSearchBox searchBox = ContactSearchBox;
             //ContactList.BoundSearchBox = searchBox;
             WindowInitialized = true;
+        }
+
+        private void _parent_ExternalContactRemoved(object sender, Server.ExternalContactRemovedEventArgs e)
+        {
+            _contactList.RemovePerson(e.PersonId);
+        }
+
+        private void _parent_NewExternalContact(object sender, Server.NewExternalContactEventArgs e)
+        {
+            _contactList.AddPerson(e.NewData);
+        }
+
+        private void _parent_CompanyRemoved(object sender, Server.CompanyRemovedEventArgs e)
+        {
+            _contactList.RemoveCompany(e.CompanyId);
         }
 
         private void _parent_NewCompanyArrived(object sender, Server.NewCompanyEventArgs e)
@@ -109,15 +128,143 @@ namespace Licencjat_new.Windows
                 }
             };
 
-                ContactMainContainer.Children.Add(_contactList);
+            ContactMainContainer.Children.Add(_contactList);
 
             _contactList.RenameCompany += _contactList_RenameCompany;
+            _contactList.RemoveCompanyEvent += _contactList_RemoveCompany;
+            _contactList.PersonShowDetails += _contactList_PersonShowDetails;
+            _contactList.RemoveExternalContact += _contactList_RemoveExternalContact;
 
             ToolBarButton addButton = new ToolBarButton("",
                 new Uri("pack://application:,,,/resources/add.png"));
             addButton.Click += AddButton_Click;
 
             MainMenuStrip.AddButton(addButton, Dock.Left);
+        }
+
+        private void _contactList_RemoveExternalContact(object sender, EventArgs e)
+        {
+            bool isMember = false;
+            ContactPersonListItem contactItem = (ContactPersonListItem)sender;
+            foreach (ConversationModel conversation in _parent.Conversations)
+            {
+                if (conversation.Members.Contains(contactItem.Person))
+                    isMember = true;
+            }
+
+            if (isMember)
+            {
+                CustomMessageBox messageBox =
+                    new CustomMessageBox(
+                        "Nie można usunąć tej osoby, ponieważ jest członkiem konwersacji.",
+                        MessageBoxButton.OK);
+
+                messageBox.OKButtonClicked += (s, ea) =>
+                {
+                    _parent.Darkened = false;
+                    _parent.mainCanvas.Children.Remove(messageBox);
+                };
+
+                _parent.Darkened = true;
+                _parent.mainCanvas.Children.Add(messageBox);
+            }
+            else
+            {
+                CustomMessageBox messageBox =
+                new CustomMessageBox(
+                    "Czy na pewno chcesz usunąć ten kontakt?",
+                    MessageBoxButton.YesNo);
+
+                messageBox.YesButtonClicked += (s, ea) =>
+                {
+                    _parent.Client.RemoveExternalContact(contactItem.Person);
+                    _parent.Darkened = false;
+                    _parent.mainCanvas.Children.Remove(messageBox);
+                };
+
+                messageBox.NoButtonClicked += (s, ea) =>
+                {
+                    _parent.Darkened = false;
+                    _parent.mainCanvas.Children.Remove(messageBox);
+                };
+
+                _parent.Darkened = true;
+                _parent.mainCanvas.Children.Add(messageBox);
+            }             
+        }
+
+        private void _contactList_PersonShowDetails(object sender, EventArgs e)
+        {
+            ContactPersonListItem personItem = (ContactPersonListItem)sender;
+            PersonDetails details = new PersonDetails(_parent, personItem.Person);
+
+            details.ReadyButtonClicked += (s, ea) =>
+            {
+                List<PersonDetailListItem> emailItems = details.EmailItems;
+                List<PersonDetailListItem> phoneItems = details.PhoneItems;
+
+                foreach (PersonDetailListItem detail in emailItems)
+                {
+                    EmailAddressModel emailAdress = (EmailAddressModel) detail.ChildObject;
+                    emailAdress.Name = detail.Name;
+                    emailAdress.Address = detail.DetailValue;
+                    detail.ChildObject = emailAdress;
+                }
+
+                foreach (PersonDetailListItem detail in phoneItems)
+                {
+                    PhoneNumberModel phoneNumber = (PhoneNumberModel)detail.ChildObject;
+                    phoneNumber.Name = detail.Name;
+                    phoneNumber.Number = detail.DetailValue;
+                    detail.ChildObject = phoneNumber;
+                }
+
+                _parent.Client.UpdatePersonDetails(details.Person.Id, details.FirstNameTextBox.Text,
+                    details.LastNameTextBox.Text,
+                    details.GenderComboBox.SelectedItem == details.GenderComboBox.Items.First()
+                        ? Gender.Female
+                        : Gender.Male, details.Company,
+                    details.EmailItems.Select(obj => (EmailAddressModel) obj.ChildObject).ToList(),
+                    details.PhoneItems.Select(obj => (PhoneNumberModel) obj.ChildObject).ToList());
+
+                _parent.Darkened = false;
+                _parent.mainCanvas.Children.Remove(details);
+            };
+
+            details.CancelButtonClicked += (s, ea) =>
+            {
+                _parent.Darkened = false;
+                _parent.mainCanvas.Children.Remove(details);
+            };
+
+            _parent.Darkened = true;
+            _parent.mainCanvas.Children.Add(details);
+        }
+
+        private void _contactList_RemoveCompany(object sender, EventArgs e)
+        {
+            CustomMessageBox messageBox =
+                new CustomMessageBox(
+                    "Czy na pewno chcesz usunąć tą firmę oraz wszystkie powiązania pomiędzy nią a jej pracownikami?",
+                    MessageBoxButton.YesNo);
+
+            ContactCompanyListItem companyItem = (ContactCompanyListItem)sender;
+
+            messageBox.YesButtonClicked += (s, ea) =>
+            {
+                _parent.Client.RemoveCompany(companyItem.Company);
+                _parent.Darkened = false;
+                _parent.mainCanvas.Children.Remove(messageBox);
+            };
+
+            messageBox.NoButtonClicked += (s, ea) =>
+            {
+                _parent.Darkened = false;
+                _parent.mainCanvas.Children.Remove(messageBox);
+            };
+
+            _parent.Darkened = true;
+            _parent.mainCanvas.Children.Add(messageBox);
         }
 
         private void _contactList_RenameCompany(object sender, EventArgs e)
@@ -134,7 +281,7 @@ namespace Licencjat_new.Windows
 
             rename.ReadyButtonClicked += (s, ea) =>
             {
-                ContactCompanyListItem companyItem = (ContactCompanyListItem) sender;
+                ContactCompanyListItem companyItem = (ContactCompanyListItem)sender;
                 CompanyModel company = companyItem.Company;
                 _parent.Client.RenameCompany(company, rename.NewName);
 
@@ -148,6 +295,49 @@ namespace Licencjat_new.Windows
             switch (ContactTabControl.SelectedMode)
             {
                 case ContactTabControlMode.Contacts:
+                    PersonDetails details = new PersonDetails(_parent, null);
+
+                    details.ReadyButtonClicked += (s, ea) =>
+                    {
+                        List<PersonDetailListItem> emailItems = details.EmailItems;
+                        List<PersonDetailListItem> phoneItems = details.PhoneItems;
+
+                        foreach (PersonDetailListItem detail in emailItems)
+                        {
+                            EmailAddressModel emailAdress = (EmailAddressModel)detail.ChildObject;
+                            emailAdress.Name = detail.Name;
+                            emailAdress.Address = detail.DetailValue;
+                            detail.ChildObject = emailAdress;
+                        }
+
+                        foreach (PersonDetailListItem detail in phoneItems)
+                        {
+                            PhoneNumberModel phoneNumber = (PhoneNumberModel)detail.ChildObject;
+                            phoneNumber.Name = detail.Name;
+                            phoneNumber.Number = detail.DetailValue;
+                            detail.ChildObject = phoneNumber;
+                        }
+
+                        _parent.Client.AddExternalContact( details.FirstNameTextBox.Text,
+                            details.LastNameTextBox.Text,
+                            details.GenderComboBox.SelectedItem == details.GenderComboBox.Items.First()
+                                ? Gender.Female
+                                : Gender.Male, details.Company,
+                            details.EmailItems.Select(obj => (EmailAddressModel)obj.ChildObject).ToList(),
+                            details.PhoneItems.Select(obj => (PhoneNumberModel)obj.ChildObject).ToList());
+
+                        _parent.Darkened = false;
+                        _parent.mainCanvas.Children.Remove(details);
+                    };
+
+                    details.CancelButtonClicked += (s, ea) =>
+                    {
+                        _parent.Darkened = false;
+                        _parent.mainCanvas.Children.Remove(details);
+                    };
+
+                    _parent.Darkened = true;
+                    _parent.mainCanvas.Children.Add(details);
                     break;
                 case ContactTabControlMode.Companies:
                     Rename newCompany = new Rename();

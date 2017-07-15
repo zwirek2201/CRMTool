@@ -12,11 +12,7 @@ namespace Licencjat_new_server
 {
     public class NotificationClient
     {
-        public Program program
-        {
-            get;
-            set;
-        }
+        public Program program { get; set; }
 
         private TcpClient _client;
         private BinaryReader _reader;
@@ -68,7 +64,9 @@ namespace Licencjat_new_server
                     _writer.Write(message.ConversationId);
                     _writer.Write(message.AuthorId);
                     _writer.Write(message.AuthorFromId);
-                    _writer.Write(DateTime.ParseExact(message.InitialDate,"yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture).ToString("dd-MM-yyyy HH:mm:ss"));
+                    _writer.Write(
+                        DateTime.ParseExact(message.InitialDate, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)
+                            .ToString("dd-MM-yyyy HH:mm:ss"));
 
                     SendFile(message.PreviewImage);
 
@@ -98,7 +96,8 @@ namespace Licencjat_new_server
             }
         }
 
-        public void ConversationRenamed(string conversationId, string oldName, string newName, NotificationModel notification)
+        public void ConversationRenamed(string conversationId, string oldName, string newName,
+            NotificationModel notification)
         {
             _writer.Write(MessageDictionary.NewNotification);
 
@@ -169,7 +168,7 @@ namespace Licencjat_new_server
             }
             catch (Exception ex)
             {
-                
+
             }
         }
 
@@ -193,7 +192,7 @@ namespace Licencjat_new_server
                 }
 
                 List<ConversationMessageResultInfo> conversationMessages =
-                                    DBApi.GetConversationMessages(conversation.Id);
+                    DBApi.GetConversationMessages(conversation.Id);
                 _writer.Write(MessageDictionary.OK);
                 _writer.Write(conversationMessages.Count);
                 foreach (ConversationMessageResultInfo message in conversationMessages)
@@ -229,7 +228,8 @@ namespace Licencjat_new_server
             }
         }
 
-        public void NewConversationMember(string conversationId, string personId, string personColor, NotificationModel notification)
+        public void NewConversationMember(string conversationId, string personId, string personColor,
+            NotificationModel notification)
         {
             _writer.Write(MessageDictionary.NewNotification);
 
@@ -288,7 +288,8 @@ namespace Licencjat_new_server
             }
         }
 
-        public void ConversationSettingsChanged(string conversationId, bool notifyContactPersons, NotificationModel notification)
+        public void ConversationSettingsChanged(string conversationId, bool notifyContactPersons,
+            NotificationModel notification)
         {
             _writer.Write(MessageDictionary.NewNotification);
 
@@ -360,7 +361,8 @@ namespace Licencjat_new_server
             }
         }
 
-        public void NewEmailAddress(string id, string newEmailAddress, string login, string imapHost, int imapPort, bool imapUseSsl, string smtpHost, int smtpPort, bool smtpUseSsl, string name)
+        public void NewEmailAddress(string id, string newEmailAddress, string login, string imapHost, int imapPort,
+            bool imapUseSsl, string smtpHost, int smtpPort, bool smtpUseSsl, string name)
         {
             _writer.Write(MessageDictionary.AddEmailAddress);
 
@@ -379,9 +381,77 @@ namespace Licencjat_new_server
             }
         }
 
+        public void CompanyRemoved(string companyId, NotificationModel notification)
+        {
+            _writer.Write(MessageDictionary.NewNotification);
+
+            if (_reader.Read() == MessageDictionary.OK)
+            {
+                _writer.Write(notification.NotificationId);
+                _writer.Write(notification.NotificationText);
+                _writer.Write(notification.NotificationDate.ToString("dd-MM-yyyy HH:mm:ss"));
+                _writer.Write(notification.NotificationReferenceFields.Count);
+
+                foreach (string referenceField in notification.NotificationReferenceFields)
+                {
+                    _writer.Write(referenceField);
+                }
+
+                _writer.Write(MessageDictionary.EndOfMessage);
+                _writer.Write(MessageDictionary.RemoveCompany);
+
+                _writer.Write(companyId);
+            }
+        }
+
+        public void PersonDetailsChanged(string id, string firstName, string lastName, int gender, string companyId,
+            List<EmailAddressResultInfo> emailAddressesList, List<PhoneNumberResultInfo> phoneNumbersList,
+            NotificationModel notification)
+        {
+            _writer.Write(MessageDictionary.NewNotification);
+
+            if (_reader.Read() == MessageDictionary.OK)
+            {
+                _writer.Write(notification.NotificationId);
+                _writer.Write(notification.NotificationText);
+                _writer.Write(notification.NotificationDate.ToString("dd-MM-yyyy HH:mm:ss"));
+                _writer.Write(notification.NotificationReferenceFields.Count);
+
+                foreach (string referenceField in notification.NotificationReferenceFields)
+                {
+                    _writer.Write(referenceField);
+                }
+
+                _writer.Write(MessageDictionary.EndOfMessage);
+                _writer.Write(MessageDictionary.UpdatePersonDetails);
+
+                _writer.Write(id);
+                _writer.Write(firstName);
+                _writer.Write(lastName);
+                _writer.Write(gender.ToString());
+                _writer.Write(companyId);
+
+                _writer.Write(emailAddressesList.Count);
+                foreach (EmailAddressResultInfo emailAddress in emailAddressesList)
+                {
+                    _writer.Write(emailAddress.Id);
+                    _writer.Write(emailAddress.Name);
+                    _writer.Write(emailAddress.Address);
+                }
+
+                _writer.Write(phoneNumbersList.Count);
+                foreach (PhoneNumberResultInfo phoneNumber in phoneNumbersList)
+                {
+                    _writer.Write(phoneNumber.Id);
+                    _writer.Write(phoneNumber.Name);
+                    _writer.Write(phoneNumber.Number);
+                }
+            }
+        }
+
         private byte[] ReceiveFile()
         {
-            byte[] buffer = new byte[1024 * 8];
+            byte[] buffer = new byte[1024*8];
             Int64 length = _reader.ReadInt64();
             Int64 receivedBytes = 0;
             int count;
@@ -403,15 +473,83 @@ namespace Licencjat_new_server
             MemoryStream stream = new MemoryStream();
             stream.Write(data, 0, data.Length);
 
-            _writer.Write((Int64)data.Length);
+            _writer.Write((Int64) data.Length);
             if (_reader.Read() == MessageDictionary.OK)
             {
                 stream.Position = 0;
                 stream.Seek(0, SeekOrigin.Begin);
-                var buffer = new byte[1024 * 8];
+                var buffer = new byte[1024*8];
                 int count;
                 while ((count = stream.Read(buffer, 0, buffer.Length)) > 0)
                     _writer.Write(buffer, 0, count);
+            }
+        }
+
+        public void NewExternalContact(string id, string firstName, string lastName, int gender, string companyId,
+            List<EmailAddressResultInfo> emailAddressesList, List<PhoneNumberResultInfo> phoneNumbersList,
+            NotificationModel notification)
+        {
+            _writer.Write(MessageDictionary.NewNotification);
+
+            if (_reader.Read() == MessageDictionary.OK)
+            {
+                _writer.Write(notification.NotificationId);
+                _writer.Write(notification.NotificationText);
+                _writer.Write(notification.NotificationDate.ToString("dd-MM-yyyy HH:mm:ss"));
+                _writer.Write(notification.NotificationReferenceFields.Count);
+
+                foreach (string referenceField in notification.NotificationReferenceFields)
+                {
+                    _writer.Write(referenceField);
+                }
+
+                _writer.Write(MessageDictionary.EndOfMessage);
+                _writer.Write(MessageDictionary.NewExternalContact);
+
+                _writer.Write(id);
+                _writer.Write(firstName);
+                _writer.Write(lastName);
+                _writer.Write(gender.ToString());
+                _writer.Write(companyId);
+
+                _writer.Write(emailAddressesList.Count);
+                foreach (EmailAddressResultInfo emailAddress in emailAddressesList)
+                {
+                    _writer.Write(emailAddress.Id);
+                    _writer.Write(emailAddress.Name);
+                    _writer.Write(emailAddress.Address);
+                }
+
+                _writer.Write(phoneNumbersList.Count);
+                foreach (PhoneNumberResultInfo phoneNumber in phoneNumbersList)
+                {
+                    _writer.Write(phoneNumber.Id);
+                    _writer.Write(phoneNumber.Name);
+                    _writer.Write(phoneNumber.Number);
+                }
+            }
+        }
+
+        public void ExternalContactRemoved(string personId, NotificationModel notification)
+        {
+            _writer.Write(MessageDictionary.NewNotification);
+
+            if (_reader.Read() == MessageDictionary.OK)
+            {
+                _writer.Write(notification.NotificationId);
+                _writer.Write(notification.NotificationText);
+                _writer.Write(notification.NotificationDate.ToString("dd-MM-yyyy HH:mm:ss"));
+                _writer.Write(notification.NotificationReferenceFields.Count);
+
+                foreach (string referenceField in notification.NotificationReferenceFields)
+                {
+                    _writer.Write(referenceField);
+                }
+
+                _writer.Write(MessageDictionary.EndOfMessage);
+                _writer.Write(MessageDictionary.RemoveExternalContact);
+
+                _writer.Write(personId);
             }
         }
     }

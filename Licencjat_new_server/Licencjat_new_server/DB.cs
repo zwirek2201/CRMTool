@@ -438,7 +438,7 @@ namespace Licencjat_new_server
 
                 if (!personExists)
                 {
-                    personInfo = new PersonResultInfo(contact["Id"].ToString(), contact["FirstName"].ToString(), contact["LastName"].ToString(), contact["Gender"].ToString(), contact["Company"].ToString(), null, null);
+                    personInfo = new PersonResultInfo(contact["Id"].ToString(), contact["FirstName"].ToString(), contact["LastName"].ToString(), contact["Gender"].ToString(), contact["Company"].ToString(), null, null, Convert.ToBoolean(contact["IsInternalUser"]));
                     contactResults.Add(personInfo);
                 }
                 else
@@ -953,6 +953,243 @@ namespace Licencjat_new_server
             DataTable returnTable = DB.RunSelectCommand("INSERT INTO PersonEmailAddresses ([Address], [Login], [ImapHost], [ImapPort], [ImapUseSsl], [Person], [Active], [SmtpHost], [SmtpPort], [SmtpUseSsl], [Default], [Name]) values (@emailAddress, @login, @imapHost, @imapPort, @imapUseSsl, @personId, 1, @smtpHost, @smtpPort, @smtpUseSsl, 1, @name); select scope_identity()", parameters);
             return returnTable.Rows[0][0].ToString();
         }
+
+        public static string RemoveCompany(string companyId)
+        {
+            DataTable parameters = DB.GetParametersDataTable();
+            parameters.Rows.Add("companyId", companyId);
+
+            DB.RunSimpleCommand("delete from ContactPersons WHERE Company = @companyId", parameters);
+            DB.RunSimpleCommand("delete from Notifications WHERE CompanyId = @companyId", parameters);
+            DataTable returnTable = DB.RunSelectCommand("select [Name] from Companies where Id = @companyId", parameters);
+            DB.RunSimpleCommand("delete from Companies WHERE Id = @companyId", parameters);
+
+            return returnTable.Rows[0][0].ToString();
+        }
+
+        public static void UpdatePersonDetails(string id, string firstName, string lastName, int gender, string companyId, List<EmailAddressResultInfo> emailAddressesList, List<PhoneNumberResultInfo> phoneNumbersList)
+        {
+            DataTable parameters = DB.GetParametersDataTable();
+            parameters.Rows.Add("id", id);
+            parameters.Rows.Add("firstName", firstName);
+            parameters.Rows.Add("lastName", lastName);
+            parameters.Rows.Add("gender", gender);
+            DB.RunSimpleCommand("update Persons set FirstName = @firstName, LastName = @lastName, Gender = @gender WHERE Id = @id", parameters);
+
+            if (companyId != "")
+            {
+                parameters.Clear();
+                parameters.Rows.Add("personId", id);
+                parameters.Rows.Add("companyId", companyId);
+
+                DB.RunSimpleCommand(
+                    "IF EXISTS (Select * from ContactPersons where Person = @personId) UPDATE ContactPersons Set Company = @companyId WHERE Person = @personId ELSE INSERT INTO ContactPersons (Person, Company) values (@personId, @companyId)",
+                    parameters);
+            }
+            else
+            {
+                parameters.Clear();
+                parameters.Rows.Add("personId", id);
+
+                DB.RunSimpleCommand("delete from ContactPersons where Person = @personId",parameters);
+            }
+
+            parameters.Clear();
+            parameters.Rows.Add("personId", id);
+
+            DataTable personEmailAddresses = DB.RunSelectCommand("SELECT Id, [Name], [Address] FROM PersonEmailAddresses WHERE Person = @personId", parameters);
+
+            List<EmailAddressResultInfo> emailsToAdd = new List<EmailAddressResultInfo>();
+            List<EmailAddressResultInfo> emailsToUpdate = new List<EmailAddressResultInfo>();
+            List<string> emailsToDelete = new List<string>();
+
+
+            foreach (DataRow row in personEmailAddresses.Rows)
+            {
+                EmailAddressResultInfo email = emailAddressesList.Find(obj => obj.Id == row[0].ToString());
+                if (email == null)
+                {
+                    emailsToDelete.Add(row[0].ToString());
+                }
+                else
+                {
+                    emailsToUpdate.Add(email);
+                }
+            }
+
+            foreach (EmailAddressResultInfo email in emailAddressesList)
+            {
+                bool exists = false;
+
+                for (int i = 0; i < personEmailAddresses.Rows.Count; i++)
+                {
+                    if (personEmailAddresses.Rows[i][0].ToString() == email.Id)
+                    {
+                        exists = true;
+                    }
+                }
+
+                if (!exists)
+                {
+                    emailsToAdd.Add(email);
+                }
+            }
+
+            foreach (EmailAddressResultInfo email in emailsToAdd)
+            {
+                parameters.Clear();
+                parameters.Rows.Add("personId", id);
+                parameters.Rows.Add("emailName", email.Name);
+                parameters.Rows.Add("emailAddress", email.Address);
+                DataTable returnTable = DB.RunSelectCommand("insert into PersonEmailAddresses ([Person], [Name], [Address], [Default]) values (@personId, @emailName, @emailAddress, 0); select scope_identity()", parameters);
+                email.Id = returnTable.Rows[0][0].ToString();
+            }
+
+            foreach (EmailAddressResultInfo email in emailsToUpdate)
+            {
+                parameters.Clear();
+                parameters.Rows.Add("emailId", email.Id);
+                parameters.Rows.Add("emailName", email.Name);
+                parameters.Rows.Add("emailAddress", email.Address);
+                DB.RunSimpleCommand("update PersonEmailAddresses set [Name] = @emailName, Address = @emailAddress WHERE Id = @emailId", parameters);
+            }
+
+            foreach (string email in emailsToDelete)
+            {
+                parameters.Clear();
+                parameters.Rows.Add("emailId", email);
+                parameters.Rows.Add("personId", id);
+                DB.RunSimpleCommand("delete from PersonEmailAddresses WHERE Id = @emailId", parameters);
+            }
+
+            // PHONES
+
+            parameters.Clear();
+            parameters.Rows.Add("personId", id);
+
+            DataTable personPhoneNumbers = DB.RunSelectCommand("SELECT Id, [Name], [PhoneNumber] FROM PersonPhoneNumbers WHERE Person = @personId", parameters);
+
+            List<PhoneNumberResultInfo> phonesToAdd = new List<PhoneNumberResultInfo>();
+            List<PhoneNumberResultInfo> phonesToUpdate = new List<PhoneNumberResultInfo>();
+            List<string> phonesToDelete = new List<string>();
+
+            foreach (DataRow row in personPhoneNumbers.Rows)
+            {
+                PhoneNumberResultInfo phone = phoneNumbersList.Find(obj => obj.Id == row[0].ToString());
+                if (phone == null)
+                {
+                    phonesToDelete.Add(row[0].ToString());
+                }
+                else
+                {
+                    phonesToUpdate.Add(phone);
+                }
+            }
+
+            foreach (PhoneNumberResultInfo phone in phoneNumbersList)
+            {
+                bool exists = false;
+
+                for (int i = 0; i < personPhoneNumbers.Rows.Count; i++)
+                {
+                    if (personPhoneNumbers.Rows[i][0].ToString() == phone.Id)
+                    {
+                        exists = true;
+                    }
+                }
+
+                if (!exists)
+                {
+                    phonesToAdd.Add(phone);
+                }
+            }
+
+            foreach (PhoneNumberResultInfo phone in phonesToAdd)
+            {
+                parameters.Clear();
+                parameters.Rows.Add("personId", id);
+                parameters.Rows.Add("phoneName", phone.Name);
+                parameters.Rows.Add("phoneNumber", phone.Number);
+                DataTable returnTable = DB.RunSelectCommand("insert into PersonPhoneNumbers ([Person], [Name], [PhoneNumber], [Default]) values (@personId, @phoneName, @phoneNumber, 0); select scope_identity()", parameters);
+
+                phone.Id = returnTable.Rows[0][0].ToString();
+            }
+
+            foreach (PhoneNumberResultInfo phone in phonesToUpdate)
+            {
+                parameters.Clear();
+                parameters.Rows.Add("emailId", phone.Id);
+                parameters.Rows.Add("phoneName", phone.Name);
+                parameters.Rows.Add("phoneNumber", phone.Number);
+                DB.RunSimpleCommand("update PersonPhoneNumbers set [Name] = @phoneName, PhoneNumber = @phoneNumber WHERE Id = @emailId", parameters);
+            }
+
+            foreach (string phone in phonesToDelete)
+            {
+                parameters.Clear();
+                parameters.Rows.Add("phoneId", phone);
+                DB.RunSimpleCommand("delete from PersonPhoneNumbers WHERE Id = @emailId", parameters);
+            }
+        }
+
+        public static string NewExternalContact(string firstName, string lastName, int gender, string companyId, List<EmailAddressResultInfo> emailAddressesList, List<PhoneNumberResultInfo> phoneNumbersList)
+        {
+            DataTable parameters = DB.GetParametersDataTable();
+            parameters.Rows.Add("firstName", firstName);
+            parameters.Rows.Add("lastName", lastName);
+            parameters.Rows.Add("gender", gender);
+            DataTable returnTable = DB.RunSelectCommand("insert into Persons (FirstName, LastName, Gender) values (@firstName, @lastName, @gender);select scope_identity()", parameters);
+
+            string id = returnTable.Rows[0][0].ToString();
+
+            if (companyId != "")
+            {
+                parameters.Clear();
+                parameters.Rows.Add("personId", id);
+                parameters.Rows.Add("companyId", companyId);
+
+                DB.RunSimpleCommand("INSERT INTO ContactPersons (Person, Company) values (@personId, @companyId)",
+                    parameters);
+            }
+
+            foreach (EmailAddressResultInfo email in emailAddressesList)
+            {
+                parameters.Clear();
+                parameters.Rows.Add("personId", id);
+                parameters.Rows.Add("emailName", email.Name);
+                parameters.Rows.Add("emailAddress", email.Address);
+                returnTable = DB.RunSelectCommand("insert into PersonEmailAddresses ([Person], [Name], [Address], [Default]) values (@personId, @emailName, @emailAddress, 0); select scope_identity()", parameters);
+                email.Id = returnTable.Rows[0][0].ToString();
+            }
+
+            foreach (PhoneNumberResultInfo phone in phoneNumbersList)
+            {
+                parameters.Clear();
+                parameters.Rows.Add("personId", id);
+                parameters.Rows.Add("phoneName", phone.Name);
+                parameters.Rows.Add("phoneNumber", phone.Number);
+                returnTable = DB.RunSelectCommand("insert into PersonPhoneNumbers ([Person], [Name], [PhoneNumber], [Default]) values (@personId, @phoneName, @phoneNumber, 0); select scope_identity()", parameters);
+
+                phone.Id = returnTable.Rows[0][0].ToString();
+            }
+
+            return id;
+        }
+
+        public static string RemoveExternalContact(string personId)
+        {
+            DataTable parameters = DB.GetParametersDataTable();
+            parameters.Rows.Add("personId", personId);
+
+            DB.RunSimpleCommand("delete from Notifications where PersonId = @personId", parameters);
+            DB.RunSimpleCommand("delete from ContactPersons where Person = @personId", parameters);
+            DB.RunSimpleCommand("delete from PersonEmailAddresses where Person = @personId", parameters);
+            DB.RunSimpleCommand("delete from PersonPhoneNumbers where Person = @personId", parameters);
+            DataTable returnTable = DB.RunSelectCommand("select FirstName, LastName from Persons where Id = @personId; delete from Persons where Id = @personId", parameters);
+            DB.RunSimpleCommand("delete from Persons where Id = @personId", parameters);
+
+            return returnTable.Rows[0][0] + " " + returnTable.Rows[0][1];
+        }
     }
 
     public class EmailResultInfo
@@ -1100,9 +1337,10 @@ namespace Licencjat_new_server
         public string CompanyId { get; set; }
         public List<EmailAddressResultInfo> EmailAddresses { get; set; }
         public List<PhoneNumberResultInfo> PhoneNumbers { get; set; }
+        public bool IsInternalUser { get; set; }
 
         public PersonResultInfo(string id, string firstName, string lastName, string gender, string companyId,
-            List<EmailAddressResultInfo> emailAddresses, List<PhoneNumberResultInfo> phoneNumbers)
+            List<EmailAddressResultInfo> emailAddresses, List<PhoneNumberResultInfo> phoneNumbers, bool isInternalUser)
         {
             Id = id;
             FirstName = firstName;
@@ -1111,6 +1349,7 @@ namespace Licencjat_new_server
             CompanyId = companyId;
             EmailAddresses = emailAddresses ?? new List<EmailAddressResultInfo>();
             PhoneNumbers = phoneNumbers ?? new List<PhoneNumberResultInfo>();
+            IsInternalUser = isInternalUser;
         }
     }
 

@@ -9,9 +9,11 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 using System.Windows.Resources;
+using Licencjat_new.Controls;
 using Licencjat_new.CustomClasses;
 using Licencjat_new.Windows.HelperWindows;
 using Message = ImapX.Message;
@@ -503,11 +505,12 @@ namespace Licencjat_new.Server
                         string PersonLastName = _reader.ReadString();
                         string PersonGenderCode = _reader.ReadString();
                         string PersonCompanyId = _reader.ReadString();
+                        bool IsInternalUser = _reader.ReadBoolean();
 
                         Gender PersonGender = (Gender)Convert.ToInt32(PersonGenderCode);
 
                         PersonModel contactPerson = new PersonModel(PersonId, PersonFirstName, PersonLastName, PersonGender,
-                            PersonCompanyId);
+                            PersonCompanyId, IsInternalUser);
 
                         int emailAddressCount = _reader.ReadInt32();
 
@@ -875,6 +878,121 @@ namespace Licencjat_new.Server
                     _writer.Write(company.Id);
                     _writer.Write(company.Name);
                     _writer.Write(newName);
+                    return;
+                }
+                throw new Exception("Connection unsynced");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                ErrorHelper.LogError(ex);
+            }
+        }
+
+        public void RemoveCompany(CompanyModel company)
+        {
+            try
+            {
+                _writer.Write(MessageDictionary.RemoveCompany);
+                if (_reader.Read() == MessageDictionary.OK)
+                {
+                    _writer.Write(company.Id);
+                    return;
+                }
+                throw new Exception("Connection unsynced");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                ErrorHelper.LogError(ex);
+            }
+        }
+
+        public void UpdatePersonDetails(string id, string firstName, string lastName, Gender gender, CompanyModel company, List<EmailAddressModel> emailList, List<PhoneNumberModel> phoneList)
+        {
+            try
+            {
+                _writer.Write(MessageDictionary.UpdatePersonDetails);
+                if (_reader.Read() == MessageDictionary.OK)
+                {
+                    _writer.Write(id);
+                    _writer.Write(firstName);
+                    _writer.Write(lastName);
+                    _writer.Write(Convert.ToInt32(gender));
+                    _writer.Write(company != null ? company.Id : "");
+
+                    _writer.Write(emailList.Count);
+                    foreach (EmailAddressModel email in emailList)
+                    {
+                        _writer.Write(email.Id);
+                        _writer.Write(email.Name);
+                        _writer.Write(email.Address);
+                    }
+
+                    _writer.Write(phoneList.Count);
+                    foreach (PhoneNumberModel phone in phoneList)
+                    {
+                        _writer.Write(phone.Id);
+                        _writer.Write(phone.Name);
+                        _writer.Write(phone.Number);
+                    }
+                    return;
+                }
+                throw new Exception("Connection unsynced");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                ErrorHelper.LogError(ex);
+            }
+        }
+
+        public void AddExternalContact(string firstName, string lastName, Gender gender, CompanyModel company, List<EmailAddressModel> emailList, List<PhoneNumberModel> phoneList)
+        {
+            try
+            {
+                _writer.Write(MessageDictionary.NewExternalContact);
+                if (_reader.Read() == MessageDictionary.OK)
+                {
+                    _writer.Write(firstName);
+                    _writer.Write(lastName);
+                    _writer.Write(Convert.ToInt32(gender));
+                    _writer.Write(company != null ? company.Id : "");
+
+                    _writer.Write(emailList.Count);
+                    foreach (EmailAddressModel email in emailList)
+                    {
+                        _writer.Write(email.Id);
+                        _writer.Write(email.Name);
+                        _writer.Write(email.Address);
+                    }
+
+                    _writer.Write(phoneList.Count);
+                    foreach (PhoneNumberModel phone in phoneList)
+                    {
+                        _writer.Write(phone.Id);
+                        _writer.Write(phone.Name);
+                        _writer.Write(phone.Number);
+                    }
+                    return;
+                }
+                throw new Exception("Connection unsynced");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                ErrorHelper.LogError(ex);
+            }
+        }
+
+        public void RemoveExternalContact(PersonModel person)
+        {
+            try
+            {
+                _writer.Write(MessageDictionary.RemoveExternalContact);
+                if (_reader.Read() == MessageDictionary.OK)
+                {
+                    _writer.Write(person.Id);
                     return;
                 }
                 throw new Exception("Connection unsynced");
