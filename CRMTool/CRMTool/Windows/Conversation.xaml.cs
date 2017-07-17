@@ -740,7 +740,26 @@ namespace Licencjat_new.Windows
             }
             else
             {
-                _parent.Client.RemoveMember(conversation.Id, memberItem.Person.Id);
+                _parent.Darkened = true;
+                CustomMessageBox messageBox =
+                    new CustomMessageBox("Czy na pewno chcesz usunąć tą osobę z konwersacji?",
+                        MessageBoxButton.YesNo);
+
+                messageBox.YesButtonClicked += (s, ea) =>
+                {
+                    _parent.Client.RemoveMember(conversation.Id, memberItem.Person.Id);
+
+                    _parent.Darkened = false;
+                    _parent.mainCanvas.Children.Remove(messageBox);
+                };
+
+                messageBox.NoButtonClicked += (s, ea) =>
+                {
+                    _parent.Darkened = false;
+                    _parent.mainCanvas.Children.Remove(messageBox);
+                };
+
+                _parent.mainCanvas.Children.Add(messageBox);
             }
         }
 

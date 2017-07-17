@@ -1967,45 +1967,6 @@ namespace Licencjat_new.Controls
 
                 contextMenu.Items.Add(new Separator());
 
-                _addFilterItem = new MenuItem()
-                {
-                    Header = "Dodaj do filtra",
-                    Icon =
-                        new Image()
-                        {
-                            Source =
-                                ImageHelper.UriToImageSource(
-                                    new Uri(@"pack://application:,,,/resources/addFilter_context.png"))
-                        }
-                };
-                _addFilterItem.Click += AddFilterItem_Click;
-                contextMenu.Items.Add(_addFilterItem);
-
-                _removeFilterItem = new MenuItem()
-                {
-                    Header = "Usuń z filtra",
-                    Icon =
-                        new Image()
-                        {
-                            Source =
-                                ImageHelper.UriToImageSource(
-                                    new Uri(@"pack://application:,,,/resources/removeFilter_context.png"))
-                        }
-                };
-                _removeFilterItem.Click += _removeFilterItem_Click;
-                _removeFilterItem.Visibility = Visibility.Collapsed;
-                contextMenu.Items.Add(_removeFilterItem);
-
-                _clearFilterItem = new MenuItem()
-                {
-                    Header = "Wyczyść filtr",
-                };
-                _clearFilterItem.Click += _clearFilterItem_Click;
-                _clearFilterItem.Visibility = Visibility.Collapsed;
-                contextMenu.Items.Add(_clearFilterItem);
-
-                contextMenu.Items.Add(new Separator());
-
                 MenuItem removeMemberItem = new MenuItem()
                 {
                     Header = "Usuń z konwersacji",

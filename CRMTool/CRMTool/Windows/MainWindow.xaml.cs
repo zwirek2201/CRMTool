@@ -490,8 +490,13 @@ namespace Licencjat_new.Windows
                             email.ImapClient = null;
                         }
                     }
-                    else
+                    else if(email.Login == "")
                     {
+                        email.ImapClient = null;
+                    }
+                    else if (client == null)
+                    {
+                        email.CannotConnect = true;
                         email.ImapClient = null;
                     }
                 }
