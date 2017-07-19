@@ -174,9 +174,6 @@
     <Compile Include="Windows\HelperWindows\ConversationMessageDetails.xaml.cs">
       <DependentUpon>ConversationMessageDetails.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\HelperWindows\ConversationSettings.xaml.cs">
-      <DependentUpon>ConversationSettings.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Windows\HelperWindows\CustomMessageBox.xaml.cs">
       <DependentUpon>CustomMessageBox.xaml</DependentUpon>
     </Compile>
@@ -248,10 +245,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\HelperWindows\ConversationMessageDetails.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Windows\HelperWindows\ConversationSettings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

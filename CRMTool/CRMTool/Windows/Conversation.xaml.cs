@@ -81,7 +81,6 @@ namespace Licencjat_new.Windows
             ConversationList.RemoveConversation += ConversationList_RemoveConversation;
             ConversationList.RenameConversation += ConversationList_RenameConversation;
             ConversationList.ShowConversationDetails += ConversationList_ShowConversationDetails;
-            ConversationList.ShowConversationSettings += ConversationList_ShowConversationSettings;
 
             MemberList.AddFilter += MemberList_AddFilter;
             MemberList.RemoveFilter += MemberList_RemoveFilter;
@@ -94,7 +93,7 @@ namespace Licencjat_new.Windows
             MessageList.DownloadFile += MessageList_DownloadFile;
             MessageList.ShowMessageDetails += MessageList_ShowMessageDetails;
 
-            NewConversationMessagePanelButton _newEmailButton =
+            _newEmailButton =
                 new NewConversationMessagePanelButton(
                     ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/addEmailMessage.png")),
                     ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/addEmailMessage_hover.png")),
@@ -104,7 +103,7 @@ namespace Licencjat_new.Windows
 
             _newEmailButton.Click += NewEmailButton_Click;
 
-            NewConversationMessagePanelButton _newPhoneButton =
+            _newPhoneButton =
                 new NewConversationMessagePanelButton(
                     ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/addPhoneMessage.png")),
                     ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/addPhoneMessage_hover.png")),
@@ -134,6 +133,9 @@ namespace Licencjat_new.Windows
         private void _newPhoneButton_Click(object sender, EventArgs e)
         {
             ConversationModel conversation = ConversationList.SelectedConversation;
+
+            if (conversation.Members.Where(obj => !obj.IsInternalUser).Any(obj => obj.PhoneNumbers.Count > 0))
+            {
             _parent.Darkened = true;
 
             NewPhoneConversationMessage newMessage = new NewPhoneConversationMessage(_parent, conversation);
@@ -244,14 +246,36 @@ namespace Licencjat_new.Windows
                 _parent.mainCanvas.Children.Remove(newMessage);
 
             };
+            }
+            else
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    _parent.Darkened = true;
+                    CustomMessageBox messageBox =
+                        new CustomMessageBox(
+                            "Nie można utworzyć wiadomości. Żaden z członków konwersacji nie posiada numeru telefonu.",
+                            MessageBoxButton.OK);
+
+                    messageBox.OKButtonClicked += (s2, ea2) =>
+                    {
+                        _parent.mainCanvas.Children.Remove(messageBox);
+                        _parent.Darkened = false;
+
+                    };
+
+                    _parent.mainCanvas.Children.Add(messageBox);
+                });
+            }
         }
-
-
 
         private void NewEmailButton_Click(object sender, EventArgs e)
         {
             ConversationModel conversation = ConversationList.SelectedConversation;
-            _parent.Darkened = true;
+
+            if (conversation.Members.Where(obj => !obj.IsInternalUser).Any(obj => obj.EmailAddresses.Count > 0))
+            {
+                _parent.Darkened = true;
 
             NewEmailMessage newMessage = new NewEmailMessage(conversation, _parent);
 
@@ -263,144 +287,143 @@ namespace Licencjat_new.Windows
 
             newMessage.ReadyButtonClicked += (s, ea) =>
             {
-
-                DoWorkEventHandler doWorkHandler =
-                    delegate(object se, DoWorkEventArgs ev)
-                    {
-                        try
+                    DoWorkEventHandler doWorkHandler =
+                        delegate(object se, DoWorkEventArgs ev)
                         {
-                            this.Dispatcher.Invoke(() =>
-                            {
-                                _parent.StatusBar.StatusText = "Wysyłanie wiadomości";
-                            });
-                            SmtpClient client =
-                                _parent.EmailClients.Find(obj => obj.Address == newMessage.SendingAddress).SmtpClient;
-
-                            MailMessage mailMessage = new MailMessage();
-
-                            mailMessage.From = new MailAddress(newMessage.SendingAddress);
-                            mailMessage.Subject = newMessage.OutputSubject;
-                            mailMessage.Body = newMessage.Message;
-
-                            foreach (PersonModel recipient in conversation.Members)
-                            {
-                                if (!recipient.IsInternalUser)
-                                {
-                                    recipient.EmailAddresses.Where(obj => obj.Default)
-                                        .ToList()
-                                        .ForEach(obj => mailMessage.To.Add(new MailAddress(obj.Address)));
-                                }
-                            }
-
-                            foreach (FileModel file in newMessage.Attachments)
-                            {
-                                mailMessage.Attachments.Add(new Attachment(new MemoryStream(file.Data), file.Name));
-                            }
-
-                            client.Send(mailMessage);
-
-                            ConversationMessageModel message =
-                                new ConversationMessageModel(
-                                    _parent.Persons.Find(obj => obj.Id == _parent.Client.UserInfo.PersonId),
-                                    DateTime.Now);
-
-                            message.PreviewImage = ImageHelper.GetHtmlImagePreview(
-                                newMessage.Message.Replace("\r\n", "<br>"),
-                                new Size(600, 60), new Size(600, 250));
-
-                            message.PreviewImage.Freeze();
-
-                            ConversationEmailMessageModel emailMessage = new ConversationEmailMessageModel(message,
-                                _parent.Persons.Find(obj => obj.Id == _parent.Client.UserInfo.PersonId)
-                                    .EmailAddresses.Find(obj => obj.Address == newMessage.SendingAddress),
-                                newMessage.OutputSubject, newMessage.Message);
-
-                            foreach (FileModel file in newMessage.Attachments)
-                            {
-                                FileModel newFile = new FileModel(file.Id, file.Name, file.ContentType, file.Size,
-                                    file.DateAdded) {ConversationId = conversation.Id, Data = file.Data};
-
-                                emailMessage.Attachments.Add(newFile);
-                            }
-
-                            EventHandler<FileUploadedEventArgs> fileUploadedEventHandler = null;
-                            fileUploadedEventHandler = delegate(object s2, FileUploadedEventArgs ea2)
-                            {
-                                if (emailMessage.Attachments.All(obj => obj.Id != null))
-                                {
-                                    _parent.Client.AddNewMessage(conversation.Id, emailMessage);
-                                    _parent.UploadClient.FileUploaded -= fileUploadedEventHandler;
-                                }
-                            };
-
-                            if (!emailMessage.Attachments.Any(obj => obj.Id == null))
+                            try
                             {
                                 this.Dispatcher.Invoke(() =>
                                 {
-                                    _parent.Client.AddNewMessage(conversation.Id, emailMessage);
+                                    _parent.StatusBar.StatusText = "Wysyłanie wiadomości";
+                                });
+                                SmtpClient client =
+                                    _parent.EmailClients.Find(obj => obj.Address == newMessage.SendingAddress)
+                                        .SmtpClient;
+
+                                MailMessage mailMessage = new MailMessage();
+
+                                mailMessage.From = new MailAddress(newMessage.SendingAddress);
+                                mailMessage.Subject = newMessage.OutputSubject;
+                                mailMessage.Body = newMessage.Message;
+
+                                foreach (PersonModel recipient in conversation.Members)
+                                {
+                                    if (!recipient.IsInternalUser)
+                                    {
+                                        recipient.EmailAddresses.Where(obj => obj.Default)
+                                            .ToList()
+                                            .ForEach(obj => mailMessage.To.Add(new MailAddress(obj.Address)));
+                                    }
+                                }
+
+                                foreach (FileModel file in newMessage.Attachments)
+                                {
+                                    mailMessage.Attachments.Add(new Attachment(new MemoryStream(file.Data), file.Name));
+                                }
+
+                                client.Send(mailMessage);
+
+                                ConversationMessageModel message =
+                                    new ConversationMessageModel(
+                                        _parent.Persons.Find(obj => obj.Id == _parent.Client.UserInfo.PersonId),
+                                        DateTime.Now);
+
+                                message.PreviewImage = ImageHelper.GetHtmlImagePreview(
+                                    newMessage.Message.Replace("\r\n", "<br>"),
+                                    new Size(600, 60), new Size(600, 250));
+
+                                message.PreviewImage.Freeze();
+
+                                ConversationEmailMessageModel emailMessage = new ConversationEmailMessageModel(message,
+                                    _parent.Persons.Find(obj => obj.Id == _parent.Client.UserInfo.PersonId)
+                                        .EmailAddresses.Find(obj => obj.Address == newMessage.SendingAddress),
+                                    newMessage.OutputSubject, newMessage.Message);
+
+                                foreach (FileModel file in newMessage.Attachments)
+                                {
+                                    FileModel newFile = new FileModel(file.Id, file.Name, file.ContentType, file.Size,
+                                        file.DateAdded) {ConversationId = conversation.Id, Data = file.Data};
+
+                                    emailMessage.Attachments.Add(newFile);
+                                }
+
+                                EventHandler<FileUploadedEventArgs> fileUploadedEventHandler = null;
+                                fileUploadedEventHandler = delegate(object s2, FileUploadedEventArgs ea2)
+                                {
+                                    if (emailMessage.Attachments.All(obj => obj.Id != null))
+                                    {
+                                        _parent.Client.AddNewMessage(conversation.Id, emailMessage);
+                                        _parent.UploadClient.FileUploaded -= fileUploadedEventHandler;
+                                    }
+                                };
+
+                                if (!emailMessage.Attachments.Any(obj => obj.Id == null))
+                                {
+                                    this.Dispatcher.Invoke(() =>
+                                    {
+                                        _parent.Client.AddNewMessage(conversation.Id, emailMessage);
+                                    });
+                                }
+                                else
+                                {
+                                    _parent.UploadClient.FileUploaded += fileUploadedEventHandler;
+                                    _parent.UploadClient.UploadFiles(emailMessage,
+                                        emailMessage.Attachments.Where(obj => obj.Id == null).ToList());
+                                }
+
+
+                                this.Dispatcher.Invoke(() =>
+                                {
+                                    _parent.StatusBar.StatusText = "Wysyłano wiadomość";
                                 });
                             }
-                            else
+                            catch (Exception ex)
                             {
-                                _parent.UploadClient.FileUploaded += fileUploadedEventHandler;
-                                _parent.UploadClient.UploadFiles(emailMessage, emailMessage.Attachments.Where(obj => obj.Id == null).ToList());
+                                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                                ErrorHelper.LogError(ex);
                             }
+                        };
 
+                    _sendingWorker.DoWork += doWorkHandler;
 
-                            this.Dispatcher.Invoke(() =>
-                            {
-                                _parent.StatusBar.StatusText = "Wysyłano wiadomość";
-                            });
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
-                            ErrorHelper.LogError(ex);
-                        }
+                    RunWorkerCompletedEventHandler runWorkerCompleted = null;
+
+                    runWorkerCompleted = delegate(object s2, RunWorkerCompletedEventArgs ev)
+                    {
+                        _sendingWorker.DoWork -= doWorkHandler;
+                        _sendingWorker.RunWorkerCompleted -= runWorkerCompleted;
                     };
 
-                _sendingWorker.DoWork += doWorkHandler;
+                    _sendingWorker.RunWorkerCompleted += runWorkerCompleted;
 
-                RunWorkerCompletedEventHandler runWorkerCompleted = null;
+                    _sendingWorker.RunWorkerAsync();
 
-                runWorkerCompleted = delegate(object s2, RunWorkerCompletedEventArgs ev)
-                {
-                    _sendingWorker.DoWork -= doWorkHandler;
-                    _sendingWorker.RunWorkerCompleted -= runWorkerCompleted;
-                };
-
-                _sendingWorker.RunWorkerCompleted += runWorkerCompleted;
-
-                _sendingWorker.RunWorkerAsync();
-
-                _parent.Darkened = false;
-                _parent.mainCanvas.Children.Remove(newMessage);
+                    _parent.Darkened = false;
+                    _parent.mainCanvas.Children.Remove(newMessage);
             };
 
             _parent.mainCanvas.Children.Add(newMessage);
-        }
-
-        private void ConversationList_ShowConversationSettings(object sender, EventArgs e)
-        {
-            ConversationListItem conversationItem = (ConversationListItem)sender;
-            ConversationModel conversation = conversationItem.Conversation;
-
-            _parent.Darkened = true;
-            ConversationSettings settings = new ConversationSettings(conversation);
-
-            settings.CancelButtonClicked += (s, ea) =>
+            }
+            else
             {
-                _parent.Darkened = false;
-                _parent.mainCanvas.Children.Remove(settings);
-            };
+                Dispatcher.Invoke(() =>
+                {
+                    _parent.Darkened = true;
+                    CustomMessageBox messageBox =
+                        new CustomMessageBox(
+                            "Nie można wysłać wiadomości. Żaden z członków konwersacji nie posiada adresu e-mail.",
+                            MessageBoxButton.OK);
 
-            settings.ReadyButtonClicked += (s, ea) =>
-            {
-                _parent.Client.SaveConversationSettings(conversation);
-                _parent.Darkened = false;
-                _parent.mainCanvas.Children.Remove(settings);
-            };
-            _parent.mainCanvas.Children.Add(settings);
+                    messageBox.OKButtonClicked += (s2, ea2) =>
+                    {
+                        _parent.mainCanvas.Children.Remove(messageBox);
+                        _parent.Darkened = false;
+
+                    };
+
+                    _parent.mainCanvas.Children.Add(messageBox);
+                });
+            }
         }
 
         private void MessageList_ShowMessageDetails(object sender, EventArgs e)
@@ -448,7 +471,6 @@ namespace Licencjat_new.Windows
             };
             _parent.mainCanvas.Children.Add(addConversation);
         }
-
 
         private void MessageList_DownloadFile(object sender, EventArgs e)
         {
@@ -564,6 +586,15 @@ namespace Licencjat_new.Windows
                 PersonModel person = _parent.Persons.Find(obj => obj.Id == e.PersonId);
                 MemberList.AddMemberToList(person,
                     ConversationList.SelectedConversation.ColorDictionary[person]);
+
+                if (MemberList.Members.Count > 1)
+                {
+                    if (_newEmailButton != null)
+                    {
+                        _newEmailButton.Visibility = Visibility.Visible;
+                        _newPhoneButton.Visibility = Visibility.Visible;
+                    }
+                }
             }
         }
 
@@ -574,6 +605,15 @@ namespace Licencjat_new.Windows
             {
                 PersonModel person = _parent.Persons.Find(obj => obj.Id == e.PersonId);
                 MemberList.RemoveMemberFromList(person);
+
+                if (MemberList.Members.Count == 1)
+                {
+                    if (_newEmailButton != null)
+                    {
+                        _newEmailButton.Visibility = Visibility.Collapsed;
+                        _newPhoneButton.Visibility = Visibility.Collapsed;
+                    }
+                }
             }
         }
 
@@ -620,6 +660,20 @@ namespace Licencjat_new.Windows
 
             MessageListContainer.ScrollToBottom();
             MemberList.Visibility = Visibility.Visible;
+
+            if (_newEmailButton != null)
+            {
+                if (MemberList.Members.Count == 1)
+                {
+                    _newEmailButton.Visibility = Visibility.Collapsed;
+                    _newPhoneButton.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    _newEmailButton.Visibility = Visibility.Visible;
+                    _newPhoneButton.Visibility = Visibility.Visible;
+                }
+            }
         }
 
         private void MemberList_AddMember(object sender, EventArgs e)

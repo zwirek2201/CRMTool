@@ -134,7 +134,6 @@ namespace Licencjat_new.Windows
             SelectedCompanies = _contactList.SelectedCompanies.Select(obj => obj.Company).ToList();
 
             int selectedCount = SelectedCompanies.Count;
-            SelectedCountLabel.Content = selectedCount + " firm";
         }
     }
 }

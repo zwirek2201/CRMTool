@@ -38,12 +38,9 @@ namespace Licencjat_new.Windows.HelperWindows
             _files = files;
             InitializeComponent();
 
-            SelectedCountLabel.Visibility = Visibility.Collapsed;
-
             FileSortButton sortButton = (FileSortButton)LogicalTreeHelper.FindLogicalNode(this, "FileSortButton");
             FileList.BoundSortButton = sortButton;
             FileList.AllowSelect = true;
-            FileList.SelectedListChanged += FileList_SelectedListChanged;
 
             ReadyButton.Clicked += (s, ea) =>
             {
@@ -63,19 +60,6 @@ namespace Licencjat_new.Windows.HelperWindows
 
             if (ConversationList.Conversations.Any())
                 ConversationList.SelectedConversationItem = ConversationList.Conversations.First();
-        }
-
-        private void FileList_SelectedListChanged(object sender, EventArgs e)
-        {
-            if (FileList.SelectedFiles.Count > 0)
-            {
-                SelectedCountLabel.Content = FileList.SelectedFiles.Count + " plików";
-                SelectedCountLabel.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                SelectedCountLabel.Visibility = Visibility.Collapsed;
-            }
         }
 
         private void ConversationList_SelectedConversationChanged(object sender, Controls.SelectedConversationChangedEventArgs e)

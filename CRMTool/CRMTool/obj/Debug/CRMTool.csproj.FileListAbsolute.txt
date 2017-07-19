@@ -155,7 +155,6 @@ E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows
 E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\CompanyDetails.g.cs
 E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\ConversationDetails.g.cs
 E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\ConversationMessageDetails.g.cs
-E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\ConversationSettings.g.cs
 E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\CustomMessageBox.g.cs
 E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\NewEmailMessage.g.cs
 E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\NewPhoneConversationMessage.g.cs
@@ -180,7 +179,6 @@ E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows
 E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\CompanyDetails.baml
 E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\ConversationDetails.baml
 E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\ConversationMessageDetails.baml
-E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\ConversationSettings.baml
 E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\CustomMessageBox.baml
 E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\NewEmailMessage.baml
 E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\NewPhoneConversationMessage.baml

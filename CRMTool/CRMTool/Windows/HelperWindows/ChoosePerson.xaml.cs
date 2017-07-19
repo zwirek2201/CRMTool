@@ -144,9 +144,6 @@ namespace Licencjat_new.Windows.HelperWindows
         private void _contactList_SelectedItemsChanged(object sender, EventArgs e)
         {
             SelectedPersons = _contactList.SelectedPersons.Select(obj => obj.Person).ToList();
-
-            int selectedCount = SelectedPersons.Count;
-            SelectedCountLabel.Content = selectedCount + " osób";
         }
     }
 
