@@ -1142,6 +1142,7 @@ namespace Licencjat_new.Controls
                 {
                     FileListItem fileItem = new FileListItem(file);
 
+                    fileItem.AllowDelete = false;
                     fileItem.RenameFile += FileItem_RenameFile;
                     fileItem.DownloadFile += FileItem_DownloadFile;
 

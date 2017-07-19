@@ -165,7 +165,6 @@ namespace Licencjat_new.Windows.HelperWindows
                 FileListItem listItem = new FileListItem(file);
                 listItem.AllowDownload = false;
                 listItem.AllowRename = false;
-                listItem.AllowShowDetails = false;
                 listItem.RemoveFile += ListItem_RemoveFile;
 
                 FileList.Children.Add(listItem);

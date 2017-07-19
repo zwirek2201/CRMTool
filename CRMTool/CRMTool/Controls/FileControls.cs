@@ -22,14 +22,12 @@ namespace Licencjat_new.Controls
         public event EventHandler SelectedChanged;
 
         private ContextMenu _contextMenu;
-        private MenuItem _detailsItem;
         private MenuItem _renameItem;
         private Separator _separator1;
         private MenuItem _downloadItem;
         private Separator _separator2;
         private MenuItem _removeItem;
 
-        private bool _allowShowDetails = true;
         private bool _allowRename = true;
         private bool _allowDownload = true;
         private bool _allowDelete = true;
@@ -51,19 +49,6 @@ namespace Licencjat_new.Controls
         }
 
         public bool AllowSelect { get; set; }
-   
-        public bool AllowShowDetails
-        {
-            get { return _allowShowDetails; }
-            set
-            {
-                _allowShowDetails = value;
-                if (!AllowShowDetails)
-                {
-                    _contextMenu.Items.Remove(_detailsItem);
-                }
-            }
-        }
 
         public bool AllowRename
         {
@@ -99,7 +84,7 @@ namespace Licencjat_new.Controls
                 _allowDelete = value;
                 if (!AllowDelete)
                 {
-                    _contextMenu.Items.Remove(_allowDelete);
+                    _contextMenu.Items.Remove(_removeItem);
                 }
             }
         }
@@ -235,19 +220,6 @@ namespace Licencjat_new.Controls
             Child = innerDock;
 
             _contextMenu = new ContextMenu();
-
-            _detailsItem = new MenuItem()
-            {
-                Header = "Pokaż szczegóły",
-                Icon =
-                    new Image()
-                    {
-                        Source =
-                            ImageHelper.UriToImageSource(new Uri(@"pack://application:,,,/resources/info_context.png"))
-                    }
-            };
-            //renameItem.Click += RenameItem_Click;
-            _contextMenu.Items.Add(_detailsItem);
 
             _renameItem = new MenuItem()
             {
@@ -581,6 +553,7 @@ namespace Licencjat_new.Controls
                     item.Selected = true;
 
                 item.AllowSelect = AllowSelect;
+                item.AllowDelete = false;
 
                 Files.Add(item);
             }
