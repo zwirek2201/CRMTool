@@ -122,6 +122,8 @@ namespace Licencjat_new.Windows
         private void InitializeContactList()
         {
             _contactList = new ContactList(new List<PersonModel>(), _companies.Where(obj => !_blockedCompanies.Contains(obj)).ToList(), true, SelectionModeType.CompanySelect, false);
+            _contactList.HideExternalContacts = true;
+            _contactList.HideInternalContacts = true;
             _contactList.BoundAlphabetList = AlphabetList;
             _contactList.BoundTabControl = ContactTabControl;
             _contactList.SelectedItemsChanged += _contactList_SelectedItemsChanged;

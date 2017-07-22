@@ -99,7 +99,6 @@ namespace Licencjat_new.Windows
                     ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/addEmailMessage_hover.png")),
                     "Nowa wiadomość e-mail");
 
-            _newEmailButton.Visibility = Visibility.Collapsed;
 
             _newEmailButton.Click += NewEmailButton_Click;
 
@@ -114,6 +113,23 @@ namespace Licencjat_new.Windows
             NewMessagePanel.AddButton(_newEmailButton);
             NewMessagePanel.AddButton(_newPhoneButton);
 
+            _newPhoneButton.Visibility = Visibility.Collapsed;
+
+            if (_parent.Conversations == null)
+            {
+                _parent.ConversationWorker.RunWorkerCompleted += (s, ea) =>
+                {
+                    if (_parent.Conversations.Count > 0)
+                        _newPhoneButton.Visibility = Visibility.Visible;
+                };
+            }
+            else
+            {
+                _newPhoneButton.Visibility = Visibility.Visible;
+            }
+
+            _newEmailButton.Visibility = Visibility.Collapsed;
+
             if (_parent.EmailClients == null)
             {
                 _parent.EmailWorker.RunWorkerCompleted += (s, ea) =>
@@ -124,7 +140,8 @@ namespace Licencjat_new.Windows
             }
             else
             {
-                _newEmailButton.Visibility = Visibility.Visible;
+                if (_parent.EmailClients.Count > 0)
+                    _newEmailButton.Visibility = Visibility.Visible;
             }
 
             WindowInitialized = true;
@@ -310,9 +327,7 @@ namespace Licencjat_new.Windows
                                 {
                                     if (!recipient.IsInternalUser)
                                     {
-                                        recipient.EmailAddresses.Where(obj => obj.Default)
-                                            .ToList()
-                                            .ForEach(obj => mailMessage.To.Add(new MailAddress(obj.Address)));
+                                        recipient.EmailAddresses.ForEach(obj => mailMessage.To.Add(new MailAddress(obj.Address)));
                                     }
                                 }
 
@@ -589,11 +604,10 @@ namespace Licencjat_new.Windows
 
                 if (MemberList.Members.Count > 1)
                 {
-                    if (_newEmailButton != null)
-                    {
+                    _newPhoneButton.Visibility = Visibility.Visible;
+
+                    if(_parent.EmailClients != null && _parent.EmailClients.Any(obj => obj.ImapClient != null))
                         _newEmailButton.Visibility = Visibility.Visible;
-                        _newPhoneButton.Visibility = Visibility.Visible;
-                    }
                 }
             }
         }
@@ -640,6 +654,7 @@ namespace Licencjat_new.Windows
         {
             _conversations = _parent?.Conversations;
             LoadConversations();
+            ConversationList.SelectedConversation = ConversationList.Conversations[0].Conversation;
         }
 
         private void ConversationList_SelectedConversationChanged(object sender, SelectedConversationChangedEventArgs e)
@@ -670,7 +685,9 @@ namespace Licencjat_new.Windows
                 }
                 else
                 {
+                    if(_parent.EmailClients != null && _parent.EmailClients.Any(obj => obj.ImapClient != null))
                     _newEmailButton.Visibility = Visibility.Visible;
+
                     _newPhoneButton.Visibility = Visibility.Visible;
                 }
             }
@@ -853,7 +870,50 @@ namespace Licencjat_new.Windows
 
         private void ConversationList_RemoveConversation(object sender, System.EventArgs e)
         {
-            MessageBox.Show("Not implemented");
+            ConversationListItem conversationItem = (ConversationListItem)sender;
+
+            ConversationModel conversation = conversationItem.Conversation;
+
+            if (conversation.Messages.Count > 0)
+            {
+                _parent.Darkened = true;
+                CustomMessageBox messageBox =
+                    new CustomMessageBox(
+                        "Nie można usunąć konwersacji, ponieważ zawiera onainit wiadomości.",
+                        MessageBoxButton.OK);
+
+                messageBox.OKButtonClicked += (s2, ea2) =>
+                {
+                    _parent.mainCanvas.Children.Remove(messageBox);
+                    _parent.Darkened = false;
+
+                };
+
+                _parent.mainCanvas.Children.Add(messageBox);
+            }
+            else
+            {
+                _parent.Darkened = true;
+                CustomMessageBox messageBox =
+                    new CustomMessageBox("Czy na pewno chcesz usunąć tą konwersację?",
+                        MessageBoxButton.YesNo);
+
+                messageBox.YesButtonClicked += (s, ea) =>
+                {
+                    _parent.Client.RemoveConversation(conversation.Id);
+
+                    _parent.Darkened = false;
+                    _parent.mainCanvas.Children.Remove(messageBox);
+                };
+
+                messageBox.NoButtonClicked += (s, ea) =>
+                {
+                    _parent.Darkened = false;
+                    _parent.mainCanvas.Children.Remove(messageBox);
+                };
+
+                _parent.mainCanvas.Children.Add(messageBox);
+            }
         }
         #endregion
 

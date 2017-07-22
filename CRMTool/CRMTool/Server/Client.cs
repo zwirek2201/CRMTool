@@ -356,7 +356,7 @@ namespace Licencjat_new.Server
                             string conversationId = _reader.ReadString();
                             return conversationId;
                         case MessageDictionary.DoesNotExist:
-                            throw new Exception("Conversation doesn't exist");
+                            return "";
                     }
                 }
                 return null;
@@ -1021,6 +1021,25 @@ namespace Licencjat_new.Server
                     _writer.Write(ea.SmtpPort);
                     _writer.Write(ea.SmtpUseSsl);
                     _writer.Write(ea.Name);
+                    return;
+                }
+                throw new Exception("Connection unsynced");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                ErrorHelper.LogError(ex);
+            }
+        }
+
+        public void RemoveConversation(string id)
+        {
+            try
+            {
+                _writer.Write(MessageDictionary.RemoveConversation);
+                if (_reader.Read() == MessageDictionary.OK)
+                {
+                    _writer.Write(id);
                     return;
                 }
                 throw new Exception("Connection unsynced");

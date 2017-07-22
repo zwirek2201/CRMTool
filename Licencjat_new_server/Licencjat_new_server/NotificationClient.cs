@@ -552,5 +552,28 @@ namespace Licencjat_new_server
                 _writer.Write(personId);
             }
         }
+
+        internal void RemoveConversation(string conversationId, NotificationModel notification)
+        {
+            _writer.Write(MessageDictionary.NewNotification);
+
+            if (_reader.Read() == MessageDictionary.OK)
+            {
+                _writer.Write(notification.NotificationId);
+                _writer.Write(notification.NotificationText);
+                _writer.Write(notification.NotificationDate.ToString("dd-MM-yyyy HH:mm:ss"));
+                _writer.Write(notification.NotificationReferenceFields.Count);
+
+                foreach (string referenceField in notification.NotificationReferenceFields)
+                {
+                    _writer.Write(referenceField);
+                }
+
+                _writer.Write(MessageDictionary.EndOfMessage);
+                _writer.Write(MessageDictionary.RemoveConversation);
+
+                _writer.Write(conversationId);
+            }
+        }
     }
 }

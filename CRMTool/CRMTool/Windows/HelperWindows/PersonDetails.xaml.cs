@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -197,18 +198,31 @@ namespace Licencjat_new.Windows.HelperWindows
 
         private void ReadyButton_Clicked(object sender, EventArgs e)
         {
-            bool stop;
-
-            stop = String.IsNullOrWhiteSpace(FirstNameTextBox.Text) || String.IsNullOrWhiteSpace(FirstNameTextBox.Text) || EmailItems.Any(obj => obj.Name == "" || obj.DetailValue == "") || PhoneItems.Any(obj => String.IsNullOrWhiteSpace(obj.Name) || String.IsNullOrWhiteSpace(obj.DetailValue));
-
-            if (!stop)
-            {
-                ReadyButtonClicked?.Invoke(this, EventArgs.Empty);
-            }
-            else
+            if(String.IsNullOrWhiteSpace(FirstNameTextBox.Text) || 
+                String.IsNullOrWhiteSpace(FirstNameTextBox.Text) || 
+                EmailItems.Any(obj => obj.Name == "" || obj.DetailValue == "") ||
+                PhoneItems.Any(obj => String.IsNullOrWhiteSpace(obj.Name) || 
+                String.IsNullOrWhiteSpace(obj.DetailValue)))
             {
                 ErrorLabel.Text = "Uzupełnij wszystkie dane!";
+                return;
             }
+
+            if (EmailItems.Any(obj => !StringHelper.IsValidEmail(obj.DetailValue)))
+            {
+                ErrorLabel.Text = "Adres e-mail ma niepoprawny format";
+                return;
+            }
+
+            Regex phoneRegex = new Regex(@"^[0-9\s+()]+$");
+
+            if (PhoneItems.Any(obj => !phoneRegex.IsMatch(obj.DetailValue)))
+            {
+                ErrorLabel.Text = "Numer telefonu ma niepoprawny format";
+                return;
+            }
+
+            ReadyButtonClicked?.Invoke(this, EventArgs.Empty);
         }
 
         private void ChangeCompanyButton_Clicked(object sender, EventArgs e)

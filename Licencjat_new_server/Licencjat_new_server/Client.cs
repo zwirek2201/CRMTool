@@ -912,7 +912,21 @@ namespace Licencjat_new_server
 
                             NotifyAllUsersAboutExternalContactRemoved(personId, personName);
                             break;
-                            #endregion;
+                        #endregion;
+
+                        #region RemoveConverastion
+                        case MessageDictionary.RemoveConversation:
+                            _writer.Write(MessageDictionary.OK);
+                            conversationId = _reader.ReadString();
+
+                            string conversationName2 = DBApi.GetConversationName(conversationId);
+
+                            NotifySubscribedUsersAboutConversationRemoved(conversationId, conversationName2);
+
+                            DBApi.RemoveConversation(conversationId);
+
+                            break;
+                            #endregion
                     }
                 }
             }
@@ -963,6 +977,43 @@ namespace Licencjat_new_server
                 int count;
                 while ((count = stream.Read(buffer, 0, buffer.Length)) > 0)
                     _writer.Write(buffer, 0, count);
+            }
+        }
+
+        private void NotifySubscribedUsersAboutConversationRemoved(string conversationId, string conversationName)
+        {
+            try
+            {
+                DateTime notificationDate = DateTime.Now;
+
+                NotificationResultInfo notificationResultInfo = new NotificationResultInfo()
+                {
+                    Type = NotificationType.RemovedConversation,
+                    SenderId = UserInfo.PersonId,
+                    NotificationDate = notificationDate,
+                    OldName = conversationName,
+                };
+
+                NotificationModel notification = NotificationHandler.ProcessNotification(notificationResultInfo);
+
+                List<string> subscribedUsersId = DBApi.GetUsersSubscribedToConversation(conversationId);
+
+                foreach (string userId in subscribedUsersId)
+                {
+                    NotificationResultInfo recipientNotificationResultInfo = notificationResultInfo;
+                    recipientNotificationResultInfo.RecipientId = userId;
+                    string notificationId = DBApi.AddNewNotification(recipientNotificationResultInfo);
+
+                    notification.NotificationId = notificationId;
+
+                    Client userClient = Program.GetClientById(userId);
+
+                    userClient?.NotificationClient.RemoveConversation(conversationId, notification);
+                }
+            }
+            catch (Exception ex)
+            {
+
             }
         }
 
@@ -1055,9 +1106,9 @@ namespace Licencjat_new_server
                     notification.NotificationId = notificationId;
 
                     Client userClient = Program.GetClientById(userId);
-                    if (userClient == null) return;
 
-                    userClient.NotificationClient.PersonDetailsChanged(id, firstName, lastName, gender, companyId, emailAddressesList, phoneNumbersList, notification);
+
+                    userClient?.NotificationClient.PersonDetailsChanged(id, firstName, lastName, gender, companyId, emailAddressesList, phoneNumbersList, notification);
                 }
             }
             catch (Exception ex)
@@ -1093,9 +1144,9 @@ namespace Licencjat_new_server
                     notification.NotificationId = notificationId;
 
                     Client userClient = Program.GetClientById(userId);
-                    if (userClient == null) return;
 
-                    userClient.NotificationClient.CompanyRemoved(companyId, notification);
+
+                    userClient?.NotificationClient.CompanyRemoved(companyId, notification);
                 }
             }
             catch (Exception ex)
@@ -1152,9 +1203,9 @@ namespace Licencjat_new_server
                     notification.NotificationId = notificationId;
 
                     Client userClient = Program.GetClientById(userId);
-                    if (userClient == null) return;
 
-                    userClient.NotificationClient.CompanyRenamed(companyId, newName, notification);
+
+                    userClient?.NotificationClient.CompanyRenamed(companyId, newName, notification);
                 }
             }
             catch (Exception ex)
@@ -1222,11 +1273,10 @@ namespace Licencjat_new_server
                     notification.NotificationId = notificationId;
 
                     Client userClient = Program.GetClientById(userId);
-                    if (userClient == null) return;
 
                     if (userClient.UserInfo.UserId != UserInfo.UserId)
                     {
-                        userClient.NotificationClient.ConversationSettingsChanged(conversationId, notifyContactPersons, notification);
+                        userClient?.NotificationClient.ConversationSettingsChanged(conversationId, notifyContactPersons, notification);
                     }
                 }
             }
@@ -1271,13 +1321,12 @@ namespace Licencjat_new_server
                     notification.NotificationId = notificationId;
 
                     Client userClient = Program.GetClientById(userId);
-                    if (userClient == null) return;
 
                     files.ForEach(obj => obj.ConversationId = message.ConversationId);
 
-                    userClient.NotificationClient.NewFiles(files);
+                    userClient?.NotificationClient.NewFiles(files);
 
-                    userClient.NotificationClient.NewMessage(message, notification);
+                    userClient?.NotificationClient.NewMessage(message, notification);
                 }
             }
             catch (Exception ex)
@@ -1355,9 +1404,8 @@ namespace Licencjat_new_server
                     notification.NotificationId = notificationId;
 
                     Client userClient = Program.GetClientById(userId);
-                    if (userClient == null) return;
 
-                    userClient.NotificationClient.FileRenamed(fileId, oldName, newName, notification);
+                    userClient?.NotificationClient.FileRenamed(fileId, oldName, newName, notification);
 
                 }
             }

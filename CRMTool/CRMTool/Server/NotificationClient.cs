@@ -489,6 +489,21 @@ namespace Licencjat_new.Server
                                                 notificationDate, false)
                                         });
                                         break;
+                                    #endregion
+
+                                    #region RemoveConversation
+                                    case MessageDictionary.RemoveConversation:
+                                        _writer.Write(MessageDictionary.OK);
+                                        conversationId = _reader.ReadString();
+
+                                        ConversationRemoved?.Invoke(this, new ConversationRemovedEventArgs()
+                                        {
+                                            ConversationId = conversationId,
+                                            Notification = new NotificationModel(notificationId, notificationText,
+                                                referenceFields,
+                                                notificationDate, false)
+                                        });
+                                        break;
                                         #endregion
                                 }
                             }
@@ -753,6 +768,7 @@ namespace Licencjat_new.Server
     public class ConversationRemovedEventArgs
     {
         public string ConversationId { get; set; }
+        public NotificationModel Notification { get; set; }
     }
 
     public class ConversationMemberRemovedEventArgs

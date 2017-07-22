@@ -583,19 +583,6 @@ namespace Licencjat_new.Controls
 
             ContextMenu contextMenu = new ContextMenu();
 
-            MenuItem detailsItem = new MenuItem()
-            {
-                Header = "Pokaż szczegóły",
-                Icon =
-                    new Image()
-                    {
-                        Source =
-                            ImageHelper.UriToImageSource(new Uri(@"pack://application:,,,/resources/info_context.png"))
-                    }
-            };
-            //renameItem.Click += RenameItem_Click;
-            contextMenu.Items.Add(detailsItem);
-
             MenuItem renameItem = new MenuItem()
             {
                 Header = "Zmień nazwę",
@@ -1210,13 +1197,13 @@ namespace Licencjat_new.Controls
                             BoundAlphabetList.Elements = InternalContactsUsedAlphabet;
                         break;
                 }
-                if (!ExternalContacts.Any())
+                if (HideExternalContacts)
                     _boundTabControl.RemoveItem(ContactTabControlMode.Contacts);
 
-                if (!Companies.Any())
+                if (HideCompanies)
                     _boundTabControl.RemoveItem(ContactTabControlMode.Companies);
 
-                if (!InternalContacts.Any())
+                if (HideInternalContacts)
                     _boundTabControl.RemoveItem(ContactTabControlMode.InternalContacts);
 
             }
@@ -1257,6 +1244,10 @@ namespace Licencjat_new.Controls
             get { return _selectionMode; }
             set { _selectionMode = value; }
         }
+
+        public bool HideExternalContacts { get; set; }
+        public bool HideCompanies { get; set; }
+        public bool HideInternalContacts { get; set; }
 
         public bool MultipleSelection
         {
@@ -1341,7 +1332,7 @@ namespace Licencjat_new.Controls
 
                         if (BoundAlphabetList != null)
                         {
-                            if (_boundToggleButton.Toggled)
+                            if (_boundToggleButton != null && _boundToggleButton.Toggled)
                                 BoundAlphabetList.Elements = GroupedCompaniesUsedAlphabet;
                             else
                                 BoundAlphabetList.Elements = ExternalContactsUsedAlphabet;
@@ -1977,6 +1968,31 @@ namespace Licencjat_new.Controls
                 }
             }
 
+            List<UIElement> elementsToDelete = new List<UIElement>();
+
+            foreach (UIElement item in _externalGroupedContactsStack.Children)
+            {
+                if (item is ContactPersonListItem)
+                {
+                    ContactPersonListItem personItem = (ContactPersonListItem) item;
+                    if (personItem.Person.Company.Id == companyId)
+                        elementsToDelete.Add(personItem);
+                }
+            }
+
+            foreach (UIElement item in _externalGroupedContactsStack.Children)
+            {
+                if (item is ContactCompanyListItem)
+                {
+                    ContactCompanyListItem companyItem = (ContactCompanyListItem)item;
+                    if (companyItem.Company.Id == companyId)
+                        elementsToDelete.Add(companyItem);
+                }
+            }
+
+            elementsToDelete.ForEach(obj => _externalGroupedContactsStack.Children.Remove(obj));
+
+            _usedGroupedCompanies.Remove(_usedGroupedCompanies.Find(obj => obj.Id == companyId));
             _usedCompanies.Remove(_usedCompanies.Find(obj => obj.Id == companyId));
             ClearAlphabetElements();
         }
@@ -1987,6 +2003,18 @@ namespace Licencjat_new.Controls
             _companiesStack.Children.Remove(item);
             _usedCompanies.Remove(item.Company);
             item.Company.DataChanged -= item.Company_DataChanged;
+
+            foreach (UIElement element in _companiesStack.Children)
+            {
+                if (element is ContactCompanyListItem)
+                {
+                    ContactCompanyListItem personElement = (ContactCompanyListItem)element;
+
+                    if (personElement.Company == item.Company)
+                        return;
+                }
+            }
+
             AddCompany(item.Company);
             ClearAlphabetElements();
         }
@@ -2040,26 +2068,22 @@ namespace Licencjat_new.Controls
 
             elementsToDelete.Clear();
 
-            for (int i = 0; i < _externalGroupedContactsStack.Children.Count;i++)
+            foreach (UIElement element in _externalGroupedContactsStack.Children)
             {
-                if (i != 0)
+                if (element1 == null)
                 {
-                    if (_externalGroupedContactsStack.Children[i] is AlphabetElementListItem &&
-                        _externalGroupedContactsStack.Children[i - 1] is ContactCompanyListItem)
-                    {
-                        AlphabetElementListItem item =
-                            (AlphabetElementListItem) (_externalGroupedContactsStack.Children[i - 2]);
-
-                        ContactCompanyListItem item2 =
-                            (ContactCompanyListItem) (_externalGroupedContactsStack.Children[i - 1]);
-
-                        GroupedCompaniesUsedAlphabet.Remove(item.Element);
-                        _usedGroupedCompanies.Remove(item2.Company);
-
-                        elementsToDelete.Add(_externalGroupedContactsStack.Children[i - 1]);
-                        elementsToDelete.Add(_externalGroupedContactsStack.Children[i - 2]);
-                    }
+                    element1 = element;
+                    continue;
                 }
+
+                if (element1 is AlphabetElementListItem && element is AlphabetElementListItem)
+                {
+                    AlphabetElementListItem item = (AlphabetElementListItem)element1;
+                    GroupedCompaniesUsedAlphabet.Remove(item.Element);
+                    elementsToDelete.Add(element1);
+                }
+
+                element1 = element;
             }
 
             elementsToDelete.ForEach(obj => _externalGroupedContactsStack.Children.Remove(obj));

@@ -158,7 +158,7 @@ namespace Licencjat_new.Windows
             _parent = (MainWindow) Window.GetWindow(this);
             _client = _parent.Client;
 
-            if (_parent.EmailWorker.IsBusy)
+            if (_parent.EmailClients == null)
             {
                 _parent.EmailWorker.RunWorkerCompleted += _emailWorker_RunWorkerCompleted;
             }
@@ -215,10 +215,19 @@ namespace Licencjat_new.Windows
 
             newEmail.ReadyButtonClicked += (s, ea) =>
             {
-                ea.Login = CryptographyHelper.EncodeString(ea.Login);
-                ea.Password = CryptographyHelper.EncodeString(ea.Password);
+                if (ea.UseLoginPassword)
+                {
+                    ea.Login = CryptographyHelper.EncodeString(ea.Login);
+                    ea.Password = CryptographyHelper.EncodeString(ea.Password);
 
-                RegistryHelper.AddRegistryValue(CryptographyHelper.HashString(ea.Address, 0), ea.Password);
+                    RegistryHelper.AddRegistryValue(CryptographyHelper.HashString(ea.Address, 0), ea.Password);
+                }
+                else
+                {
+                    ea.Login = "";
+                    ea.Password = "";
+                }
+
                 _parent.Client.AddNewEmailAddress(ea);
 
                 _parent.mainCanvas.Children.Remove(newEmail);
@@ -490,9 +499,20 @@ namespace Licencjat_new.Windows
                 }
                 else
                 {
-                    CustomTreeListNode rootNode = new CustomTreeListNode(client.Address, ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/mail_locked.png")));
-                    rootNode.ChildObject = client;
-                    tree.AddNode(rootNode);
+                    if (client.CannotConnect)
+                    {
+                        CustomTreeListNode rootNode = new CustomTreeListNode(client.Address,
+                            ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/mail_error.png")));
+                        rootNode.ChildObject = client;
+                        tree.AddNode(rootNode);
+                    }
+                    else
+                    {
+                        CustomTreeListNode rootNode = new CustomTreeListNode(client.Address,
+                            ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/mail_locked.png")));
+                        rootNode.ChildObject = client;
+                        tree.AddNode(rootNode);
+                    }
                 }
             }
             MessagesGrid.SelectedCellsChanged += MessagesGrid_SelectedCellsChanged;

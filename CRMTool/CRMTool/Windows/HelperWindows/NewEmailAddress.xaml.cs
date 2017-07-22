@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Net.Mail;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ImapX;
 using Licencjat_new.CustomClasses;
 
 namespace Licencjat_new.Windows.HelperWindows
@@ -49,43 +53,160 @@ namespace Licencjat_new.Windows.HelperWindows
 
         private void ReadyButton_Clicked(object sender, EventArgs e)
         {
-            if (
-                !String.IsNullOrWhiteSpace(AddressTextBox.Text) &&
-                !String.IsNullOrWhiteSpace(NameTextBox.Text) &&
-                !String.IsNullOrWhiteSpace(LoginTextBlock.Text) &&
-                (
-                NoPasswordSaveCheckBox.Selected ||
-                (!NoPasswordSaveCheckBox.Selected && !String.IsNullOrWhiteSpace(PasswordTextBlock.Text))
-                ) &&
-                !String.IsNullOrWhiteSpace(ImapHostTextBlock.Text) &&
-                !String.IsNullOrWhiteSpace(ImapPortTextBlock.Text) &&
-                !String.IsNullOrWhiteSpace(SmtpHostTextBlock.Text) &&
-                !String.IsNullOrWhiteSpace(SmtpPortTextBlock.Text)
-                )
-            {
-                ErrorTextBlock.Text = "";
+            loadingOverlay.Visibility = Visibility.Visible;
 
-                NewEmailAddressEventArgs eventArgs = new NewEmailAddressEventArgs()
+            BackgroundWorker checkWorker = new BackgroundWorker();
+
+            DoWorkEventHandler doWorkEvent = null;
+            doWorkEvent = (s, ea) =>
+            {
+                try
                 {
-                    Address = AddressTextBox.Text,
-                    Login = LoginTextBlock.Text,
-                    UseLoginPassword = !NoPasswordSaveCheckBox.Selected,
-                    Password = PasswordTextBlock.Text,
-                    ImapHost = ImapHostTextBlock.Text,
-                    ImapPort = Convert.ToInt32(ImapPortTextBlock.Text),
-                    ImapUseSsl = ImapSslCheckBox.Selected,
-                    SmtpHost = SmtpHostTextBlock.Text,
-                    SmtpPort = Convert.ToInt32(SmtpPortTextBlock.Text),
-                    SmtpUseSsl = SmtpSslCheckBox.Selected,
-                    Name = NameTextBox.Text
-                };
+                    string address = "";
+                    string name = "";
+                    string login = "";
+                    string password = "";
+                    bool noPassword = false;
+                    string imapHost = "";
+                    string imapPort = "";
+                    bool imapUseSsl = false;
+                    string smtpHost = "";
+                    string smtpPort = "";
+                    bool smtpUseSsl = false;
 
-                ReadyButtonClicked?.Invoke(this, eventArgs);
-            }
-            else
+                    Dispatcher.Invoke(() =>
+                    {
+                        address = AddressTextBox.Text;
+                        name = NameTextBox.Text;
+                        login = LoginTextBlock.Text;
+                        password = PasswordTextBlock.Text;
+                        noPassword = NoPasswordSaveCheckBox.Selected;
+                        imapHost = ImapHostTextBlock.Text;
+                        imapPort = ImapPortTextBlock.Text;
+                        imapUseSsl = ImapSslCheckBox.Selected;
+                        smtpHost = SmtpHostTextBlock.Text;
+                        smtpPort = SmtpPortTextBlock.Text;
+                        smtpUseSsl = SmtpSslCheckBox.Selected;
+                    });
+
+                    if (
+                        String.IsNullOrWhiteSpace(address) ||
+                        String.IsNullOrWhiteSpace(login) ||
+                        (!noPassword &&
+                         (String.IsNullOrWhiteSpace(login) ||
+                          String.IsNullOrWhiteSpace(password))) ||
+                        String.IsNullOrWhiteSpace(imapHost) ||
+                        String.IsNullOrWhiteSpace(imapPort) ||
+                        String.IsNullOrWhiteSpace(smtpHost) ||
+                        String.IsNullOrWhiteSpace(smtpPort)
+                        )
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            loadingOverlay.Visibility = Visibility.Collapsed;
+                            ErrorTextBlock.Text = "Uzupełnij dane";
+                        });
+                        ea.Result = false;
+                        return;
+                    }
+
+                    Regex portRegex = new Regex("^[0-9]+$");
+
+                    if (!portRegex.IsMatch(imapPort) ||
+                        !portRegex.IsMatch(smtpPort) ||
+                        !StringHelper.IsValidEmail(address))
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            loadingOverlay.Visibility = Visibility.Collapsed;
+                            ErrorTextBlock.Text = "Dane nie mają poprawnego formatu";
+                        });
+                        ea.Result = false;
+                        return;
+                    }
+
+                    ImapClient client;
+                    client = EmailHelper.ConnectToServer(imapHost, Convert.ToInt32(imapPort),
+                        imapUseSsl);
+
+                    if (client == null)
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            loadingOverlay.Visibility = Visibility.Collapsed;
+                            ErrorTextBlock.Text = "Nie można połączyć się z serwerem poczty przychodzącej";
+                        });
+                        ea.Result = false;
+                        return;
+                    }
+
+                    if (!SmtpHelper.TestConnection(smtpHost, Convert.ToInt32(smtpPort)))
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            loadingOverlay.Visibility = Visibility.Collapsed;
+                            ErrorTextBlock.Text = "Nie można połączyć się z serwerem poczty wychodzącej";
+                        });
+                        ea.Result = false;
+                        return;
+                    }
+
+                    if (!NoPasswordSaveCheckBox.Selected)
+                    {
+                        if (!EmailHelper.AuthenticateClient(client, login, password))
+                        {
+                            Dispatcher.Invoke(() =>
+                            {
+                                loadingOverlay.Visibility = Visibility.Collapsed;
+                                ErrorTextBlock.Text = "Login lub hasło są niepoprawne";
+                            });
+                            ea.Result = false;
+                            return;
+                        }
+                        ea.Result = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            };
+
+            checkWorker.DoWork += doWorkEvent;
+
+            RunWorkerCompletedEventHandler completed = null;
+            completed = (s, ea) =>
             {
-                ErrorTextBlock.Text = "Uzupełnij dane";
-            }
+                loadingOverlay.Visibility = Visibility.Collapsed;
+
+                if (Convert.ToBoolean(ea.Result))
+                {
+                    NewEmailAddressEventArgs eventArgs = new NewEmailAddressEventArgs()
+                    {
+                        Address = AddressTextBox.Text,
+                        Login = LoginTextBlock.Text,
+                        UseLoginPassword = !NoPasswordSaveCheckBox.Selected,
+                        Password = PasswordTextBlock.Text,
+                        ImapHost = ImapHostTextBlock.Text,
+                        ImapPort = Convert.ToInt32(ImapPortTextBlock.Text),
+                        ImapUseSsl = ImapSslCheckBox.Selected,
+                        SmtpHost = SmtpHostTextBlock.Text,
+                        SmtpPort = Convert.ToInt32(SmtpPortTextBlock.Text),
+                        SmtpUseSsl = SmtpSslCheckBox.Selected,
+                        Name = NameTextBox.Text
+                    };
+
+                    ReadyButtonClicked?.Invoke(this, eventArgs);
+                }
+
+                checkWorker.DoWork -= doWorkEvent;
+                checkWorker.RunWorkerCompleted -= completed;
+            };
+
+            checkWorker.RunWorkerCompleted += completed;
+            checkWorker.RunWorkerAsync();
+
+            ErrorTextBlock.Text = "";
         }
     }
 

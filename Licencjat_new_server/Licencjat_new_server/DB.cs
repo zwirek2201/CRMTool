@@ -1185,10 +1185,30 @@ namespace Licencjat_new_server
             DB.RunSimpleCommand("delete from ContactPersons where Person = @personId", parameters);
             DB.RunSimpleCommand("delete from PersonEmailAddresses where Person = @personId", parameters);
             DB.RunSimpleCommand("delete from PersonPhoneNumbers where Person = @personId", parameters);
-            DataTable returnTable = DB.RunSelectCommand("select FirstName, LastName from Persons where Id = @personId; delete from Persons where Id = @personId", parameters);
+            DataTable returnTable = DB.RunSelectCommand("select FirstName, LastName from Persons where Id = @personId", parameters);
             DB.RunSimpleCommand("delete from Persons where Id = @personId", parameters);
 
             return returnTable.Rows[0][0] + " " + returnTable.Rows[0][1];
+        }
+
+        public static void RemoveConversation(string converastionId)
+        {
+            DataTable parameters = DB.GetParametersDataTable();
+            parameters.Rows.Add("converastionId", converastionId);
+
+            DB.RunSimpleCommand("delete from Notifications where ConversationId = @converastionId", parameters);
+            DB.RunSimpleCommand("delete from PersonConversations where Conversation = @converastionId", parameters);
+            DB.RunSimpleCommand("delete from Conversations where Id = @converastionId", parameters);
+        }
+
+        public static string GetConversationName(string conversationId)
+        {
+            DataTable parameters = DB.GetParametersDataTable();
+            parameters.Rows.Add("converastionId", conversationId);
+
+            DataTable returnTable = DB.RunSelectCommand("select Name from Conversations where Id = @converastionId", parameters);
+
+            return returnTable.Rows[0][0].ToString();
         }
     }
 
