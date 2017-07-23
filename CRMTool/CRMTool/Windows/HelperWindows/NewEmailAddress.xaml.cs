@@ -25,6 +25,8 @@ namespace Licencjat_new.Windows.HelperWindows
     /// </summary>
     public partial class NewEmailAddress : UserControl
     {
+        private MainWindow _parent;
+
         public event EventHandler<NewEmailAddressEventArgs> ReadyButtonClicked;
         public event EventHandler CancelButtonClicked;
 
@@ -34,8 +36,9 @@ namespace Licencjat_new.Windows.HelperWindows
             private set;
         }
 
-        public NewEmailAddress()
+        public NewEmailAddress(MainWindow parent)
         {
+            _parent = parent;
             InitializeComponent();
 
             ReadyButton.Clicked += ReadyButton_Clicked;
@@ -53,8 +56,6 @@ namespace Licencjat_new.Windows.HelperWindows
 
         private void ReadyButton_Clicked(object sender, EventArgs e)
         {
-            loadingOverlay.Visibility = Visibility.Visible;
-
             BackgroundWorker checkWorker = new BackgroundWorker();
 
             DoWorkEventHandler doWorkEvent = null;
@@ -76,6 +77,7 @@ namespace Licencjat_new.Windows.HelperWindows
 
                     Dispatcher.Invoke(() =>
                     {
+                        loadingOverlay.Visibility = Visibility.Visible;
                         address = AddressTextBox.Text;
                         name = NameTextBox.Text;
                         login = LoginTextBlock.Text;
@@ -91,7 +93,6 @@ namespace Licencjat_new.Windows.HelperWindows
 
                     if (
                         String.IsNullOrWhiteSpace(address) ||
-                        String.IsNullOrWhiteSpace(login) ||
                         (!noPassword &&
                          (String.IsNullOrWhiteSpace(login) ||
                           String.IsNullOrWhiteSpace(password))) ||
@@ -165,14 +166,14 @@ namespace Licencjat_new.Windows.HelperWindows
                         }
                         ea.Result = true;
                     }
+                    else
+                        ea.Result = true;
                 }
                 catch (Exception ex)
                 {
                     throw ex;
                 }
             };
-
-            checkWorker.DoWork += doWorkEvent;
 
             RunWorkerCompletedEventHandler completed = null;
             completed = (s, ea) =>
@@ -203,10 +204,21 @@ namespace Licencjat_new.Windows.HelperWindows
                 checkWorker.RunWorkerCompleted -= completed;
             };
 
-            checkWorker.RunWorkerCompleted += completed;
-            checkWorker.RunWorkerAsync();
-
             ErrorTextBlock.Text = "";
+
+            if (_parent.EmailClients != null)
+            {
+                if (_parent.EmailClients.Any(obj => obj.Address == AddressTextBox.Text))
+                {
+                    ErrorTextBlock.Text = "Adres e-mail już istnieje";
+                }
+                else
+                {
+                    checkWorker.DoWork += doWorkEvent;
+                    checkWorker.RunWorkerCompleted += completed;
+                    checkWorker.RunWorkerAsync();
+                }
+            }
         }
     }
 

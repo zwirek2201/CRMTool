@@ -200,3 +200,5 @@ E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows
 E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\PersonDetails.baml
 E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\ChooseCompany.g.cs
 E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\ChooseCompany.baml
+E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\EmailLogin.g.cs
+E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\EmailLogin.baml

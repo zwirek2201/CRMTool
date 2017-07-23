@@ -1480,6 +1480,7 @@ namespace Licencjat_new.Controls
                                 _currentAlphabetElementList = _externalContactsAlphabetElements;
                                 BoundAlphabetList.Elements = ExternalContactsUsedAlphabet;
                             }
+                            _boundToggleButton.Visibility = Visibility.Visible;
                             break;
                         case ContactTabControlMode.Companies:
                             Content = _companiesStack;
@@ -1495,7 +1496,6 @@ namespace Licencjat_new.Controls
                             break;
                     }
 
-                    _boundToggleButton.Visibility = Visibility.Visible;
                     _boundTabControl.Visibility = Visibility.Visible;
                 }
             }

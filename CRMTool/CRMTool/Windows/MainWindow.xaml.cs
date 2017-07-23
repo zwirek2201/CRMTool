@@ -456,14 +456,14 @@ namespace Licencjat_new.Windows
                     if (email.Login == "")
                     {
                         email.ImapClient = null;
-                        break;
+                        continue;
                     }
 
                     if (client == null)
                     {
                         email.ImapClient = null;
                         email.CannotConnect = true;
-                        break;
+                        continue;                 
                     }
 
                     SmtpClient smtpClient = new SmtpClient(email.SmtpHost, email.SmtpPort);
@@ -471,17 +471,29 @@ namespace Licencjat_new.Windows
                     smtpClient.UseDefaultCredentials = false;
                     smtpClient.SendCompleted += SmtpClient_SendCompleted;
 
-                    string login = CryptographyHelper.DecodeString(email.Login);
-                    string password =
-                        RegistryHelper.GetRegistryValue(CryptographyHelper.HashString(email.Address, 0));
+                    string login = "";
+                    string password = "";
+                    string decodedPassword = "";
 
-                    if (password == null)
+                    if (String.IsNullOrEmpty(email.Password))
                     {
-                        email.ImapClient = null;
-                        break;
-                    }
+                        login = CryptographyHelper.DecodeString(email.Login);
+                        password =
+                            RegistryHelper.GetRegistryValue(CryptographyHelper.HashString(email.Address, 0));
 
-                    string decodedPassword = CryptographyHelper.DecodeString(password);
+                        if (password == null)
+                        {
+                            email.ImapClient = null;
+                            continue;
+                        }
+
+                        decodedPassword = CryptographyHelper.DecodeString(password);
+                    }
+                    else
+                    {
+                        login = email.Login;
+                        decodedPassword = email.Password;
+                    }
 
                     smtpClient.Credentials = new NetworkCredential(login, decodedPassword);
                     smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
@@ -504,8 +516,9 @@ namespace Licencjat_new.Windows
                     {
                         email.ImapClient = null;
                         email.CannotConnect = true;
-                        break;
+                        continue;
                     }
+                    email.Password = "";
                 }
                 e.Result = emails;
             }
@@ -1233,7 +1246,7 @@ namespace Licencjat_new.Windows
 
             completed = (s, ea) =>
             {
-                NewEmailAddress?.Invoke(this, e);
+               NewEmailAddress?.CrossInvoke(this, e);
                 EmailWorker.RunWorkerCompleted -= completed;
             };
 

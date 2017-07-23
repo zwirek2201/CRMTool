@@ -108,6 +108,7 @@ namespace Licencjat_new.CustomClasses
         #region Properties
         public string Id { get; set; }
         public string Address { get; set; }
+        public string Password { get; set; }
         public string Login { get; set; }
         public string ImapHost { get; set; }
         public int ImapPort { get; set; }

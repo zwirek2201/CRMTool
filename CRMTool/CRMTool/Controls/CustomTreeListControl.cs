@@ -61,12 +61,13 @@ namespace Licencjat_new.Controls
         #endregion
 
         #region Methods
-        public void AddNode(CustomTreeListNode node)
+        public void AddNode(CustomTreeListNode node, int index = -1)
         {
             Nodes.Add(node);
-            Children.Insert(Children.Count, node);
+            Children.Insert(index == -1 ? Children.Count : index, node);
             node.Parent = this;
         }
+
 
         public CustomTreeListNode AddNode(string text)
         {
@@ -78,16 +79,23 @@ namespace Licencjat_new.Controls
             return node;
         }
 
-        public CustomTreeListNode AddNode(string text, ImageSource image)
+        public CustomTreeListNode AddNode(string text, ImageSource image, int index = -1)
         {
             CustomTreeListNode node = new CustomTreeListNode();
             node.IconSource = image;
             node.Text = text;
             node.Parent = this;
             Nodes.Add(node);
-            Children.Insert(Children.Count, node);
+
+            Children.Insert(index == -1 ? Children.Count : index, node);
             node.Parent = this;
             return node;
+        }
+
+        public void RemoveNode(CustomTreeListNode node)
+        {
+            Nodes.Remove(node);
+            Children.Remove(node);
         }
         #endregion
     }

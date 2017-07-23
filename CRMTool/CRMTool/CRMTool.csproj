@@ -177,6 +177,9 @@
     <Compile Include="Windows\HelperWindows\CustomMessageBox.xaml.cs">
       <DependentUpon>CustomMessageBox.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\HelperWindows\EmailLogin.xaml.cs">
+      <DependentUpon>EmailLogin.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\HelperWindows\NewEmailAddress.xaml.cs">
       <DependentUpon>NewEmailAddress.xaml</DependentUpon>
     </Compile>
@@ -249,6 +252,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\HelperWindows\CustomMessageBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\HelperWindows\EmailLogin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
