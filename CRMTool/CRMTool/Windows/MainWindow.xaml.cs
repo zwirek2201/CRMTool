@@ -191,6 +191,7 @@ namespace Licencjat_new.Windows
                 ContentArea.Content = loginPage;
 
                 UpperMenu.UpperMenuModeChanged += UpperMenuModeChanged;
+                UpperMenu.LogoutButtonClicked += UpperMenu_LogoutButtonClicked;
                 MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 2;
 
                 _closeButton =
@@ -236,6 +237,10 @@ namespace Licencjat_new.Windows
             }
         }
 
+        private void UpperMenu_LogoutButtonClicked(object sender, EventArgs e)
+        {
+            Logout();
+        }
 
         private void DragPanel_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -508,6 +513,7 @@ namespace Licencjat_new.Windows
                         client.Folders.Inbox.Messages.Download(searchString,
                             ImapX.Enums.MessageFetchMode.Body | ImapX.Enums.MessageFetchMode.Headers |
                             ImapX.Enums.MessageFetchMode.InternalDate | ImapX.Enums.MessageFetchMode.Flags);
+
                         client.Folders.Inbox.OnNewMessagesArrived += Client_NewMessagesArrived;
                         client.Folders.Inbox.StartIdling();
                         email.ImapClient = client;
@@ -1674,6 +1680,12 @@ namespace Licencjat_new.Windows
         }
 
         #endregion
+
+        public void Logout()
+        {
+            System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
+            Application.Current.Shutdown();
+        }
     }
 
     #region EventArgs

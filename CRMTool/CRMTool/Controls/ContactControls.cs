@@ -169,6 +169,14 @@ namespace Licencjat_new.Controls
         private Image _selectImage;
         private bool _selected;
 
+        private bool _allowShowDetails;
+        private bool _allowDelete;
+
+        private ContextMenu _contextMenu;
+
+        private MenuItem _detailsItem;
+        private MenuItem _removeItem;
+
         public event EventHandler Click;
         public event EventHandler ShowDetails;
         public event EventHandler RemoveItem;
@@ -192,6 +200,32 @@ namespace Licencjat_new.Controls
             }
         }
 
+        public bool AllowShowDetails
+        {
+            get { return _allowShowDetails; }
+            set
+            {
+                _allowShowDetails = value;
+                if (!AllowShowDetails)
+                {
+                    _contextMenu.Items.Remove(_detailsItem);
+                }
+            }
+        }
+
+        public bool AllowDelete
+        {
+            get { return _allowDelete; }
+            set
+            {
+                _allowDelete = value;
+                if (!AllowDelete)
+                {
+                    _contextMenu.Items.Remove(_removeItem);
+                }
+            }
+        }
+
         public ContactPersonListItem(PersonModel person, bool selectionMode = false)
         {
             Person = person;
@@ -211,9 +245,9 @@ namespace Licencjat_new.Controls
                 };
             }
 
-            ContextMenu contextMenu = new ContextMenu();
+            _contextMenu = new ContextMenu();
 
-            MenuItem detailsItem = new MenuItem()
+            _detailsItem = new MenuItem()
             {
                 Header = "Pokaż szczegóły",
                 Icon =
@@ -223,12 +257,12 @@ namespace Licencjat_new.Controls
                             ImageHelper.UriToImageSource(new Uri(@"pack://application:,,,/resources/info_context.png"))
                     }
             };
-            detailsItem.Click += DetailsItem_Click;
-            contextMenu.Items.Add(detailsItem);
+            _detailsItem.Click += DetailsItem_Click;
+            _contextMenu.Items.Add(_detailsItem);
 
-            contextMenu.Items.Add(new Separator());
+            _contextMenu.Items.Add(new Separator());
 
-            MenuItem removeItem = new MenuItem()
+            _removeItem = new MenuItem()
             {
                 Header = "Usuń",
                 Icon =
@@ -238,10 +272,10 @@ namespace Licencjat_new.Controls
                             ImageHelper.UriToImageSource(new Uri(@"pack://application:,,,/resources/remove_context.png"))
                     }
             };
-            removeItem.Click += RemoveItem_Click; ;
-            contextMenu.Items.Add(removeItem);
+            _removeItem.Click += RemoveItem_Click; ;
+            _contextMenu.Items.Add(_removeItem);
 
-            ContextMenu = contextMenu;
+            ContextMenu = _contextMenu;
 
             person.DataChanged += Person_DataChanged;
         }
@@ -1622,6 +1656,8 @@ namespace Licencjat_new.Controls
                 personItem.Click += PersonItem_Click;
                 personItem.DataChanged += PersonItem_DataChanged;
                 personItem.RemoveItem += PersonItem_RemoveItem;
+                personItem.AllowDelete = !person.IsInternalUser;
+                personItem.AllowShowDetails = !person.IsInternalUser;
 
                 if (nameCharExists)
                 {

@@ -30,6 +30,8 @@ namespace Licencjat_new.Controls
         private Label _hiddenLabel;
         private LoginStatusChangedEventArgs _loginStatus;
         public event EventHandler UpperMenuModeChanged;
+
+        public event EventHandler LogoutButtonClicked;
         #endregion
 
         #region Properties
@@ -109,6 +111,7 @@ namespace Licencjat_new.Controls
         {
             _userPopup.IsOpen = true;
             _userLabel.FontWeight = FontWeights.Medium;
+
         }
 
         private void _userPanel_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
@@ -261,7 +264,6 @@ namespace Licencjat_new.Controls
                 _userPopup = new Popup()
                 {
                     Width = 200,
-                    Height = 150,
                     PlacementTarget = _userPanel,
                     Placement = PlacementMode.Bottom,
                     AllowsTransparency = true,
@@ -269,7 +271,7 @@ namespace Licencjat_new.Controls
                     PopupAnimation = PopupAnimation.Slide
                 };
 
-                Canvas popupStack = new Canvas()
+                StackPanel popupStack = new StackPanel()
                 {
                     Background = new SolidColorBrush(Colors.White),
                     Margin = new Thickness(5, 0, 5, 5),
@@ -282,6 +284,33 @@ namespace Licencjat_new.Controls
                         BlurRadius = 8
                     }
                 };
+
+                Label logoutLabel = new Label()
+                {
+                    VerticalAlignment = VerticalAlignment.Top,
+                    VerticalContentAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
+                    Height = 35,
+                    FontSize = 14,
+                    Background = new SolidColorBrush(ColorScheme.MenuLight),
+                    Foreground = new SolidColorBrush(Colors.Black),
+                    Content = "Wyloguj"
+                };
+
+                logoutLabel.MouseEnter += (s, ea) =>
+                {
+                    logoutLabel.Foreground = new SolidColorBrush(ColorScheme.GlobalBlue);
+                };
+
+                logoutLabel.MouseLeave += (s, ea) =>
+                {
+                    logoutLabel.Foreground = new SolidColorBrush(Colors.Black);
+                };
+
+                logoutLabel.PreviewMouseLeftButtonDown += LogoutLabel_PreviewMouseLeftButtonDown;
+
+                popupStack.Children.Add(logoutLabel);
 
                 _userPopup.Child = popupStack;
 
@@ -302,6 +331,20 @@ namespace Licencjat_new.Controls
                 NotificationButton = new NotificationButton();
                 rightPanel.Children.Add(NotificationButton);
             }
+        }
+
+        private void LogoutLabel_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Label logoutLabel = (Label)sender;
+            logoutLabel.PreviewMouseLeftButtonUp += LogoutLabel_PreviewMouseLeftButtonUp;
+        }
+
+        private void LogoutLabel_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            LogoutButtonClicked?.Invoke(this, EventArgs.Empty);
+
+            Label logoutLabel = (Label)sender;
+            logoutLabel.PreviewMouseLeftButtonUp -= LogoutLabel_PreviewMouseLeftButtonUp;
         }
         #endregion
     }
