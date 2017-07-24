@@ -64,6 +64,7 @@ namespace Licencjat_new.Windows
         public void Init()
         {
             EmailList.AddNewEmailAddress += EmailList_AddNewEmailAddress;
+            EmailTreeList.SelectedNodeChanged += EmailTree_SelectedNodeChanged;
             MessagesGrid.SelectionMode = DataGridSelectionMode.Single;
             SmallToolBarWideButton removeButton = new SmallToolBarWideButton("Usuń");
             removeButton.Click += (s, ea) =>
@@ -471,17 +472,15 @@ namespace Licencjat_new.Windows
 
         private void LoadFolders(List<EmailModel> clients)
         {
-            CustomTreeListControl tree = (CustomTreeListControl)LogicalTreeHelper.FindLogicalNode(this, "EmailTreeList");
-            tree.SelectedNodeChanged += EmailTree_SelectedNodeChanged;
             foreach (EmailModel client in clients)
             {
                 int nodeIndex = -1;
 
-                if (tree.Nodes.Select(obj => obj.ChildObject).Any(obj => ((EmailModel) obj) == client))
+                if (EmailTreeList.Nodes.Select(obj => obj.ChildObject).Any(obj => ((EmailModel) obj) == client))
                 {
-                    CustomTreeListNode node = tree.Nodes.Find(obj => ((EmailModel) obj.ChildObject) == client);
-                    nodeIndex = tree.Nodes.IndexOf(node);
-                    tree.RemoveNode(node);
+                    CustomTreeListNode node = EmailTreeList.Nodes.Find(obj => ((EmailModel) obj.ChildObject) == client);
+                    nodeIndex = EmailTreeList.Nodes.IndexOf(node);
+                    EmailTreeList.RemoveNode(node);
                 }
 
                 if (client.ImapClient != null)
@@ -497,7 +496,7 @@ namespace Licencjat_new.Windows
                         ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/mail.png")));
 
                     rootNode.ChildObject = client;
-                    tree.AddNode(rootNode, nodeIndex);
+                    EmailTreeList.AddNode(rootNode, nodeIndex);
 
                     client.UnseenCountChanged += Client_UnseenCountChanged;
                     client.UnseenCount = (Int32) unseenCount;
@@ -509,14 +508,14 @@ namespace Licencjat_new.Windows
                         CustomTreeListNode rootNode = new CustomTreeListNode(client.Address,
                             ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/mail_error.png")));
                         rootNode.ChildObject = client;
-                        tree.AddNode(rootNode, nodeIndex);
+                        EmailTreeList.AddNode(rootNode, nodeIndex);
                     }
                     else
                     {
                         CustomTreeListNode rootNode = new CustomTreeListNode(client.Address,
                             ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/mail_locked.png")));
                         rootNode.ChildObject = client;
-                        tree.AddNode(rootNode, nodeIndex);
+                        EmailTreeList.AddNode(rootNode, nodeIndex);
                     }
                 }
             }

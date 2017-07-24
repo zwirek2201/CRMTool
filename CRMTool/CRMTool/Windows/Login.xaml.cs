@@ -59,7 +59,7 @@ namespace Licencjat_new.Windows
 
             if (parent != null)
             {
-                parent.Client = new Client();
+                parent.Client = new Client(parent);
                 _client = parent.Client;
                 _client.loginSucceeded += Client_loginSucceeded;
                 _client.loginFailed += Client_loginFailed;
@@ -92,7 +92,7 @@ namespace Licencjat_new.Windows
         {
             this.Dispatcher.Invoke(() =>
             {
-                MessageBox.Show("Connection failed");
+                ErrorLabel.Content = "Nie można połączyć się z serwerem. Spróbuj później.";
 
                 txtLoginBox.Enabled = true;
                 txtPasswordBox.Enabled = true;
@@ -144,9 +144,9 @@ namespace Licencjat_new.Windows
             {
                 MainWindow parent = (MainWindow) Window.GetWindow(this);
 
-                parent.NotificationClient = new NotificationClient(e.UserId);
-                parent.UploadClient = new UploadClient(e.UserId);
-                parent.DownloadClient = new DownloadClient(e.UserId);
+                parent.NotificationClient = new NotificationClient(e.UserId, parent);
+                parent.UploadClient = new UploadClient(e.UserId, parent);
+                parent.DownloadClient = new DownloadClient(e.UserId, parent);
 
                 LoginStatusChangedEventArgs loginStatus = new LoginStatusChangedEventArgs()
                 {

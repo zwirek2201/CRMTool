@@ -165,9 +165,6 @@
     <Compile Include="Windows\HelperWindows\ChoosePerson.xaml.cs">
       <DependentUpon>ChoosePerson.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\HelperWindows\CompanyDetails.xaml.cs">
-      <DependentUpon>CompanyDetails.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Windows\HelperWindows\ConversationDetails.xaml.cs">
       <DependentUpon>ConversationDetails.xaml</DependentUpon>
     </Compile>
@@ -191,6 +188,9 @@
     </Compile>
     <Compile Include="Windows\HelperWindows\PersonDetails.xaml.cs">
       <DependentUpon>PersonDetails.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\HelperWindows\ProgramSettings.xaml.cs">
+      <DependentUpon>ProgramSettings.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\HelperWindows\Rename.xaml.cs">
       <DependentUpon>Rename.xaml</DependentUpon>
@@ -239,10 +239,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\HelperWindows\CompanyDetails.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Windows\HelperWindows\ConversationDetails.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -272,6 +268,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\HelperWindows\PersonDetails.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\HelperWindows\ProgramSettings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

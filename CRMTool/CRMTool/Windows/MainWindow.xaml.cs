@@ -192,6 +192,9 @@ namespace Licencjat_new.Windows
 
                 UpperMenu.UpperMenuModeChanged += UpperMenuModeChanged;
                 UpperMenu.LogoutButtonClicked += UpperMenu_LogoutButtonClicked;
+                UpperMenu.AccountSettingsButtonClicked += UpperMenu_AccountSettingsButtonClicked;
+                UpperMenu.ProgramSettingsButtonClicked += UpperMenu_ProgramSettingsButtonClicked;
+
                 MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 2;
 
                 _closeButton =
@@ -235,6 +238,59 @@ namespace Licencjat_new.Windows
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
             }
+        }
+
+        private void UpperMenu_ProgramSettingsButtonClicked(object sender, EventArgs e)
+        {
+            string ip = Properties.Settings.Default.ServerIP;
+            int port = Properties.Settings.Default.ServerPort;
+
+            ProgramSettings program = new ProgramSettings(ip, port);
+
+            program.ReadyButtonClicked += (s, ea) =>
+            {
+                Properties.Settings.Default.ServerIP = program.IP;
+                Properties.Settings.Default.ServerPort = program.Port;
+                Properties.Settings.Default.Save();
+
+                mainCanvas.Children.Remove(program);
+
+                CustomMessageBox messageBox =
+                    new CustomMessageBox(
+                        "Ustawienia zostały zapisane. Czy chcesz zrestartować program w celu użycia nowych ustawień?",
+                        MessageBoxButton.YesNo);
+
+                messageBox.YesButtonClicked += (s2, ea2) =>
+                {
+                    Darkened = false;
+                    mainCanvas.Children.Remove(messageBox);
+
+                    Logout();
+                };
+
+                messageBox.NoButtonClicked += (s2, ea2) =>
+                {
+                    Darkened = false;
+                    mainCanvas.Children.Remove(messageBox);
+                };
+
+                Darkened = true;
+                mainCanvas.Children.Add(messageBox);
+            };
+
+            program.CancelButtonClicked += (s, ea) =>
+            {
+                Darkened = false;
+                mainCanvas.Children.Remove(program);
+            };
+
+            Darkened = true;
+            mainCanvas.Children.Add(program);
+        }
+
+        private void UpperMenu_AccountSettingsButtonClicked(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private void UpperMenu_LogoutButtonClicked(object sender, EventArgs e)
@@ -546,7 +602,12 @@ namespace Licencjat_new.Windows
                 if (EmailClients == null)
                     EmailClients = new List<EmailModel>();
 
-                EmailClients.AddRange((List<EmailModel>) e.Result);
+                foreach (EmailModel email in (List<EmailModel>) e.Result)
+                {
+                    if (!EmailClients.Contains(email))
+                        EmailClients.Add(email);
+                }
+
                 Label statusLabel = (Label) LogicalTreeHelper.FindLogicalNode(this, "leftLabel");
                 statusLabel.Content = "Zakończono pobieranie";
 

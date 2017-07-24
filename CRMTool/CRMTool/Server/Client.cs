@@ -9,20 +9,25 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 using System.Windows.Resources;
 using Licencjat_new.Controls;
 using Licencjat_new.CustomClasses;
+using Licencjat_new.Windows;
 using Licencjat_new.Windows.HelperWindows;
 using Message = ImapX.Message;
+using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace Licencjat_new.Server
 {
     public class Client
     {
         #region Variables
+
+        private MainWindow _parent;
+
         private Thread _connectionThread;
         private string _user;
         private string _password;
@@ -31,7 +36,7 @@ namespace Licencjat_new.Server
         private BinaryReader _reader;
         private BinaryWriter _writer;
         private readonly string _server = Properties.Settings.Default.ServerIP;
-        private int _port = 2001;
+        private int _port = Properties.Settings.Default.ServerPort;
         private bool _isConnected = false;
 
         public event EventHandler<LoginSuccedeedEventArgs> loginSucceeded;
@@ -42,6 +47,14 @@ namespace Licencjat_new.Server
         #endregion
 
         public UserInfo UserInfo { get; set; }
+
+        #region Constructors
+
+        public Client(MainWindow parent)
+        {
+            _parent = parent;
+        }
+        #endregion
 
         #region Methods
         public void Connect(string user, string password)
@@ -202,6 +215,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
                 return null;
             }
         }
@@ -254,6 +268,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
                 return null;
             }
         }
@@ -338,6 +353,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
                 return null;
             }
         }
@@ -449,6 +465,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
                 return 0;
             }
         }
@@ -484,6 +501,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
                 return null;
             }
         }
@@ -561,6 +579,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
                 return null;
             }
         }
@@ -616,6 +635,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
                 return null;
             }
         }
@@ -639,6 +659,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -654,6 +675,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -674,6 +696,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -689,6 +712,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -727,6 +751,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
                 return null;
             }
         }
@@ -747,6 +772,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -766,6 +792,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -783,6 +810,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -805,6 +833,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -825,6 +854,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -846,6 +876,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -865,6 +896,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -886,6 +918,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -905,6 +938,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -944,6 +978,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -982,6 +1017,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -1001,6 +1037,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -1029,6 +1066,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -1048,6 +1086,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -1090,6 +1129,22 @@ namespace Licencjat_new.Server
             return file.ToArray();
         }
         #endregion
+
+        private void Logout()
+        {
+            CustomMessageBox messageBox =
+                new CustomMessageBox("Wystąpił problem podczas połączenia z serwerem. Aplikacja zostanie zrestartowana.", MessageBoxButton.OK);
+
+            messageBox.OKButtonClicked += (s, ea) =>
+            {
+                _parent.Darkened = false;
+                _parent.mainCanvas.Children.Remove(messageBox);
+                _parent.Logout();
+            };
+
+            _parent.Darkened = true;
+            _parent.mainCanvas.Children.Add(messageBox);
+        }
     }
 
     public class LoginFailedEventArgs : EventArgs

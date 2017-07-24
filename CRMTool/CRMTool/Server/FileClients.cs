@@ -7,10 +7,13 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Licencjat_new.CustomClasses;
+using Licencjat_new.Windows;
+using Licencjat_new.Windows.HelperWindows;
+using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace Licencjat_new.Server
 {
@@ -18,13 +21,15 @@ namespace Licencjat_new.Server
     {
         #region Variables
 
+        private MainWindow _parent;
+
         private Thread _connectionThread;
         private TcpClient _client;
         private NetworkStream _stream;
         private BinaryReader _reader;
         private BinaryWriter _writer;
         private readonly string _server = Properties.Settings.Default.ServerIP;
-        private int _port = 2001;
+        private int _port = Properties.Settings.Default.ServerPort;
         private bool _isConnected = false;
         private string _userId;
         public bool IsBusy { get; private set;} = false;
@@ -38,8 +43,9 @@ namespace Licencjat_new.Server
 
         #region Constructors
 
-        public UploadClient(string userId)
+        public UploadClient(string userId, MainWindow parent)
         {
+            _parent = parent;
             _userId = userId;
             Connect();
         }
@@ -119,8 +125,31 @@ namespace Licencjat_new.Server
             }
             catch (Exception ex)
             {
-                
+                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                ErrorHelper.LogError(ex);
+                Logout();
             }
+        }
+
+        private void Logout()
+        {
+            _parent.Dispatcher.Invoke(() =>
+            {
+                CustomMessageBox messageBox =
+                    new CustomMessageBox(
+                        "Wystąpił problem podczas połączenia z serwerem. Aplikacja zostanie zrestartowana.",
+                        MessageBoxButton.OK);
+
+                messageBox.OKButtonClicked += (s, ea) =>
+                {
+                    _parent.Darkened = false;
+                    _parent.mainCanvas.Children.Remove(messageBox);
+                    _parent.Logout();
+                };
+
+                _parent.Darkened = true;
+                _parent.mainCanvas.Children.Add(messageBox);
+            });
         }
 
         public void UploadFiles(ConversationMessageModel message, List<FileModel> files)
@@ -175,13 +204,16 @@ namespace Licencjat_new.Server
     public class DownloadClient
     {
         #region Variables
+
+        private MainWindow _parent;
+
         private Thread _connectionThread;
         private TcpClient _client;
         private NetworkStream _stream;
         private BinaryReader _reader;
         private BinaryWriter _writer;
         private readonly string _server = Properties.Settings.Default.ServerIP;
-        private int _port = 2001;
+        private int _port = Properties.Settings.Default.ServerPort;
         private bool _isConnected = false;
         private string _userId;
 
@@ -198,8 +230,9 @@ namespace Licencjat_new.Server
         #endregion;
 
         #region Constructors
-        public DownloadClient(string userId)
+        public DownloadClient(string userId, MainWindow parent)
         {
+            _parent = parent;
             _userId = userId;
             Connect();
         }
@@ -274,8 +307,34 @@ namespace Licencjat_new.Server
             }
             catch (Exception ex)
             {
-                
+                _parent.Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                    ErrorHelper.LogError(ex);
+                    Logout();
+                });
             }
+        }
+
+        private void Logout()
+        {
+            _parent.Dispatcher.Invoke(() =>
+            {
+                CustomMessageBox messageBox =
+                    new CustomMessageBox(
+                        "Wystąpił problem podczas połączenia z serwerem. Aplikacja zostanie zrestartowana.",
+                        MessageBoxButton.OK);
+
+                messageBox.OKButtonClicked += (s, ea) =>
+                {
+                    _parent.Darkened = false;
+                    _parent.mainCanvas.Children.Remove(messageBox);
+                    _parent.Logout();
+                };
+
+                _parent.Darkened = true;
+                _parent.mainCanvas.Children.Add(messageBox);
+            });
         }
 
         public void DownloadFile(FileModel file)
@@ -300,7 +359,12 @@ namespace Licencjat_new.Server
             }
             catch (Exception ex)
             {
-
+                _parent.Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                    ErrorHelper.LogError(ex);
+                    Logout();
+                });
             }
         }
 
