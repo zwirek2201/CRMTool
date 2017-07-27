@@ -46,13 +46,15 @@ namespace Licencjat_new.Windows.HelperWindows
                 {
                     EmailComboBox.AddItem(email.Address, email.Login != "" && !email.CannotConnect);
                 }
+
+                if (EmailComboBox.Items.Any(obj => obj.Enabled))
+                    EmailComboBox.SelectedItem = EmailComboBox.Items.First(obj => obj.Enabled);
+
             }
             else
             {
                 EmailComboBox.AddItem("Brak dostępnych adresów e-mail",false);
             }
-
-            EmailComboBox.SelectedItem = EmailComboBox.Items.First(obj => obj.Enabled);
 
             visibleIdLabel.Content = "(" + conversation.VisibleId + ")";
             titleBox.Text = subject;
@@ -67,7 +69,7 @@ namespace Licencjat_new.Windows.HelperWindows
 
             ReadyButton.Clicked += (s, ea) =>
             {
-                if (_parent.EmailClients != null && _parent.EmailClients.Count > 0)
+                if (_parent.EmailClients != null && _parent.EmailClients.Count > 0 && EmailComboBox.SelectedItem != null)
                 {
                     OutputSubject =
                         "(" + conversation.VisibleId + ")" + titleBox.Text;

@@ -106,62 +106,80 @@ namespace Licencjat_new.Windows.HelperWindows
 
         private void Detail_RemoveDetail(object sender, EventArgs e)
         {
-            PersonDetailListItem detail = (PersonDetailListItem)sender;
+            PersonDetailListItem detail = (PersonDetailListItem) sender;
+
+            string message = "";
 
             if (detail.Name != "" || detail.DetailValue != "")
             {
-                string messageString = detail.ChildObject is EmailAddressModel
-                    ? "Czy na pewno chcesz usunąć ten adres e-mail?"
-                    : "Czy na pewno chcesz usunąć ten numer telefonu?";
-                CustomMessageBox message = new CustomMessageBox(messageString, MessageBoxButton.YesNo);
+                if (detail.ChildObject is EmailAddressModel)
+                    message = "Czy na pewno chcesz usunąć ten adres e-mail?";
+                else
+                    message = "Czy na pewno chcesz usunąć ten numer telefonu?";
 
-                message.YesButtonClicked += (s, ea) =>
-                {
-                    if (detail.ChildObject is PhoneNumberModel)
-                    {
-                        PhoneItems.Remove(detail);
-                        PhoneList.Children.Remove(detail);
+                CustomMessageBox messageBox = new CustomMessageBox(message, MessageBoxButton.YesNo);
 
-                        if (PhoneItems.Count == 0)
-                            NoPhoneLabel.Visibility = Visibility.Visible;
-                        else
-                            NoPhoneLabel.Visibility = Visibility.Collapsed;
-                    }
-                    else
-                    {
-                        EmailItems.Remove(detail);
-                        EmailList.Children.Remove(detail);
-
-                        if (EmailItems.Count == 0)
-                            NoEmailsLabel.Visibility = Visibility.Visible;
-                        else
-                            NoEmailsLabel.Visibility = Visibility.Collapsed;
-                    }
-
-                    DarkenerPanel.Visibility = Visibility.Collapsed;
-                    _parent.mainCanvas.Children.Remove(message);
-                };
-
-                message.NoButtonClicked += (s, ea) =>
+                messageBox.YesButtonClicked += (s, ea) =>
                 {
                     DarkenerPanel.Visibility = Visibility.Collapsed;
-                    _parent.mainCanvas.Children.Remove(message);
+                    _parent.mainCanvas.Children.Remove(messageBox);
+                    RemoveDetail(detail);
                 };
 
+                messageBox.NoButtonClicked += (s, ea) =>
+                {
+                    DarkenerPanel.Visibility = Visibility.Collapsed;
+                    _parent.mainCanvas.Children.Remove(messageBox);
+                };
+
+                _parent.Darkened = true;
                 DarkenerPanel.Visibility = Visibility.Visible;
-                _parent.mainCanvas.Children.Add(message);
+                _parent.mainCanvas.Children.Add(messageBox);
             }
             else
             {
-                if (detail.ChildObject is PhoneNumberModel)
-                {
-                    PhoneItems.Remove(detail);
-                    PhoneList.Children.Remove(detail);
+                RemoveDetail(detail);
+            }
+        }
 
-                    if (PhoneItems.Count == 0)
-                        NoPhoneLabel.Visibility = Visibility.Visible;
-                    else
-                        NoPhoneLabel.Visibility = Visibility.Collapsed;
+        private void RemoveDetail(PersonDetailListItem detail)
+        {
+            if (detail.ChildObject is EmailAddressModel)
+            {
+                EmailAddressModel emailAddress = (EmailAddressModel)detail.ChildObject;
+                bool stop = false;
+                foreach (ConversationModel conversation in _parent.Conversations)
+                {
+                    foreach (ConversationMessageModel conversationMessage in conversation.Messages)
+                    {
+                        if (conversationMessage is ConversationEmailMessageModel)
+                        {
+                            ConversationEmailMessageModel emailMessage =
+                                (ConversationEmailMessageModel)conversationMessage;
+                            if (emailMessage.AuthorEmailaddress.Id == emailAddress.Id)
+                            {
+                                stop = true;
+                            }
+                        }
+                    }
+                }
+
+                if (stop)
+                {
+                    CustomMessageBox message2 =
+                        new CustomMessageBox(
+                            "Nie można usunąć tego adresu email ponieważ jest użyty w wiadomości",
+                            MessageBoxButton.OK);
+
+                    message2.OKButtonClicked += (s2, ea2) =>
+                    {
+                        DarkenerPanel.Visibility = Visibility.Collapsed;
+                        _parent.mainCanvas.Children.Remove(message2);
+                    };
+
+                    DarkenerPanel.Visibility = Visibility.Visible;
+                    _parent.Darkened = true;
+                    _parent.mainCanvas.Children.Add(message2);
                 }
                 else
                 {
@@ -172,6 +190,55 @@ namespace Licencjat_new.Windows.HelperWindows
                         NoEmailsLabel.Visibility = Visibility.Visible;
                     else
                         NoEmailsLabel.Visibility = Visibility.Collapsed;
+                }
+            }
+            else
+            {
+                PhoneNumberModel phoneNumber = (PhoneNumberModel)detail.ChildObject;
+                bool stop = false;
+                foreach (ConversationModel conversation in _parent.Conversations)
+                {
+                    foreach (ConversationMessageModel conversationMessage in conversation.Messages)
+                    {
+                        if (conversationMessage is ConversationPhoneMessageModel)
+                        {
+                            ConversationPhoneMessageModel phoneMessage =
+                                (ConversationPhoneMessageModel)conversationMessage;
+                            if (phoneMessage.AuthorPhoneNumber.Id == phoneNumber.Id ||
+                                phoneMessage.RecipientPhoneNumber.Id == phoneNumber.Id)
+                            {
+                                stop = true;
+                            }
+                        }
+                    }
+                }
+
+                if (stop)
+                {
+                    CustomMessageBox message2 =
+                        new CustomMessageBox(
+                            "Nie można usunąć tego numeru telefonu ponieważ jest użyty w wiadomości",
+                            MessageBoxButton.OK);
+
+                    message2.OKButtonClicked += (s2, ea2) =>
+                    {
+                        DarkenerPanel.Visibility = Visibility.Collapsed;
+                        _parent.mainCanvas.Children.Remove(message2);
+                    };
+
+                    DarkenerPanel.Visibility = Visibility.Visible;
+                    _parent.Darkened = true;
+                    _parent.mainCanvas.Children.Add(message2);
+                }
+                else
+                {
+                    PhoneItems.Remove(detail);
+                    PhoneList.Children.Remove(detail);
+
+                    if (PhoneItems.Count == 0)
+                        NoPhoneLabel.Visibility = Visibility.Visible;
+                    else
+                        NoPhoneLabel.Visibility = Visibility.Collapsed;
                 }
             }
         }

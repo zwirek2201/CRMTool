@@ -153,6 +153,9 @@
     </Compile>
     <Compile Include="CustomClasses\HelperClasses.cs" />
     <Compile Include="Controls\Menus.cs" />
+    <Compile Include="Windows\HelperWindows\AccountSettings.xaml.cs">
+      <DependentUpon>AccountSettings.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\HelperWindows\AdditionalChoose.xaml.cs">
       <DependentUpon>AdditionalChoose.xaml</DependentUpon>
     </Compile>
@@ -220,6 +223,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\Email.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\HelperWindows\AccountSettings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

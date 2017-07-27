@@ -394,7 +394,8 @@ namespace Licencjat_new.Server
                                             string emailName = _reader.ReadString();
                                             emailAddress = _reader.ReadString();
 
-                                            EmailAddressModel emailAddressModel = new EmailAddressModel(emailId, emailAddress,
+                                            EmailAddressModel emailAddressModel = new EmailAddressModel(emailId,
+                                                emailAddress,
                                                 emailName,
                                                 true, true);
                                             contactPerson.EmailAddresses.Add(emailAddressModel);

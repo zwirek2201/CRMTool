@@ -431,12 +431,19 @@ namespace Licencjat_new_server
                 _writer.Write(gender.ToString());
                 _writer.Write(companyId);
 
-                _writer.Write(emailAddressesList.Count);
-                foreach (EmailAddressResultInfo emailAddress in emailAddressesList)
+                if (emailAddressesList != null)
                 {
-                    _writer.Write(emailAddress.Id);
-                    _writer.Write(emailAddress.Name);
-                    _writer.Write(emailAddress.Address);
+                    _writer.Write(emailAddressesList.Count);
+                    foreach (EmailAddressResultInfo emailAddress in emailAddressesList)
+                    {
+                        _writer.Write(emailAddress.Id);
+                        _writer.Write(emailAddress.Name);
+                        _writer.Write(emailAddress.Address);
+                    }
+                }
+                else
+                {
+                    _writer.Write(-1);
                 }
 
                 _writer.Write(phoneNumbersList.Count);

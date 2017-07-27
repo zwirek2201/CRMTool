@@ -1454,8 +1454,8 @@ namespace Licencjat_new.Controls
 
             if (Items.Count == 0)
             {
-                SelectedItem = item;
-                _textBlock.Text = item.Caption;
+                //SelectedItem = item;
+                //_textBlock.Text = item.Caption;
             }
 
             Items.Add(item);

@@ -290,7 +290,65 @@ namespace Licencjat_new.Windows
 
         private void UpperMenu_AccountSettingsButtonClicked(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            AccountSettings accountSettings = new AccountSettings(this,
+                Persons.Find(obj => obj.Id == Client.UserInfo.PersonId));
+
+            accountSettings.ReadyButtonClicked += (s, ea) =>
+            {
+                List<PersonDetailListItem> emailItems = accountSettings.EmailItems;
+                List<PersonDetailListItem> phoneItems = accountSettings.PhoneItems;
+
+                foreach (PersonDetailListItem detail in emailItems)
+                {
+                    EmailAddressModel emailAdress = (EmailAddressModel)detail.ChildObject;
+                    emailAdress.Name = detail.Name;
+                    emailAdress.Address = detail.DetailValue;
+                    detail.ChildObject = emailAdress;
+                }
+
+                foreach (PersonDetailListItem detail in phoneItems)
+                {
+                    PhoneNumberModel phoneNumber = (PhoneNumberModel)detail.ChildObject;
+                    phoneNumber.Name = detail.Name;
+                    phoneNumber.Number = detail.DetailValue;
+                    detail.ChildObject = phoneNumber;
+                }
+
+                Client.UpdatePersonDetails(accountSettings.Person.Id, accountSettings.FirstNameTextBox.Text,
+                    accountSettings.LastNameTextBox.Text,
+                    accountSettings.GenderComboBox.SelectedItem == accountSettings.GenderComboBox.Items.First()
+                        ? Gender.Female
+                        : Gender.Male, null,
+                    null,
+                    accountSettings.PhoneItems.Select(obj => (PhoneNumberModel)obj.ChildObject).ToList());
+
+                CustomMessageBox messageBox =
+                    new CustomMessageBox(
+                        "Ustawienia zostały zapisane. Program zostanie zrestartowany w celu zktualizacji danych",
+                        MessageBoxButton.OK);
+
+                messageBox.OKButtonClicked += (s2, ea2) =>
+                {
+                    Darkened = false;
+                    mainCanvas.Children.Remove(messageBox);
+
+                    Logout();
+                };
+
+                mainCanvas.Children.Remove(accountSettings);
+
+                Darkened = true;
+                mainCanvas.Children.Add(messageBox);
+            };
+
+            accountSettings.CancelButtonClicked += (s, ea) =>
+            {
+                Darkened = false;
+                mainCanvas.Children.Remove(accountSettings);
+            };
+
+            Darkened = true;
+            mainCanvas.Children.Add(accountSettings);
         }
 
         private void UpperMenu_LogoutButtonClicked(object sender, EventArgs e)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace Licencjat_new_server
@@ -14,6 +15,9 @@ namespace Licencjat_new_server
         private int _port = 2001;
 
         private List<Client> _connectedClients = new List<Client>();
+
+        public X509Certificate2 Certificate = new X509Certificate2("CRMToolServer.pfx", "");
+
 
         static void Main(string[] args)
         {
