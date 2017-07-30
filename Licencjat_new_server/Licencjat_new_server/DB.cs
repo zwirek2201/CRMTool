@@ -178,7 +178,7 @@ namespace Licencjat_new_server
 
             DataTable users =
                 DB.RunSelectCommand(
-                    "SELECT t1.Id, t2.Id as PersonId, t2.FirstName, t2.LastName, t1.Password, t1.LastLoggedOut FROM Users as t1 join Persons as t2 on t2.Id = t1.Person WHERE Login = @Login",
+                    "SELECT t1.Id, t2.Id as PersonId, t2.FirstName, t2.LastName, t1.Password, t1.IsAdmin FROM Users as t1 join Persons as t2 on t2.Id = t1.Person WHERE Login = @Login",
                     parameters);
             if (users.Rows.Count > 0)
             {
@@ -193,9 +193,9 @@ namespace Licencjat_new_server
                     string personId = users.Rows[0]["PersonId"].ToString();
                     string firstName = users.Rows[0]["FirstName"].ToString();
                     string lastName = users.Rows[0]["LastName"].ToString();
-                    string lastLoggedOut = users.Rows[0]["LastLoggedOut"] == DBNull.Value ? "" : users.Rows[0]["LastLoggedOut"].ToString();
+                    bool isAdmin = Convert.ToBoolean(users.Rows[0]["IsAdmin"]);
 
-                    return new LoginResultInfo(MessageDictionary.OK, MessageDictionary.OK, userId, personId, firstName, lastName, lastLoggedOut);
+                    return new LoginResultInfo(MessageDictionary.OK, MessageDictionary.OK, userId, personId, firstName, lastName, isAdmin);
                 }
                 else
                 {
@@ -843,7 +843,7 @@ namespace Licencjat_new_server
 
                 DataTable colorTable =
                     DB.RunSelectCommand(
-                        "INSERT INTO PersonConversations (Conversation, Person, DateJoined, LastChecked, Muted, Color) values (@conversationId, @personId, GETDATE(),NULL, 0,(SELECT TOP 1 Id from Colors WHERE Id not in (Select Color FROM PersonConversations WHERE Conversation = @conversationId))); SELECT Hex from PersonConversations t1 join Colors t2 on t2.Id = t1.Color where Conversation = @conversationId AND Person = @personId",
+                        "INSERT INTO PersonConversations (Conversation, Person, Color) values (@conversationId, @personId, (SELECT TOP 1 Id from Colors WHERE Id not in (Select Color FROM PersonConversations WHERE Conversation = @conversationId))); SELECT Hex from PersonConversations t1 join Colors t2 on t2.Id = t1.Color where Conversation = @conversationId AND Person = @personId",
                         parameters);
                 personColors.Add(colorTable.Rows[0]["Hex"].ToString());
             }
@@ -1220,6 +1220,35 @@ namespace Licencjat_new_server
 
             return returnTable.Rows[0][0].ToString();
         }
+
+        public static string NewInternalContact(string firstName, string lastName, int gender, string hashedLogin, string hashedPassword, bool isAdmin)
+        {
+            DataTable parameters = DB.GetParametersDataTable();
+            parameters.Rows.Add("firstName", firstName);
+            parameters.Rows.Add("lastName", lastName);
+            parameters.Rows.Add("gender", gender);
+            DataTable returnTable = DB.RunSelectCommand("insert into Persons (FirstName, LastName, Gender) values (@firstName, @lastName, @gender);select scope_identity()", parameters);
+
+            string id = returnTable.Rows[0][0].ToString();
+
+            parameters.Clear();
+            parameters.Rows.Add("id", id);
+            parameters.Rows.Add("login", hashedLogin);
+            parameters.Rows.Add("password", hashedPassword);
+            parameters.Rows.Add("isAdmin", isAdmin);
+
+            DB.RunSimpleCommand("insert into Users ([Login], [Password], Person, IsAdmin) values (@login, @password, @id, @isAdmin)", parameters);
+            return id;
+        }
+
+        public static bool CheckLoginExists(string login)
+        {
+            DataTable parameters = DB.GetParametersDataTable();
+            parameters.Rows.Add("login", login);
+
+            DataTable returnTable = DB.RunSelectCommand("SELECT count(*) as 'Count' FROM Users WHERE [Login] = @login", parameters);
+            return Convert.ToInt32(returnTable.Rows[0][0]) != 0;
+        }
     }
 
     public class EmailResultInfo
@@ -1260,7 +1289,7 @@ namespace Licencjat_new_server
         public string PersonId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public string LastLoggedOut { get; set; }
+        public bool IsAdmin { get; set; }
 
         public LoginResultInfo(byte status, byte error)
         {
@@ -1268,7 +1297,7 @@ namespace Licencjat_new_server
             Error = error;
         }
 
-        public LoginResultInfo(byte status, byte error, string userId, string personId, string firstName, string lastName, string lastLoggedOut)
+        public LoginResultInfo(byte status, byte error, string userId, string personId, string firstName, string lastName, bool isAdmin)
         {
             Status = status;
             Error = error;
@@ -1276,7 +1305,7 @@ namespace Licencjat_new_server
             PersonId = personId;
             FirstName = firstName;
             LastName = lastName;
-            LastLoggedOut = lastLoggedOut;
+            IsAdmin = isAdmin;
         }
     }
 

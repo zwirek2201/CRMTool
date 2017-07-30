@@ -186,6 +186,9 @@
     <Compile Include="Windows\HelperWindows\NewEmailMessage.xaml.cs">
       <DependentUpon>NewEmailMessage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\HelperWindows\NewInternalUser.xaml.cs">
+      <DependentUpon>NewInternalUser.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\HelperWindows\NewPhoneConversationMessage.xaml.cs">
       <DependentUpon>NewPhoneConversationMessage.xaml</DependentUpon>
     </Compile>
@@ -267,6 +270,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\HelperWindows\NewEmailMessage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\HelperWindows\NewInternalUser.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

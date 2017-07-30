@@ -138,12 +138,9 @@ namespace Licencjat_new.Server
                         string login = _user;
                         string firstName = _reader.ReadString();
                         string lastName = _reader.ReadString();
-                        string lastLoggedOut = _reader.ReadString();
+                        bool isAdmin = _reader.ReadBoolean();
 
                         DateTime? lastLoggedOutDate = null;
-
-                        if (lastLoggedOut != "")
-                            lastLoggedOutDate = DateTime.Parse(lastLoggedOut);
 
                         UserInfo = new UserInfo()
                         {
@@ -152,11 +149,11 @@ namespace Licencjat_new.Server
                             Login = login,
                             FirstName = firstName,
                             LastName = lastName,
-                            LastLoggedOut = lastLoggedOutDate,
+                            IsAdmin = isAdmin
                         };
 
                         loginSucceeded?.Invoke(this,
-                            new LoginSuccedeedEventArgs(id, login, firstName, lastName, lastLoggedOutDate));
+                            new LoginSuccedeedEventArgs(id, login, firstName, lastName));
                     }
                     else if (response == MessageDictionary.Error)
                     {
@@ -1100,6 +1097,53 @@ namespace Licencjat_new.Server
             }
         }
 
+        public void AddInternalContact(string firstName, string lastName, Gender gender, string hashedLogin, string hashedPassword, bool isAdmin)
+        {
+            try
+            {
+                _writer.Write(MessageDictionary.AddInternalContact);
+                if (_reader.Read() == MessageDictionary.OK)
+                {
+                    _writer.Write(firstName);
+                    _writer.Write(lastName);
+                    _writer.Write(Convert.ToInt32(gender));
+                    _writer.Write(hashedLogin);
+                    _writer.Write(hashedPassword);
+                    _writer.Write(isAdmin);
+                    return;
+                }
+                throw new Exception("Connection unsynced");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                ErrorHelper.LogError(ex);
+                Logout();
+            }
+        }
+
+        public bool CheckLoginExists(string login)
+        {
+            try
+            {
+                _writer.Write(MessageDictionary.CheckIfLoginExists);
+                if (_reader.Read() == MessageDictionary.OK)
+                {
+                    _writer.Write(login);
+                    bool loginExists = _reader.ReadBoolean();
+                    return loginExists;
+                }
+                throw new Exception("Connection unsynced");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                ErrorHelper.LogError(ex);
+                Logout();
+                return true;
+            }
+        }
+
         public void SendFile(Stream data)
         {
             if (data == null)
@@ -1175,15 +1219,13 @@ namespace Licencjat_new.Server
         public string UserLogin { get; private set; }
         public string FirstName { get; private set; }
         public string LastName { get; private set; }
-        public DateTime? LastLoggedOut { get; private set; }
 
-        public LoginSuccedeedEventArgs(string userId, string userLogin, string firstName, string lastName, DateTime? lastLoggedOut)
+        public LoginSuccedeedEventArgs(string userId, string userLogin, string firstName, string lastName)
         {
             UserId = userId;
             UserLogin = userLogin;
             FirstName = firstName;
             LastName = lastName;
-            LastLoggedOut = lastLoggedOut;
         }
     }
 
@@ -1194,6 +1236,6 @@ namespace Licencjat_new.Server
         public string Login { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public DateTime? LastLoggedOut { get; set; }
+        public bool IsAdmin { get; set; }
     }
 }

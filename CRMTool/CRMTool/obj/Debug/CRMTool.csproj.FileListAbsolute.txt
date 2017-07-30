@@ -204,3 +204,5 @@ E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows
 E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\ProgramSettings.baml
 E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\AccountSettings.g.cs
 E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\AccountSettings.baml
+E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\NewInternalUser.g.cs
+E:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\obj\Debug\Windows\HelperWindows\NewInternalUser.baml

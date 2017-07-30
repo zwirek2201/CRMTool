@@ -81,7 +81,7 @@ namespace Licencjat_new_server
                                 _writer.Write(loginInfo.PersonId);
                                 _writer.Write(loginInfo.FirstName);
                                 _writer.Write(loginInfo.LastName);
-                                _writer.Write(loginInfo.LastLoggedOut);
+                                _writer.Write(loginInfo.IsAdmin);
 
                                 _writer.Flush();
 
@@ -92,6 +92,7 @@ namespace Licencjat_new_server
                                     Login = login,
                                     FirstName = loginInfo.FirstName,
                                     LastName = loginInfo.LastName,
+                                    IsAdmin = loginInfo.IsAdmin,
                                     IsConnected = true
                                 };
 
@@ -932,6 +933,20 @@ namespace Licencjat_new_server
                         #endregion;
 
                         #region RemoveConverastion
+                        case MessageDictionary.NewInternalContact:
+                            _writer.Write(MessageDictionary.OK);
+                            firstName = _reader.ReadString();
+                            lastName = _reader.ReadString();
+                            gender = _reader.ReadInt32();
+                            string hashedLogin = _reader.ReadString();
+                            string hashedPassword = _reader.ReadString();
+                            bool isAdmin = _reader.ReadBoolean();
+
+                            id = DBApi.NewInternalContact(firstName, lastName, gender, hashedLogin, hashedPassword, isAdmin);
+
+                            break;
+                        #endregion
+                        #region RemoveConverastion
                         case MessageDictionary.RemoveConversation:
                             _writer.Write(MessageDictionary.OK);
                             conversationId = _reader.ReadString();
@@ -942,6 +957,14 @@ namespace Licencjat_new_server
 
                             DBApi.RemoveConversation(conversationId);
 
+                            break;
+                        #endregion
+
+                        #region CheckLoginExists
+                        case MessageDictionary.CheckIfLoginExists:
+                            _writer.Write(MessageDictionary.OK);
+                            login = _reader.ReadString();
+                            _writer.Write(DBApi.CheckLoginExists(login));
                             break;
                             #endregion
                     }
@@ -1545,5 +1568,6 @@ namespace Licencjat_new_server
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public bool IsConnected { get; set; } = false;
+        public bool IsAdmin { get; set; }
     }
 }

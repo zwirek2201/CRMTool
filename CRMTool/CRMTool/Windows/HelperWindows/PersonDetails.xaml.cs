@@ -266,7 +266,7 @@ namespace Licencjat_new.Windows.HelperWindows
         private void ReadyButton_Clicked(object sender, EventArgs e)
         {
             if(String.IsNullOrWhiteSpace(FirstNameTextBox.Text) || 
-                String.IsNullOrWhiteSpace(FirstNameTextBox.Text) || 
+                String.IsNullOrWhiteSpace(LastNameTextBox.Text) || 
                 EmailItems.Any(obj => obj.Name == "" || obj.DetailValue == "") ||
                 PhoneItems.Any(obj => String.IsNullOrWhiteSpace(obj.Name) || 
                 String.IsNullOrWhiteSpace(obj.DetailValue)))
