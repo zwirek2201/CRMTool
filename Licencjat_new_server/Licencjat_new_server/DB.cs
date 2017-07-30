@@ -452,15 +452,15 @@ namespace Licencjat_new_server
                     {
                         case "EmailAddress":
                             EmailAddressResultInfo emailAddress =
-                                new EmailAddressResultInfo(contact["DetailId"].ToString(), contact["DetailName"].ToString(), contact["DetailValue"].ToString(),
-                                    Convert.ToBoolean(contact["Active"]), Convert.ToBoolean(contact["Default"]));
+                                new EmailAddressResultInfo(contact["DetailId"].ToString(),
+                                    contact["DetailName"].ToString(), contact["DetailValue"].ToString());
 
                             personInfo.EmailAddresses.Add(emailAddress);
                             break;
                         case "PhoneNumber":
                             PhoneNumberResultInfo phoneNumber =
-                                new PhoneNumberResultInfo(contact["DetailId"].ToString(), contact["DetailName"].ToString(), contact["DetailValue"].ToString(),
-                                    Convert.ToBoolean(contact["Active"]), Convert.ToBoolean(contact["Default"]));
+                                new PhoneNumberResultInfo(contact["DetailId"].ToString(),
+                                    contact["DetailName"].ToString(), contact["DetailValue"].ToString());
 
                             personInfo.PhoneNumbers.Add(phoneNumber);
                             break;
@@ -823,7 +823,7 @@ namespace Licencjat_new_server
             DataTable parameters = DB.GetParametersDataTable();
             parameters.Rows.Add("conversationName", conversationName);
 
-            DataTable conversation = DB.RunSelectCommand("declare @visibleId nvarchar(8);exec GetRandomConversationVisibleId @visibleId OUTPUT;INSERT INTO Conversations(DateStarted, Active, Name, VisibleId) values(GETDATE(), 1, @conversationName, @visibleId);SELECT * FROM Conversations WHERE Id = (select scope_identity())", parameters);
+            DataTable conversation = DB.RunSelectCommand("declare @visibleId nvarchar(8);exec GetRandomConversationVisibleId @visibleId OUTPUT;INSERT INTO Conversations(DateStarted, Name, VisibleId) values(GETDATE(), 1, @conversationName, @visibleId);SELECT * FROM Conversations WHERE Id = (select scope_identity())", parameters);
             return new ConversationResultInfo(
                 conversation.Rows[0]["Id"].ToString(), conversation.Rows[0]["Name"].ToString(), new List<string>(),
                 new List<string>(), conversation.Rows[0]["VisibleId"].ToString(), DateTime.ParseExact(conversation.Rows[0]["DateStarted"].ToString(), "dd.MM.yyyy HH:mm:ss",
@@ -950,7 +950,7 @@ namespace Licencjat_new_server
             parameters.Rows.Add("name", name);
             parameters.Rows.Add("personId", personId);
 
-            DataTable returnTable = DB.RunSelectCommand("INSERT INTO PersonEmailAddresses ([Address], [Login], [ImapHost], [ImapPort], [ImapUseSsl], [Person], [Active], [SmtpHost], [SmtpPort], [SmtpUseSsl], [Default], [Name]) values (@emailAddress, @login, @imapHost, @imapPort, @imapUseSsl, @personId, 1, @smtpHost, @smtpPort, @smtpUseSsl, 1, @name); select scope_identity()", parameters);
+            DataTable returnTable = DB.RunSelectCommand("INSERT INTO PersonEmailAddresses ([Address], [Login], [ImapHost], [ImapPort], [ImapUseSsl], [Person], [SmtpHost], [SmtpPort], [SmtpUseSsl], [Name]) values (@emailAddress, @login, @imapHost, @imapPort, @imapUseSsl, @personId, @smtpHost, @smtpPort, @smtpUseSsl, @name); select scope_identity()", parameters);
             return returnTable.Rows[0][0].ToString();
         }
 
@@ -1047,7 +1047,7 @@ namespace Licencjat_new_server
                     parameters.Rows.Add("emailAddress", email.Address);
                     DataTable returnTable =
                         DB.RunSelectCommand(
-                            "insert into PersonEmailAddresses ([Person], [Name], [Address], [Default]) values (@personId, @emailName, @emailAddress, 0); select scope_identity()",
+                            "insert into PersonEmailAddresses ([Person], [Name], [Address]) values (@personId, @emailName, @emailAddress); select scope_identity()",
                             parameters);
                     email.Id = returnTable.Rows[0][0].ToString();
                 }
@@ -1120,7 +1120,7 @@ namespace Licencjat_new_server
                 parameters.Rows.Add("personId", id);
                 parameters.Rows.Add("phoneName", phone.Name);
                 parameters.Rows.Add("phoneNumber", phone.Number);
-                DataTable returnTable = DB.RunSelectCommand("insert into PersonPhoneNumbers ([Person], [Name], [PhoneNumber], [Default]) values (@personId, @phoneName, @phoneNumber, 0); select scope_identity()", parameters);
+                DataTable returnTable = DB.RunSelectCommand("insert into PersonPhoneNumbers ([Person], [Name], [PhoneNumber]) values (@personId, @phoneName, @phoneNumber); select scope_identity()", parameters);
 
                 phone.Id = returnTable.Rows[0][0].ToString();
             }
@@ -1168,7 +1168,7 @@ namespace Licencjat_new_server
                 parameters.Rows.Add("personId", id);
                 parameters.Rows.Add("emailName", email.Name);
                 parameters.Rows.Add("emailAddress", email.Address);
-                returnTable = DB.RunSelectCommand("insert into PersonEmailAddresses ([Person], [Name], [Address], [Default]) values (@personId, @emailName, @emailAddress, 0); select scope_identity()", parameters);
+                returnTable = DB.RunSelectCommand("insert into PersonEmailAddresses ([Person], [Name], [Address]) values (@personId, @emailName, @emailAddress); select scope_identity()", parameters);
                 email.Id = returnTable.Rows[0][0].ToString();
             }
 
@@ -1178,7 +1178,7 @@ namespace Licencjat_new_server
                 parameters.Rows.Add("personId", id);
                 parameters.Rows.Add("phoneName", phone.Name);
                 parameters.Rows.Add("phoneNumber", phone.Number);
-                returnTable = DB.RunSelectCommand("insert into PersonPhoneNumbers ([Person], [Name], [PhoneNumber], [Default]) values (@personId, @phoneName, @phoneNumber, 0); select scope_identity()", parameters);
+                returnTable = DB.RunSelectCommand("insert into PersonPhoneNumbers ([Person], [Name], [PhoneNumber]) values (@personId, @phoneName, @phoneNumber); select scope_identity()", parameters);
 
                 phone.Id = returnTable.Rows[0][0].ToString();
             }
@@ -1388,16 +1388,12 @@ namespace Licencjat_new_server
         public string Id { get; set; }
         public string Name { get; set; }
         public string Address { get; set; }
-        public bool Active { get; set; }
-        public bool DefaultAddress { get; set; }
 
-        public EmailAddressResultInfo(string id, string name, string address, bool active, bool defaultAddress)
+        public EmailAddressResultInfo(string id, string name, string address)
         {
             Id = id;
             Name = name;
             Address = address;
-            Active = active;
-            DefaultAddress = defaultAddress;
         }
     }
 
@@ -1406,16 +1402,12 @@ namespace Licencjat_new_server
         public string Id { get; set; }
         public string Name { get; set; }
         public string Number { get; set; }
-        public bool Active { get; set; }
-        public bool DefaultPhoneNUmber { get; set; }
 
-        public PhoneNumberResultInfo(string id, string name, string number, bool active, bool defaultPhoneNumber)
+        public PhoneNumberResultInfo(string id, string name, string number)
         {
             Id = id;
             Name = name;
             Number = number;
-            Active = active;
-            DefaultPhoneNUmber = defaultPhoneNumber;
         }
     }
 

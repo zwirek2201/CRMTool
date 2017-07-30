@@ -186,11 +186,11 @@ namespace Licencjat_new.Windows
                                 newMessage.MessageType == PhoneMessageType.ReceivedCall
                                     ? newMessage.SelectedPhoneNumber
                                     : _parent.Persons.Find(obj => obj.Id == _parent.Client.UserInfo.PersonId)
-                                        .PhoneNumbers.Find(obj => obj.Default),
+                                        .PhoneNumbers.First(),
                                 newMessage.MessageType != PhoneMessageType.ReceivedCall
                                     ? newMessage.SelectedPhoneNumber
                                     : _parent.Persons.Find(obj => obj.Id == _parent.Client.UserInfo.PersonId)
-                                        .PhoneNumbers.Find(obj => obj.Default), newMessage.Message,
+                                        .PhoneNumbers.First(), newMessage.Message,
                                 newMessage.CallAnswered);
 
                             foreach (FileModel file in newMessage.Attachments)

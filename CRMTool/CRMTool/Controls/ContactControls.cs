@@ -1555,11 +1555,11 @@ namespace Licencjat_new.Controls
                        person.PhoneNumbers.Any(
                            (obj =>
                                obj.Number.ToLower().Contains(searchTerm) ||
-                               obj.Name.ToLower().Contains(searchTerm) && obj.Active)) ||
+                               obj.Name.ToLower().Contains(searchTerm))) ||
                        person.EmailAddresses.Any(
                            (obj =>
                                obj.Address.ToLower().Contains(searchTerm) ||
-                               obj.Name.ToLower().Contains(searchTerm) && obj.Active));
+                               obj.Name.ToLower().Contains(searchTerm)));
             }
 
             if (instance is CompanyModel)

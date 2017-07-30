@@ -405,8 +405,7 @@ namespace Licencjat_new.Server
 
                                             EmailAddressModel emailAddressModel = new EmailAddressModel(emailId,
                                                 emailAddress,
-                                                emailName,
-                                                true, true);
+                                                emailName);
                                             contactPerson.EmailAddresses.Add(emailAddressModel);
                                         }
 
@@ -419,8 +418,7 @@ namespace Licencjat_new.Server
                                             string phoneNumber = _reader.ReadString();
 
                                             PhoneNumberModel phoneNumberModel = new PhoneNumberModel(phoneNumberId, phoneNumber,
-                                                phoneName,
-                                                true, true);
+                                                phoneName);
                                             contactPerson.PhoneNumbers.Add(phoneNumberModel);
                                         }
 
@@ -461,8 +459,7 @@ namespace Licencjat_new.Server
                                             emailAddress = _reader.ReadString();
 
                                             EmailAddressModel emailAddressModel = new EmailAddressModel(emailId, emailAddress,
-                                                emailName,
-                                                true, true);
+                                                emailName);
                                             contactPerson.EmailAddresses.Add(emailAddressModel);
                                         }
 
@@ -475,8 +472,7 @@ namespace Licencjat_new.Server
                                             string phoneNumber = _reader.ReadString();
 
                                             PhoneNumberModel phoneNumberModel = new PhoneNumberModel(phoneNumberId, phoneNumber,
-                                                phoneName,
-                                                true, true);
+                                                phoneName);
                                             contactPerson.PhoneNumbers.Add(phoneNumberModel);
                                         }
 

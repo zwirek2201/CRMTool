@@ -546,11 +546,8 @@ namespace Licencjat_new.Server
                             string emailId = _reader.ReadString();
                             string emailName = _reader.ReadString();
                             string emailAddress = _reader.ReadString();
-                            bool emailActive = _reader.ReadBoolean();
-                            bool emailDefault = _reader.ReadBoolean();
 
-                            EmailAddressModel emailAddressModel = new EmailAddressModel(emailId, emailAddress, emailName,
-                                emailActive, emailDefault);
+                            EmailAddressModel emailAddressModel = new EmailAddressModel(emailId, emailAddress, emailName);
                             contactPerson.EmailAddresses.Add(emailAddressModel);
                         }
 
@@ -563,11 +560,8 @@ namespace Licencjat_new.Server
                                 string phoneNumberId = _reader.ReadString();
                                 string phoneName = _reader.ReadString();
                                 string phoneNumber = _reader.ReadString();
-                                bool phoneActive = _reader.ReadBoolean();
-                                bool phoneDefault = _reader.ReadBoolean();
 
-                                PhoneNumberModel phoneNumberModel = new PhoneNumberModel(phoneNumberId, phoneNumber, phoneName,
-                                    phoneActive, phoneDefault);
+                                PhoneNumberModel phoneNumberModel = new PhoneNumberModel(phoneNumberId, phoneNumber, phoneName);
                                 contactPerson.PhoneNumbers.Add(phoneNumberModel);
                             }
                         }

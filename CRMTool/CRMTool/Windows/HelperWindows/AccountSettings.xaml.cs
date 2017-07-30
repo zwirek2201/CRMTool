@@ -168,7 +168,7 @@ namespace Licencjat_new.Windows.HelperWindows
 
         private void AddPhoneNumberButton_Clicked(object sender, EventArgs e)
         {
-            PersonDetailListItem detail = new PersonDetailListItem(new PhoneNumberModel("", "", "", true, true));
+            PersonDetailListItem detail = new PersonDetailListItem(new PhoneNumberModel("", "", ""));
             detail.RemoveDetail += Detail_RemoveDetail;
             PhoneItems.Add(detail);
             PhoneList.Children.Add(detail);

@@ -520,8 +520,6 @@ namespace Licencjat_new_server
                                         _writer.Write(emailAddress.Id);
                                         _writer.Write(emailAddress.Name);
                                         _writer.Write(emailAddress.Address);
-                                        _writer.Write(emailAddress.Active);
-                                        _writer.Write(emailAddress.DefaultAddress);
                                     }
                                     _writer.Write(MessageDictionary.EndOfMessage);
 
@@ -531,8 +529,6 @@ namespace Licencjat_new_server
                                         _writer.Write(phoneNumber.Id);
                                         _writer.Write(phoneNumber.Name);
                                         _writer.Write(phoneNumber.Number);
-                                        _writer.Write(phoneNumber.Active);
-                                        _writer.Write(phoneNumber.DefaultPhoneNUmber);
                                     }
 
                                     _writer.Write(MessageDictionary.EndOfMessage);
@@ -854,8 +850,7 @@ namespace Licencjat_new_server
                                     string emailName = _reader.ReadString();
                                     string emailAddress = _reader.ReadString();
 
-                                    emailAddressesList.Add(new EmailAddressResultInfo(emailId, emailName, emailAddress,
-                                        true, true));
+                                    emailAddressesList.Add(new EmailAddressResultInfo(emailId, emailName, emailAddress));
                                 }
                             }
                             else
@@ -872,7 +867,7 @@ namespace Licencjat_new_server
                                 string phoneName = _reader.ReadString();
                                 string phoneNumber = _reader.ReadString();
 
-                                phoneNumbersList.Add(new PhoneNumberResultInfo(phoneId, phoneName, phoneNumber, true, true));
+                                phoneNumbersList.Add(new PhoneNumberResultInfo(phoneId, phoneName, phoneNumber));
                             }
 
                             DBApi.UpdatePersonDetails(id, firstName, lastName, gender, companyId, emailAddressesList,
@@ -901,7 +896,7 @@ namespace Licencjat_new_server
                                 string emailName = _reader.ReadString();
                                 string emailAddress = _reader.ReadString();
 
-                                emailAddressesList.Add(new EmailAddressResultInfo(emailId, emailName, emailAddress, true, true));
+                                emailAddressesList.Add(new EmailAddressResultInfo(emailId, emailName, emailAddress));
                             }
 
                             phoneNumbersList = new List<PhoneNumberResultInfo>();
@@ -913,7 +908,7 @@ namespace Licencjat_new_server
                                 string phoneName = _reader.ReadString();
                                 string phoneNumber = _reader.ReadString();
 
-                                phoneNumbersList.Add(new PhoneNumberResultInfo(phoneId, phoneName, phoneNumber, true, true));
+                                phoneNumbersList.Add(new PhoneNumberResultInfo(phoneId, phoneName, phoneNumber));
                             }
 
                             string personId = DBApi.NewExternalContact(firstName, lastName, gender, companyId, emailAddressesList,
