@@ -89,10 +89,9 @@ namespace Licencjat_new.Server
                 _stream = _client.GetStream();
 
                 SslStream sslStream = new SslStream(_stream,false, new RemoteCertificateValidationCallback(ValidateCert));
-                sslStream.AuthenticateAsClient("Licencjat_new_server");
 
-                _reader = new BinaryReader(_stream);
-                _writer = new BinaryWriter(_stream);
+                _reader = new BinaryReader(_stream, Encoding.UTF8);
+                _writer = new BinaryWriter(_stream, Encoding.UTF8);
 
                 int result = _reader.ReadByte();
                 if (result == MessageDictionary.Hello)

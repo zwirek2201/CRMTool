@@ -5,7 +5,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Mime;
+using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -83,6 +85,8 @@ namespace Licencjat_new.Server
                 _client = new TcpClient(_server, _port);
                 _stream = _client.GetStream();
 
+                SslStream sslStream = new SslStream(_stream, false, new RemoteCertificateValidationCallback(ValidateCert));
+
                 _reader = new BinaryReader(_stream);
                 _writer = new BinaryWriter(_stream);
 
@@ -112,6 +116,11 @@ namespace Licencjat_new.Server
             {
                 connectionFailed?.Invoke(this, EventArgs.Empty);
             }
+        }
+
+        private static bool ValidateCert(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            return true;
         }
 
         public void Receiver()

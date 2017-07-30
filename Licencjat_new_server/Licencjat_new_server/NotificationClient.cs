@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -32,11 +33,19 @@ namespace Licencjat_new_server
 
         private void ClientSetup()
         {
-            _stream = _client.GetStream();
+            try
+            {
+                _stream = _client.GetStream();
 
-            _reader = new BinaryReader(_stream, Encoding.UTF8);
-            _writer = new BinaryWriter(_stream, Encoding.UTF8);
+                SslStream sslStream = new SslStream(_stream, true);
 
+                _reader = new BinaryReader(_stream, Encoding.UTF8);
+                _writer = new BinaryWriter(_stream, Encoding.UTF8);
+            }
+            catch (Exception ex)
+            {
+                
+            }
         }
 
         public void NewMessage(ConversationMessageResultInfo message, NotificationModel notification)

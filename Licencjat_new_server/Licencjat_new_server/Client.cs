@@ -56,9 +56,7 @@ namespace Licencjat_new_server
                 _stream = _client.GetStream();
 
                 SslStream sslStream = new SslStream(_stream, false);
-                sslStream.AuthenticateAsServer(Program.Certificate, false,
-                    System.Security.Authentication.SslProtocols.Tls,
-                    true);
+
 
                 _reader = new BinaryReader(_stream, Encoding.UTF8);
                 _writer = new BinaryWriter(_stream, Encoding.UTF8);
@@ -128,6 +126,7 @@ namespace Licencjat_new_server
                         case MessageDictionary.ImNotificationClient:
                             string userId = _reader.ReadString();
                             NotificationClient notificationClient = new NotificationClient(_client, userId);
+                            notificationClient.program = Program;
 
                             Client client = Program.GetClientById(userId);
 
