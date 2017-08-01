@@ -823,7 +823,7 @@ namespace Licencjat_new_server
             DataTable parameters = DB.GetParametersDataTable();
             parameters.Rows.Add("conversationName", conversationName);
 
-            DataTable conversation = DB.RunSelectCommand("declare @visibleId nvarchar(8);exec GetRandomConversationVisibleId @visibleId OUTPUT;INSERT INTO Conversations(DateStarted, Name, VisibleId) values(GETDATE(), 1, @conversationName, @visibleId);SELECT * FROM Conversations WHERE Id = (select scope_identity())", parameters);
+            DataTable conversation = DB.RunSelectCommand("declare @visibleId nvarchar(8);exec GetRandomConversationVisibleId @visibleId OUTPUT;INSERT INTO Conversations(DateStarted, Name, VisibleId) values(GETDATE(), @conversationName, @visibleId);SELECT * FROM Conversations WHERE Id = (select scope_identity())", parameters);
             return new ConversationResultInfo(
                 conversation.Rows[0]["Id"].ToString(), conversation.Rows[0]["Name"].ToString(), new List<string>(),
                 new List<string>(), conversation.Rows[0]["VisibleId"].ToString(), DateTime.ParseExact(conversation.Rows[0]["DateStarted"].ToString(), "dd.MM.yyyy HH:mm:ss",
