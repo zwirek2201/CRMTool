@@ -184,11 +184,11 @@ namespace Licencjat_new.CustomClasses
                 return ms;
         }
 
-        public static void DownloadFile(FileModel file)
+        public static void DownloadFile(FileModel file, string savePath)
         {
             if (file.Data.Length > 0)
             {
-                using (var fs = new FileStream("C://Users/Marcin/Desktop/Zalaczniki/" + file.Name, FileMode.Create, FileAccess.Write))
+                using (var fs = new FileStream(savePath + "/" + file.Name, FileMode.Create, FileAccess.Write))
                 {
                     fs.Write(file.Data, 0, file.Data.Length);
                 }

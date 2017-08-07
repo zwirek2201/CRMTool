@@ -322,23 +322,8 @@ namespace Licencjat_new.Windows
                     null,
                     accountSettings.PhoneItems.Select(obj => (PhoneNumberModel)obj.ChildObject).ToList());
 
-                CustomMessageBox messageBox =
-                    new CustomMessageBox(
-                        "Ustawienia zostały zapisane. Program zostanie zrestartowany w celu zktualizacji danych",
-                        MessageBoxButton.OK);
-
-                messageBox.OKButtonClicked += (s2, ea2) =>
-                {
-                    Darkened = false;
-                    mainCanvas.Children.Remove(messageBox);
-
-                    Logout();
-                };
-
+                Darkened = false;
                 mainCanvas.Children.Remove(accountSettings);
-
-                Darkened = true;
-                mainCanvas.Children.Add(messageBox);
             };
 
             accountSettings.CancelButtonClicked += (s, ea) =>
@@ -1082,31 +1067,38 @@ namespace Licencjat_new.Windows
                 DoWorkEventHandler doWorkHandler =
                     delegate(object s, DoWorkEventArgs ev)
                     {
-                        List<Message> messages = (List<Message>) ev.Argument;
+                        try
+                        {
+                            List<Message> messages = (List<Message>) ev.Argument;
 
                             List<Message> unhandledMessages = ProcessMessages(email, messages);
-                        this.Dispatcher.Invoke(delegate ()
-                        {
-                            email.UnhandledMessages.AddRange(unhandledMessages);
-
-                            NewUnhandledMessageArrived?.Invoke(this, new NewUnhandledMessageArrivedEventArgs()
+                            this.Dispatcher.Invoke(delegate()
                             {
-                                Email = email,
-                                Messages = unhandledMessages
+                                email.UnhandledMessages.AddRange(unhandledMessages);
+
+                                NewUnhandledMessageArrived?.Invoke(this, new NewUnhandledMessageArrivedEventArgs()
+                                {
+                                    Email = email,
+                                    Messages = unhandledMessages
+                                });
+
+                                Client.AddUnhandledMessages(email.Id, email.UnhandledMessagesIds);
+
+                                if (unhandledMessages.Count > 0)
+                                {
+                                    _notificationPanel.RemoveNotification(_unhandledNotification);
+                                    _unhandledNotification = new NotificationModel("", "", null,
+                                        DateTime.Now, false, true)
+                                    {Text = email.UnhandledMessages.Count + " wiadomości wymaga Twojej uwagi"};
+
+                                    RaiseNotification(_unhandledNotification);
+                                }
                             });
-
-                            Client.AddUnhandledMessages(email.Id, email.UnhandledMessagesIds);
-
-                            if (unhandledMessages.Count > 0)
-                            {
-                                _notificationPanel.RemoveNotification(_unhandledNotification);
-                                _unhandledNotification = new NotificationModel("", "", null,
-                                    DateTime.Now, false, true)
-                                {Text = email.UnhandledMessages.Count + " wiadomości wymaga Twojej uwagi"};
-
-                                RaiseNotification(_unhandledNotification);
-                            }
-                        });
+                        }
+                        catch (Exception ex)
+                        {
+                            
+                        }
                     };
 
                 RunWorkerCompletedEventHandler workerCompletedHandler = null;
@@ -1115,14 +1107,14 @@ namespace Licencjat_new.Windows
                     {
                         ProcessingWorker.DoWork -= doWorkHandler;
                         ProcessingWorker.RunWorkerCompleted -= workerCompletedHandler;
+                        long maxUid = e.Messages.Max(obj => obj.UId);
+                        Client.SetLastDownloadedUid(email.Id, maxUid.ToString());
                     };
 
                 ProcessingWorker.DoWork += doWorkHandler;
                 ProcessingWorker.RunWorkerCompleted += workerCompletedHandler;
 
                 ProcessingWorker.RunWorkerAsync(e.Messages.ToList());
-                long maxUid = e.Messages.Max(obj => obj.UId);
-                Client.SetLastDownloadedUid(email.Id, maxUid.ToString());
             }
             catch (Exception ex)
             {
@@ -1326,16 +1318,33 @@ namespace Licencjat_new.Windows
                 if (person.Gender != e.NewData.Gender)
                     person.Gender = e.NewData.Gender;
 
-                if (person.EmailAddresses != e.NewData.EmailAddresses)
-                    person.EmailAddresses = e.NewData.EmailAddresses;
+                if (person.Id != Client.UserInfo.PersonId)
+                {
+                    if (person.EmailAddresses != e.NewData.EmailAddresses)
+                        person.EmailAddresses = e.NewData.EmailAddresses;
+                }
 
                 if (person.PhoneNumbers != e.NewData.PhoneNumbers)
                     person.PhoneNumbers = e.NewData.PhoneNumbers;
 
                 person.OnDataChanged();
 
-                NotificationModel notification = ProcessNotification(e.Notification);
-                RaiseNotification(notification);
+                if (person.Id == Client.UserInfo.PersonId)
+                {
+                    Client.UserInfo.FirstName = person.FirstName;
+                    Client.UserInfo.LastName = person.LastName;
+                }
+
+                UpperMenu.LoginStatus.FirstName = person.FirstName;
+                UpperMenu.LoginStatus.LastName = person.LastName;
+
+                UpperMenu.Redraw();
+
+                if (person.Id != Client.UserInfo.PersonId)
+                {
+                    NotificationModel notification = ProcessNotification(e.Notification);
+                    RaiseNotification(notification);
+                }
             });
         }
 

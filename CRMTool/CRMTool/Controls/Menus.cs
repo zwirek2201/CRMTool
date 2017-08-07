@@ -28,7 +28,6 @@ namespace Licencjat_new.Controls
         private List<UpperMenuModeButton> _menuButtons = new List<UpperMenuModeButton>();
         private Label _userLabel;
         private Label _hiddenLabel;
-        private LoginStatusChangedEventArgs _loginStatus;
         public event EventHandler UpperMenuModeChanged;
 
         public event EventHandler LogoutButtonClicked;
@@ -37,6 +36,7 @@ namespace Licencjat_new.Controls
         #endregion
 
         #region Properties
+        public LoginStatusChangedEventArgs LoginStatus { get; set; }
         public NotificationButton NotificationButton { get; private set; }
 
         public UpperMenuMode MenuMode
@@ -81,7 +81,7 @@ namespace Licencjat_new.Controls
             VerticalAlignment = VerticalAlignment.Top;
             Background = new SolidColorBrush(ColorScheme.GlobalBlue);
             DockPanel.SetDock(this, Dock.Top);
-            _loginStatus = null;
+            LoginStatus = null;
 
             Redraw();
         }
@@ -90,7 +90,7 @@ namespace Licencjat_new.Controls
         #region Events
         private void _parent_LoginStatusChanged(object sender, LoginStatusChangedEventArgs e)
         {
-            _loginStatus = e;
+            LoginStatus = e;
             Redraw();
         }
 
@@ -129,7 +129,7 @@ namespace Licencjat_new.Controls
         #endregion
 
         #region Methods
-        private void Redraw()
+        public void Redraw()
         {
             //Left panel
             StackPanel leftPanel = new StackPanel()
@@ -333,7 +333,7 @@ namespace Licencjat_new.Controls
             _userPopup.MouseLeave += _userPanel_MouseLeave;
 
             //User logged in
-            if (_loginStatus != null && _loginStatus.LoggedIn)
+            if (LoginStatus != null && LoginStatus.LoggedIn)
             {
                 UpperMenuModeButton mainButton = new UpperMenuModeButton("Strona główna", UpperMenuMode.HomePage);
                 mainButton.Click += UpperMenuButtonClick;
@@ -361,8 +361,8 @@ namespace Licencjat_new.Controls
                 rightPanel.Children.Add(contactButton);
                 _menuButtons.Add(contactButton);
 
-                _userLabel.Content = _loginStatus.FirstName + " " + _loginStatus.LastName;
-                _hiddenLabel.Content = _loginStatus.FirstName + " " + _loginStatus.LastName;
+                _userLabel.Content = LoginStatus.FirstName + " " + LoginStatus.LastName;
+                _hiddenLabel.Content = LoginStatus.FirstName + " " + LoginStatus.LastName;
 
                 logoutLabel.Visibility = Visibility.Visible;
                 accountSettingsLabel.Visibility = Visibility.Visible;
@@ -378,7 +378,7 @@ namespace Licencjat_new.Controls
 
             rightPanel.Children.Add(_userPanel);
 
-            if (_loginStatus != null && _loginStatus.LoggedIn)
+            if (LoginStatus != null && LoginStatus.LoggedIn)
             {
                 NotificationButton = new NotificationButton();
                 rightPanel.Children.Add(NotificationButton);

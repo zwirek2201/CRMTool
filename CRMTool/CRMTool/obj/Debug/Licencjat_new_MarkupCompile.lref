@@ -4,6 +4,7 @@ FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\Contact.
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\Conversation.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\Document.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\Email.xaml;;
+FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\AccountSettings.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\AdditionalChoose.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\ChooseCompany.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\ChooseFiles.xaml;;
@@ -14,6 +15,7 @@ FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWi
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\EmailLogin.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\NewEmailAddress.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\NewEmailMessage.xaml;;
+FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\NewInternalUser.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\NewPhoneConversationMessage.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\PersonDetails.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\ProgramSettings.xaml;;
@@ -23,6 +25,4 @@ FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\Login.xa
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\MainWindow.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\Scanning.xaml;;
 FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\ScanningWindows\ScanningAutomatic.xaml;;
-FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\AccountSettings.xaml;;
-FE:\Marcin\Documents\LICENCJAT\Github\Licencjat\CRMTool\CRMTool\Windows\HelperWindows\NewInternalUser.xaml;;
 

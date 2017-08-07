@@ -17,6 +17,7 @@ namespace Licencjat_new.Controls
 
         public event EventHandler RenameFile;
         public event EventHandler DownloadFile;
+        public event EventHandler OpenFile;
         public event EventHandler RemoveFile;
         public event EventHandler DataChanged;
         public event EventHandler SelectedChanged;
@@ -25,6 +26,7 @@ namespace Licencjat_new.Controls
         private MenuItem _renameItem;
         private Separator _separator1;
         private MenuItem _downloadItem;
+        private MenuItem _openItem;
         private Separator _separator2;
         private MenuItem _removeItem;
 
@@ -107,6 +109,11 @@ namespace Licencjat_new.Controls
         private void DownloadItem_Click(object sender, RoutedEventArgs e)
         {
             DownloadFile?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void _openItem_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFile?.Invoke(this, EventArgs.Empty);
         }
 
         private void _removeItem_Click(object sender, RoutedEventArgs e)
@@ -249,6 +256,19 @@ namespace Licencjat_new.Controls
             };
             _downloadItem.Click += DownloadItem_Click;
             _contextMenu.Items.Add(_downloadItem);
+
+            _openItem = new MenuItem()
+            {
+                Header = "Otwórz",
+                Icon =
+        new Image()
+        {
+            Source =
+                ImageHelper.UriToImageSource(new Uri(@"pack://application:,,,/resources/open_context.png"))
+        }
+            };
+            _openItem.Click += _openItem_Click; ;
+            _contextMenu.Items.Add(_openItem);
 
             _separator2 = new Separator();
             _contextMenu.Items.Add(_separator2);

@@ -363,12 +363,10 @@ namespace Licencjat_new_server
                                 {
                                     _writer.Write(MessageDictionary.Exists);
                                     _writer.Write(resultInfo.Id);
-                                    _writer.Flush();
                                 }
                                 else
                                 {
                                     _writer.Write(MessageDictionary.DoesNotExist);
-                                    _writer.Flush();
                                 }
                                 Logger.Log("Sent response (" + resultInfo.Exists + ")");
                             }
@@ -1141,13 +1139,17 @@ namespace Licencjat_new_server
                 {
                     NotificationResultInfo recipientNotificationResultInfo = notificationResultInfo;
                     recipientNotificationResultInfo.RecipientId = userId;
-                    string notificationId = DBApi.AddNewNotification(recipientNotificationResultInfo);
+
+                    string notificationId = "";
+
+                    if (id != UserInfo.PersonId)
+                        notificationId = DBApi.AddNewNotification(recipientNotificationResultInfo);
 
                     notification.NotificationId = notificationId;
 
                     Client userClient = Program.GetClientById(userId);
 
-                    if(id != UserInfo.PersonId)
+                    //if(id != UserInfo.PersonId)
                         userClient?.NotificationClient.PersonDetailsChanged(id, firstName, lastName, gender, companyId, emailAddressesList, phoneNumbersList, notification);
                 }
             }

@@ -499,7 +499,7 @@ namespace Licencjat_new.Windows
                 {
                     if (fileItem.File.Downloaded)
                     {
-                        DownloadHelper.DownloadFile(fileItem.File);
+                        DownloadHelper.DownloadFile(fileItem.File, "C://Users/Marcin/Documents");
 
                         _parent.RaiseNotification(new NotificationModel("", "", null,
                             DateTime.Now, false, true)
@@ -513,7 +513,7 @@ namespace Licencjat_new.Windows
             }
             else
             {
-                DownloadHelper.DownloadFile(fileItem.File);
+                DownloadHelper.DownloadFile(fileItem.File, "C://Users/Marcin/Documents");
 
                 _parent.RaiseNotification(new NotificationModel("", "", null,
                     DateTime.Now, false, true)

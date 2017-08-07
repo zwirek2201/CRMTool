@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -180,7 +181,7 @@ namespace Licencjat_new.Windows
                 {
                     if (fileItem.File.Downloaded)
                     {
-                        DownloadHelper.DownloadFile(fileItem.File);
+                        DownloadHelper.DownloadFile(fileItem.File, "C://Users/Marcin/Documents");
 
                         _parent.RaiseNotification(new NotificationModel("", "", null,
                             DateTime.Now, false, true)
@@ -194,7 +195,38 @@ namespace Licencjat_new.Windows
             }
             else
             {
-                DownloadHelper.DownloadFile(fileItem.File);
+                DownloadHelper.DownloadFile(fileItem.File, "C://Users/Marcin/Documents");
+
+                _parent.RaiseNotification(new NotificationModel("", "", null,
+                    DateTime.Now, false, true)
+                { Text = "Plik został pobrany" });
+            }
+        }
+
+        private void FileList_OpenFile(object sender, EventArgs e)
+        {
+            FileListItem fileItem = (FileListItem)sender;
+
+            if (fileItem.File.Data == null)
+            {
+                EventHandler<FileDownloadedEventArgs> eventDelegate = null;
+
+                eventDelegate = (s, args) =>
+                {
+                    if (fileItem.File.Downloaded)
+                    {
+                        DownloadHelper.DownloadFile(fileItem.File, "C://Users/Marcin/Documents");
+
+
+                        _parent.DownloadClient.FileDownloaded -= eventDelegate;
+                    }
+                };
+                _parent.DownloadClient.FileDownloaded += eventDelegate;
+                _parent.DownloadClient.DownloadQueue.Add(fileItem.File);
+            }
+            else
+            {
+                DownloadHelper.DownloadFile(fileItem.File, "C://Users/Marcin/Documents");
 
                 _parent.RaiseNotification(new NotificationModel("", "", null,
                     DateTime.Now, false, true)
