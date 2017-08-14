@@ -400,7 +400,7 @@ namespace Licencjat_new_server
                                 {
                                     case MessageDictionary.MessageTypeEmail:
                                         _writer.Write(MessageDictionary.OK);
-
+                                        
                                         string authorEmailAddressId = _reader.ReadString();
                                         string messageDate = _reader.ReadString();
                                         string messageSubject = _reader.ReadString();

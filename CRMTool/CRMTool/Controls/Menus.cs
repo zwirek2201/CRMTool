@@ -24,6 +24,7 @@ namespace Licencjat_new.Controls
         private MainWindow  _parent;
         private StackPanel _userPanel;
         private Popup _userPopup;
+        private StackPanel _rightPanel;
         private UpperMenuMode _menuMode;
         private List<UpperMenuModeButton> _menuButtons = new List<UpperMenuModeButton>();
         private Label _userLabel;
@@ -131,6 +132,7 @@ namespace Licencjat_new.Controls
         #region Methods
         public void Redraw()
         {
+            this.Children.Clear();
             //Left panel
             StackPanel leftPanel = new StackPanel()
             {
@@ -178,7 +180,11 @@ namespace Licencjat_new.Controls
             this.Children.Add(leftPanel);
 
             //Right panel
-            StackPanel rightPanel = new StackPanel()
+
+            if(NotificationButton != null)
+                _rightPanel.Children.Remove(NotificationButton);
+
+            _rightPanel = new StackPanel()
             {
                 Orientation = Orientation.Horizontal,
                 Height = 40,
@@ -186,7 +192,7 @@ namespace Licencjat_new.Controls
                 HorizontalAlignment = HorizontalAlignment.Right
             };
 
-            this.Children.Add(rightPanel);
+            this.Children.Add(_rightPanel);
 
             _userPanel = new StackPanel()
             {
@@ -325,7 +331,6 @@ namespace Licencjat_new.Controls
             popupStack.Children.Add(programSettingsLabel);
             popupStack.Children.Add(logoutLabel);
 
-
             _userPopup.Child = popupStack;
 
             _userPanel.MouseEnter += _userPanel_MouseEnter;
@@ -335,30 +340,33 @@ namespace Licencjat_new.Controls
             //User logged in
             if (LoginStatus != null && LoginStatus.LoggedIn)
             {
+                _menuButtons.Clear();
+                _rightPanel.Children.Clear();
+
                 UpperMenuModeButton mainButton = new UpperMenuModeButton("Strona główna", UpperMenuMode.HomePage);
                 mainButton.Click += UpperMenuButtonClick;
-                rightPanel.Children.Add(mainButton);
+                _rightPanel.Children.Add(mainButton);
                 _menuButtons.Add(mainButton);
 
                 UpperMenuModeButton conversationButton = new UpperMenuModeButton("Konwersacje",
                     UpperMenuMode.Conversation);
                 conversationButton.Click += UpperMenuButtonClick;
-                rightPanel.Children.Add(conversationButton);
+                _rightPanel.Children.Add(conversationButton);
                 _menuButtons.Add(conversationButton);
 
                 UpperMenuModeButton documentButton = new UpperMenuModeButton("Dokumenty", UpperMenuMode.Document);
                 documentButton.Click += UpperMenuButtonClick;
-                rightPanel.Children.Add(documentButton);
+                _rightPanel.Children.Add(documentButton);
                 _menuButtons.Add(documentButton);
 
                 UpperMenuModeButton emailButton = new UpperMenuModeButton("E-mail", UpperMenuMode.Email);
                 emailButton.Click += UpperMenuButtonClick;
-                rightPanel.Children.Add(emailButton);
+                _rightPanel.Children.Add(emailButton);
                 _menuButtons.Add(emailButton);
 
                 UpperMenuModeButton contactButton = new UpperMenuModeButton("Kontakty", UpperMenuMode.Contact);
                 contactButton.Click += UpperMenuButtonClick;
-                rightPanel.Children.Add(contactButton);
+                _rightPanel.Children.Add(contactButton);
                 _menuButtons.Add(contactButton);
 
                 _userLabel.Content = LoginStatus.FirstName + " " + LoginStatus.LastName;
@@ -376,12 +384,16 @@ namespace Licencjat_new.Controls
                 accountSettingsLabel.Visibility = Visibility.Collapsed;
             }
 
-            rightPanel.Children.Add(_userPanel);
+            _rightPanel.Children.Add(_userPanel);
 
             if (LoginStatus != null && LoginStatus.LoggedIn)
             {
-                NotificationButton = new NotificationButton();
-                rightPanel.Children.Add(NotificationButton);
+                if (NotificationButton == null)
+                {
+                    NotificationButton = new NotificationButton();
+                }
+
+                _rightPanel.Children.Add(NotificationButton);
             }
         }
 

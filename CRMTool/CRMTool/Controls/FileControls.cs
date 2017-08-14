@@ -412,6 +412,7 @@ namespace Licencjat_new.Controls
 
         public event EventHandler RenameFile;
         public event EventHandler DownloadFile;
+        public event EventHandler OpenFile;
         public event EventHandler SelectedListChanged;
 
         public List<FileListItem> Files = new List<FileListItem>();
@@ -566,6 +567,7 @@ namespace Licencjat_new.Controls
 
                 item.RenameFile += Item_RenameFile;
                 item.DownloadFile += Item_DownloadFile;
+                item.OpenFile += Item_OpenFile;
                 item.SelectedChanged += Item_SelectedChanged;
                 item.DataChanged += Item_DataChanged;
                
@@ -581,6 +583,11 @@ namespace Licencjat_new.Controls
             _innerStack.Children.Remove(NoElementsPlaceholder);
 
             Sort();
+        }
+
+        private void Item_OpenFile(object sender, EventArgs e)
+        {
+            OpenFile?.Invoke(sender, e);
         }
 
         private void Item_SelectedChanged(object sender, EventArgs e)

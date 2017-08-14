@@ -557,6 +557,7 @@ namespace Licencjat_new.Controls
         public event EventHandler DownloadAllAttachments;
         public event EventHandler RenameFile;
         public event EventHandler DownloadFile;
+        public event EventHandler OpenFile;
         public event EventHandler ShowMessageDetails;
 
         private Label NoElementsPlaceholder;
@@ -598,11 +599,17 @@ namespace Licencjat_new.Controls
             messageItem.DownloadAllAttachments += MessageItem_DownloadAllAttachments;
             messageItem.RenameFile += MessageItem_RenameFile;
             messageItem.DownloadFile += MessageItem_DownloadFile;
+            messageItem.OpenFile += MessageItem_OpenFile;
             messageItem.ShowDetails += MessageItem_ShowDetails;
 
             Children.Remove(NoElementsPlaceholder);
 
             Children.Add(messageItem);
+        }
+
+        private void MessageItem_OpenFile(object sender, EventArgs e)
+        {
+            OpenFile?.Invoke(sender, e);
         }
 
         private void MessageItem_ShowDetails(object sender, EventArgs e)
@@ -680,6 +687,7 @@ namespace Licencjat_new.Controls
 
         public event EventHandler DownloadAllAttachments;
         public event EventHandler RenameFile;
+        public event EventHandler OpenFile;
         public event EventHandler DownloadFile;
         public event EventHandler ShowDetails;
         #endregion
@@ -804,6 +812,7 @@ namespace Licencjat_new.Controls
 
                 attachmentPanel.RenameFile += AttachmentPanel_RenameFile;
                 attachmentPanel.DownloadFile += AttachmentPanel_DownloadFile;
+                attachmentPanel.OpenFile += AttachmentPanel_OpenFile;
 
                 DockPanel.SetDock(attachmentPanel, Dock.Bottom);
                 innerDock.Children.Add(attachmentPanel);
@@ -995,6 +1004,11 @@ namespace Licencjat_new.Controls
             ContextMenu = contextMenu;
         }
 
+        private void AttachmentPanel_OpenFile(object sender, EventArgs e)
+        {
+            OpenFile?.Invoke(sender, e);
+        }
+
         private void ConversationMessageListItem_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount == 2)
@@ -1034,6 +1048,7 @@ namespace Licencjat_new.Controls
 
         public event EventHandler RenameFile;
         public event EventHandler DownloadFile;
+        public event EventHandler OpenFile;
 
         public List<FileModel> Files { get; private set; }
 
@@ -1145,6 +1160,7 @@ namespace Licencjat_new.Controls
                     fileItem.AllowDelete = false;
                     fileItem.RenameFile += FileItem_RenameFile;
                     fileItem.DownloadFile += FileItem_DownloadFile;
+                    fileItem.OpenFile += FileItem_OpenFile;
 
                     _attachmentStack.Children.Add(fileItem);
                 }
@@ -1160,6 +1176,11 @@ namespace Licencjat_new.Controls
             {
                 
             }
+        }
+
+        private void FileItem_OpenFile(object sender, EventArgs e)
+        {
+            OpenFile?.Invoke(sender, e);
         }
 
         private void FileItem_DownloadFile(object sender, EventArgs e)

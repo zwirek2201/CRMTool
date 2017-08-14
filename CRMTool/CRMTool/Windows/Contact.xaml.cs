@@ -463,7 +463,6 @@ namespace Licencjat_new.Windows
                     break;
                 case ContactTabControlMode.Companies:
                     _addButton.Visibility = Visibility.Visible;
-
                     break;
                 case ContactTabControlMode.InternalContacts:
                     if (_parent.Client.UserInfo.IsAdmin)

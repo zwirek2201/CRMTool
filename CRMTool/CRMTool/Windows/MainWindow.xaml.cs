@@ -232,6 +232,12 @@ namespace Licencjat_new.Windows
                 TitleBar.Children.Add(_maximizeButton);
                 TitleBar.Children.Add(_minimizeButton);
                 TitleBar.Children.Add(dragPanel);
+
+                Closing += (s, ea) =>
+                {
+                    if(Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool"))
+                        Directory.Delete(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool", true);
+                };
             }
             catch (Exception ex)
             {
@@ -915,7 +921,7 @@ namespace Licencjat_new.Windows
                                 .GetValue(referenceInnerObject)
                                 .ToString();
 
-                        if (referenceInnerObject is PersonModel)
+                        if (referenceInnerObject is PersonModel && i == 0)
                         {
                             PersonModel person = (PersonModel) referenceInnerObject;
                             if (person.FirstName.Last() == 'a')
@@ -1333,14 +1339,13 @@ namespace Licencjat_new.Windows
                 {
                     Client.UserInfo.FirstName = person.FirstName;
                     Client.UserInfo.LastName = person.LastName;
+
+                    UpperMenu.LoginStatus.FirstName = person.FirstName;
+                    UpperMenu.LoginStatus.LastName = person.LastName;
+
+                    UpperMenu.Redraw();
                 }
-
-                UpperMenu.LoginStatus.FirstName = person.FirstName;
-                UpperMenu.LoginStatus.LastName = person.LastName;
-
-                UpperMenu.Redraw();
-
-                if (person.Id != Client.UserInfo.PersonId)
+                else
                 {
                     NotificationModel notification = ProcessNotification(e.Notification);
                     RaiseNotification(notification);

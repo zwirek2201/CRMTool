@@ -428,7 +428,7 @@ namespace Licencjat_new_server
         {
             List<PersonResultInfo> contactResults = new List<PersonResultInfo>();
 
-            DataTable contacts = DB.RunSelectCommand("exec GetAllContacts");
+            DataTable contacts = DB.RunSelectCommand("select * from v_GetAllContacts");
 
             foreach (DataRow contact in contacts.Rows)
             {
@@ -716,7 +716,7 @@ namespace Licencjat_new_server
 
             DataTable returnTable =
                 DB.RunSelectCommand(
-                    "INSERT INTO Files ([FileName], Extension, Size, DateAdded, RowId,  FileData) values (@fileName, @fileExtension, @fileSize, @fileDateAdded, NewId(), @fileData); SELECT SCOPE_IDENTITY();",
+                    "INSERT INTO Files ([FileName], ContentType, Size, DateAdded, RowId,  FileData) values (@fileName, @fileExtension, @fileSize, @fileDateAdded, NewId(), @fileData); SELECT SCOPE_IDENTITY();",
                     parameters);
 
             return returnTable.Rows[0][0].ToString();
@@ -843,7 +843,7 @@ namespace Licencjat_new_server
 
                 DataTable colorTable =
                     DB.RunSelectCommand(
-                        "INSERT INTO PersonConversations (Conversation, Person, Color) values (@conversationId, @personId, (SELECT TOP 1 Id from Colors WHERE Id not in (Select Color FROM PersonConversations WHERE Conversation = @conversationId))); SELECT Hex from PersonConversations t1 join Colors t2 on t2.Id = t1.Color where Conversation = @conversationId AND Person = @personId",
+                        "INSERT INTO PersonConversations (Conversation, Person, Color) values (@conversationId, @personId, (SELECT TOP 1 Id from Colors WHERE Id not in (Select Color FROM PersonConversations WHERE Conversation = @conversationId))); SELECT t2.Hex from PersonConversations t1 join Colors t2 on t2.Id = t1.Color where Conversation = @conversationId AND Person = @personId",
                         parameters);
                 personColors.Add(colorTable.Rows[0]["Hex"].ToString());
             }

@@ -12,6 +12,7 @@ using Licencjat_new.Controls;
 using Licencjat_new.CustomClasses;
 using Licencjat_new.Server;
 using Licencjat_new.Windows.HelperWindows;
+using System.Diagnostics;
 
 namespace Licencjat_new.Windows
 {
@@ -91,6 +92,7 @@ namespace Licencjat_new.Windows
             MessageList.DownloadAllAttachments += MessageList_DownloadAllAttachments;
             MessageList.RenameFile += MessageList_RenameFile;
             MessageList.DownloadFile += MessageList_DownloadFile;
+            MessageList.OpenFile += MessageList_OpenFile;
             MessageList.ShowMessageDetails += MessageList_ShowMessageDetails;
 
             _newEmailButton =
@@ -146,6 +148,7 @@ namespace Licencjat_new.Windows
 
             WindowInitialized = true;
         }
+
 
         private void _newPhoneButton_Click(object sender, EventArgs e)
         {
@@ -499,11 +502,59 @@ namespace Licencjat_new.Windows
                 {
                     if (fileItem.File.Downloaded)
                     {
-                        DownloadHelper.DownloadFile(fileItem.File, "C://Users/Marcin/Documents");
+                        if (!Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/CRMTool"))
+                            Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/CRMTool");
+
+                        DownloadHelper.DownloadFile(fileItem.File, Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/CRMTool");
 
                         _parent.RaiseNotification(new NotificationModel("", "", null,
-                            DateTime.Now, false, true)
-                        {Text = "Plik został pobrany"});
+                        DateTime.Now, false, true)
+                        { Text = "Plik został pobrany" });
+                    }
+                };
+                _parent.DownloadClient.FileDownloaded += eventDelegate;
+                _parent.DownloadClient.DownloadQueue.Add(fileItem.File);
+            }
+            else
+            {
+                if (!Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/CRMTool"))
+                    Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/CRMTool");
+
+                DownloadHelper.DownloadFile(fileItem.File, Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/CRMTool");
+
+                _parent.RaiseNotification(new NotificationModel("", "", null,
+                    DateTime.Now, false, true)
+                { Text = "Plik został pobrany" });
+            }
+        }
+
+        private void MessageList_OpenFile(object sender, EventArgs e)
+        {
+            FileListItem fileItem = (FileListItem)sender;
+
+            if (fileItem.File.Data == null)
+            {
+                EventHandler<FileDownloadedEventArgs> eventDelegate = null;
+
+                eventDelegate = (s, args) =>
+                {
+                    if (fileItem.File.Downloaded)
+                    {
+                        if (!Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool"))
+                            Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool");
+
+                        if (!File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool/" + fileItem.File.Name))
+                        {
+
+                            DownloadHelper.DownloadFile(fileItem.File, Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool");
+
+                            while (!File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool/" + fileItem.File.Name))
+                            {
+
+                            }
+                        }
+
+                        Process.Start(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool/" + fileItem.File.Name);
 
                         _parent.DownloadClient.FileDownloaded -= eventDelegate;
                     }
@@ -513,11 +564,21 @@ namespace Licencjat_new.Windows
             }
             else
             {
-                DownloadHelper.DownloadFile(fileItem.File, "C://Users/Marcin/Documents");
+                if (!Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool"))
+                    Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool");
 
-                _parent.RaiseNotification(new NotificationModel("", "", null,
-                    DateTime.Now, false, true)
-                { Text = "Plik został pobrany" });
+                if (!File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool/" + fileItem.File.Name))
+                {
+
+                    DownloadHelper.DownloadFile(fileItem.File, Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool");
+
+                    while (!File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool/" + fileItem.File.Name))
+                    {
+
+                    }
+                }
+
+                Process.Start(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool/" + fileItem.File.Name);
             }
         }
 
@@ -570,7 +631,10 @@ namespace Licencjat_new.Windows
                 {
                     MemoryStream archiveStream = DownloadHelper.ZipFiles(item.Message.Attachments);
 
-                    using (FileStream fileStream = File.Create("C://Users/Marcin/Desktop/Zalaczniki.zip"))
+                    if (!Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/CRMTool"))
+                        Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/CRMTool");
+
+                    using (FileStream fileStream = File.Create(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/CRMTool/" + _parent.Conversations.Find(obj => obj.Id == item.Message.ConversationId).Name + "_" + item.Message.Author.FullName.Replace(' ', '_') + "_" + DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss") + ".zip"))
                     {
                         archiveStream.Seek(0, SeekOrigin.Begin);
                         archiveStream.CopyTo(fileStream);
