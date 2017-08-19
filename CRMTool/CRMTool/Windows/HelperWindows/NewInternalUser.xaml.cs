@@ -35,8 +35,8 @@ namespace Licencjat_new.Windows.HelperWindows
 
             InitializeComponent();
 
-            GenderComboBox.AddItem("Kobieta");
-            GenderComboBox.AddItem("Mężczyzna");
+            GenderComboBox.AddItem("Pani");
+            GenderComboBox.AddItem("Pani");
 
             ReadyButton.Clicked += ReadyButton_Clicked;
             CancelButton.Clicked += CancelButton_Clicked;

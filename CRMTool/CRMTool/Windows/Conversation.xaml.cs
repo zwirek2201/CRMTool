@@ -154,8 +154,52 @@ namespace Licencjat_new.Windows
         {
             ConversationModel conversation = ConversationList.SelectedConversation;
 
-            if (conversation.Members.Where(obj => !obj.IsInternalUser).Any(obj => obj.PhoneNumbers.Count > 0))
+            if (conversation.Members.Where(obj => !obj.IsInternalUser).All(obj => obj.PhoneNumbers.Count == 0))
             {
+                Dispatcher.Invoke(() =>
+                {
+                    _parent.Darkened = true;
+                    CustomMessageBox messageBox =
+                        new CustomMessageBox(
+                            "Nie można utworzyć wiadomości. Żaden z członków konwersacji nie posiada numeru telefonu.",
+                            MessageBoxButton.OK);
+
+                    messageBox.OKButtonClicked += (s2, ea2) =>
+                    {
+                        _parent.mainCanvas.Children.Remove(messageBox);
+                        _parent.Darkened = false;
+
+                    };
+
+                    _parent.mainCanvas.Children.Add(messageBox);
+                });
+
+                return;
+            }
+
+            if(!_parent.Persons.Find(obj => obj.Id == _parent.Client.UserInfo.PersonId).PhoneNumbers.Any())
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    _parent.Darkened = true;
+                    CustomMessageBox messageBox =
+                        new CustomMessageBox(
+                            "Nie można utworzyć wiadomości. Twoje konto nie zawiera żadnego numeru telefonu",
+                            MessageBoxButton.OK);
+
+                    messageBox.OKButtonClicked += (s2, ea2) =>
+                    {
+                        _parent.mainCanvas.Children.Remove(messageBox);
+                        _parent.Darkened = false;
+
+                    };
+
+                    _parent.mainCanvas.Children.Add(messageBox);
+                });
+
+                return;
+            }
+
             _parent.Darkened = true;
 
             NewPhoneConversationMessage newMessage = new NewPhoneConversationMessage(_parent, conversation);
@@ -163,11 +207,9 @@ namespace Licencjat_new.Windows
 
             newMessage.ReadyButtonClicked += (s, ea) =>
             {
-                _parent.Darkened = false;
-                _parent.mainCanvas.Children.Remove(newMessage);
 
                 DoWorkEventHandler doWorkHandler =
-                    delegate(object se, DoWorkEventArgs ev)
+                    delegate (object se, DoWorkEventArgs ev)
                     {
                         try
                         {
@@ -200,13 +242,13 @@ namespace Licencjat_new.Windows
                             {
                                 FileModel newFile = new FileModel(file.Id, file.Name, file.ContentType, file.Size,
                                     file.DateAdded)
-                                {ConversationId = conversation.Id, Data = file.Data};
+                                { ConversationId = conversation.Id, Data = file.Data };
 
                                 phoneMessage.Attachments.Add(newFile);
                             }
 
                             EventHandler<FileUploadedEventArgs> fileUploadedEventHandler = null;
-                            fileUploadedEventHandler = delegate(object s2, FileUploadedEventArgs ea2)
+                            fileUploadedEventHandler = delegate (object s2, FileUploadedEventArgs ea2)
                             {
                                 if (phoneMessage.Attachments.All(obj => obj.Id != null))
                                 {
@@ -242,11 +284,22 @@ namespace Licencjat_new.Windows
                         }
                     };
 
+
+                if (newMessage.SelectedPhoneNumber == null)
+                {
+                    newMessage.ErrorTextBlock.Text = "Wybierz nadawcę/odbiorcę";
+
+                    return;
+                }
+
+                _parent.Darkened = false;
+                _parent.mainCanvas.Children.Remove(newMessage);
+
                 _sendingWorker.DoWork += doWorkHandler;
 
                 RunWorkerCompletedEventHandler runWorkerCompleted = null;
 
-                runWorkerCompleted = delegate(object s2, RunWorkerCompletedEventArgs ev)
+                runWorkerCompleted = delegate (object s2, RunWorkerCompletedEventArgs ev)
                 {
                     _sendingWorker.DoWork -= doWorkHandler;
                     _sendingWorker.RunWorkerCompleted -= runWorkerCompleted;
@@ -266,27 +319,6 @@ namespace Licencjat_new.Windows
                 _parent.mainCanvas.Children.Remove(newMessage);
 
             };
-            }
-            else
-            {
-                Dispatcher.Invoke(() =>
-                {
-                    _parent.Darkened = true;
-                    CustomMessageBox messageBox =
-                        new CustomMessageBox(
-                            "Nie można utworzyć wiadomości. Żaden z członków konwersacji nie posiada numeru telefonu.",
-                            MessageBoxButton.OK);
-
-                    messageBox.OKButtonClicked += (s2, ea2) =>
-                    {
-                        _parent.mainCanvas.Children.Remove(messageBox);
-                        _parent.Darkened = false;
-
-                    };
-
-                    _parent.mainCanvas.Children.Add(messageBox);
-                });
-            }
         }
 
         private void NewEmailButton_Click(object sender, EventArgs e)

@@ -43,8 +43,8 @@ namespace Licencjat_new.Windows.HelperWindows
 
             ChangeCompanyButton.Clicked += ChangeCompanyButton_Clicked;
 
-            GenderComboBox.AddItem("Kobieta");
-            GenderComboBox.AddItem("Mężczyzna");
+            GenderComboBox.AddItem("Pani");
+            GenderComboBox.AddItem("Pan");
 
             CompanyTextBox.IsEnabled = false;
 

@@ -38,9 +38,9 @@
                     <controls:RoundedTextBox x:Name="LastNameTextBox"  Grid.Column="1" Caption="Nazwisko"></controls:RoundedTextBox>
                 </Grid>
                 <DockPanel  DockPanel.Dock="Top">
-                    <Border BorderBrush="#c2c2c2" DockPanel.Dock="Left"  BorderThickness="1" Height="40" CornerRadius="10" HorizontalAlignment="Left" Margin="7">
+                    <Border BorderBrush="#c2c2c2" DockPanel.Dock="Left"  BorderThickness="1" Height="40" CornerRadius="10" Width="150" HorizontalAlignment="Left" Margin="7">
                         <StackPanel Orientation="Horizontal" Margin="0,0,6,0">
-                            <TextBlock FontSize="16" Margin="15,10,5,0" Text="Płeć:" Foreground="#1c9ad2"></TextBlock>
+                            <TextBlock FontSize="16" Margin="15,10,5,0" Text="Tytuł:" Foreground="#1c9ad2"></TextBlock>
                             <controls:CustomComboBox x:Name="GenderComboBox" HorizontalAlignment="Left"/>
                         </StackPanel>
                     </Border>

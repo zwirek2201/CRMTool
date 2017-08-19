@@ -41,8 +41,8 @@ namespace Licencjat_new.Windows.HelperWindows
 
             InitializeComponent();
 
-            GenderComboBox.AddItem("Kobieta");
-            GenderComboBox.AddItem("Mężczyzna");
+            GenderComboBox.AddItem("Pani");
+            GenderComboBox.AddItem("Pan");
 
             if (Person != null)
             {
