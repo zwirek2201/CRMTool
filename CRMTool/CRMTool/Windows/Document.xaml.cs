@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -12,6 +13,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.IO;
+using System.Diagnostics;
 using Licencjat_new.Controls;
 using Licencjat_new.CustomClasses;
 using Licencjat_new.Server;
@@ -52,6 +55,7 @@ namespace Licencjat_new.Windows
 
             ConversationList.DisplayItemContextMenus = false;
             FileList.RenameFile += FileList_RenameFile;
+            FileList.OpenFile += FileList_OpenFile;
             FileList.DownloadFile += FileList_DownloadFile;
 
             FileSortButton sortButton = (FileSortButton)LogicalTreeHelper.FindLogicalNode(this, "FileSortButton");
@@ -180,11 +184,59 @@ namespace Licencjat_new.Windows
                 {
                     if (fileItem.File.Downloaded)
                     {
-                        DownloadHelper.DownloadFile(fileItem.File);
+                        if (!Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/CRMTool"))
+                            Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/CRMTool");
+
+                            DownloadHelper.DownloadFile(fileItem.File, Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/CRMTool");
 
                         _parent.RaiseNotification(new NotificationModel("", "", null,
-                            DateTime.Now, false, true)
+                        DateTime.Now, false, true)
                         { Text = "Plik został pobrany" });
+                    }
+                };
+                _parent.DownloadClient.FileDownloaded += eventDelegate;
+                _parent.DownloadClient.DownloadQueue.Add(fileItem.File);
+            }
+            else
+            {
+                if (!Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/CRMTool"))
+                    Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/CRMTool");
+
+                DownloadHelper.DownloadFile(fileItem.File, Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/CRMTool");
+
+                _parent.RaiseNotification(new NotificationModel("", "", null,
+                    DateTime.Now, false, true)
+                { Text = "Plik został pobrany" });
+            }
+        }
+
+        private void FileList_OpenFile(object sender, EventArgs e)
+        {
+            FileListItem fileItem = (FileListItem)sender;
+
+            if (fileItem.File.Data == null)
+            {
+                EventHandler<FileDownloadedEventArgs> eventDelegate = null;
+
+                eventDelegate = (s, args) =>
+                {
+                    if (fileItem.File.Downloaded)
+                    {
+                        if (!Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool"))
+                            Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool");
+
+                        if (!File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool/" + fileItem.File.Name))
+                        {
+
+                            DownloadHelper.DownloadFile(fileItem.File, Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool");
+
+                            while (!File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool/" + fileItem.File.Name))
+                            {
+
+                            }
+                        }
+
+                        Process.Start(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool/" + fileItem.File.Name);
 
                         _parent.DownloadClient.FileDownloaded -= eventDelegate;
                     }
@@ -194,11 +246,21 @@ namespace Licencjat_new.Windows
             }
             else
             {
-                DownloadHelper.DownloadFile(fileItem.File);
+                if (!Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool"))
+                    Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool");
 
-                _parent.RaiseNotification(new NotificationModel("", "", null,
-                    DateTime.Now, false, true)
-                { Text = "Plik został pobrany" });
+                if (!File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool/" + fileItem.File.Name))
+                {
+
+                    DownloadHelper.DownloadFile(fileItem.File, Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool");
+
+                    while (!File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool/" + fileItem.File.Name))
+                    {
+
+                    }
+                }
+
+                Process.Start(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool/" + fileItem.File.Name);
             }
         }
         #endregion

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Licencjat_new.Windows.HelperWindows;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -6,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using WIA;
 namespace Licencjat_new.CustomClasses
 {
@@ -30,42 +32,41 @@ namespace Licencjat_new.CustomClasses
             {
                 CommonDialog commonDialog = new CommonDialog();
                 Device scannerDevice = commonDialog.ShowSelectDevice(WiaDeviceType.ScannerDeviceType);
+
                 if (scannerDevice != null)
                 {
                     Item scannerItem = scannerDevice.Items[1];
                     SetDefaultScannerProperties(scannerItem);
                     ImageFile scanResult = scannerItem.Transfer("{B96B3CAE-0728-11D3-9D7B-0000F81EF32E}");
-                    //ImageFile scanResult = (ImageFile)commonDialog.ShowTransfer(scannnerItem, "{B96B3CAE-0728-11D3-9D7B-0000F81EF32E}", false);
+
                     if (scanResult != null)
                     {
                         Image img;
                         lock (scanResult)
                         {
 
-                            ImageFile image = (ImageFile) scanResult;
-                            MemoryStream stream = new MemoryStream((byte[]) image.FileData.get_BinaryData());
+                            ImageFile image = (ImageFile)scanResult;
+                            MemoryStream stream = new MemoryStream((byte[])image.FileData.get_BinaryData());
                             img = Image.FromStream(stream);
                         }
 
-                        //ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
-
-                        //System.Drawing.Imaging.Encoder myEncoder =
-                        //    System.Drawing.Imaging.Encoder.Quality;
-
-                        //EncoderParameters myEncoderParameters = new EncoderParameters(1);
-
-                        //EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 50L);
-                        //myEncoderParameters.Param[0] = myEncoderParameter;
-
                         return img;
 
-                        //img.Save(@"C:\Users\Marcin\Desktop\TestTest.jpg", jpgEncoder, myEncoderParameters);
                     }
+                    else
+                    {
+                        MessageBox.Show("Skanowanie nie powiodło się, spróbuj ponownie");
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Nie znaleziono skanera, sprawdź połączenie i spróbuj ponownie.");
                 }
                 return null;
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
+                MessageBox.Show("Skanowanie nie powiodło się, spróbuj ponownie");
                 return null;
             }
         }

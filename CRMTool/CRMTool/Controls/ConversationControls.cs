@@ -200,7 +200,6 @@ namespace Licencjat_new.Controls
                 conversationItem.RemoveConversation += ConversationItem_RemoveConversation;
                 conversationItem.RenameConversation += ConversationItem_RenameConversation;
                 conversationItem.ShowConversationDetails += ConversationItem_ShowConversationDetails;
-                conversationItem.ShowConversationSettings += ConversationItem_ShowConversationSettings;
 
                 Conversations.Add(conversationItem);
                 Children.Add(conversationItem);
@@ -225,7 +224,6 @@ namespace Licencjat_new.Controls
             conversationItem.RemoveConversation += ConversationItem_RemoveConversation;
             conversationItem.RenameConversation += ConversationItem_RenameConversation;
             conversationItem.ShowConversationDetails += ConversationItem_ShowConversationDetails;
-            conversationItem.ShowConversationSettings += ConversationItem_ShowConversationSettings;
 
             Conversations.Add(conversationItem);
             Children.Add(conversationItem);
@@ -260,13 +258,11 @@ namespace Licencjat_new.Controls
         private int _height = 45;
         private DockPanel _mainDock;
         private Boolean _selected;
-        private Image _settingsImage;
 
         public event EventHandler RemoveConversation;
         public event EventHandler RenameConversation;
         public event EventHandler MuteConversation;
         public event EventHandler ShowConversationDetails;
-        public event EventHandler ShowConversationSettings;
 
         #endregion
 
@@ -331,8 +327,6 @@ namespace Licencjat_new.Controls
             MouseLeave += ConversationListItem_MouseLeave;
             MouseLeftButtonDown += ConversationListItem_MouseDown;
 
-            _settingsImage.PreviewMouseLeftButtonDown += _settingsImage_PreviewMouseLeftButtonDown;
-
             ContextMenu contextMenu = new ContextMenu();
 
             MenuItem detailsItem = new MenuItem()
@@ -361,19 +355,6 @@ namespace Licencjat_new.Controls
             renameItem.Click += RenameItem_Click;
             contextMenu.Items.Add(renameItem);
 
-            MenuItem settingsItem = new MenuItem()
-            {
-                Header = "Ustawienia",
-                Icon =
-                   new Image()
-                   {
-                       Source =
-                           ImageHelper.UriToImageSource(new Uri(@"pack://application:,,,/resources/settings_context.png"))
-                   }
-            };
-            settingsItem.Click += SettingsItem_Click;
-            contextMenu.Items.Add(settingsItem);
-
             contextMenu.Items.Add(new Separator());
 
             MenuItem removeItem = new MenuItem()
@@ -394,14 +375,11 @@ namespace Licencjat_new.Controls
 
         private void _settingsImage_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            _settingsImage.PreviewMouseLeftButtonUp += _settingsImage_PreviewMouseLeftButtonUp;
             e.Handled = true;
         }
 
         private void _settingsImage_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            ShowConversationSettings?.Invoke(this, EventArgs.Empty);
-            _settingsImage.PreviewMouseLeftButtonUp -= _settingsImage_PreviewMouseLeftButtonUp;
             e.Handled = true;
         }
 
@@ -411,7 +389,6 @@ namespace Licencjat_new.Controls
         private void ConversationListItem_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
         {
             SetBackgroundColor(new SolidColorBrush(ColorScheme.MenuDarker));
-            _settingsImage.Source =
     ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/settings.png"));
         }
 
@@ -421,7 +398,6 @@ namespace Licencjat_new.Controls
             {
                 SetBackgroundColor(new SolidColorBrush(ColorScheme.MenuLight));
             }
-            _settingsImage.Source = null;
         }
 
         private void ConversationListItem_MouseDown(object sender, MouseButtonEventArgs e)
@@ -451,27 +427,9 @@ namespace Licencjat_new.Controls
             ShowConversationDetails?.Invoke(this, EventArgs.Empty);
         }
 
-        private void SettingsItem_Click(object sender, RoutedEventArgs e)
-        {
-            ShowConversationSettings?.Invoke(this, EventArgs.Empty);
-        }
-
         private void Conversation_DataChanged(object sender, EventArgs e)
         {
             Redraw();
-        }
-
-        private void _settingsImage_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            if (IsMouseOver)
-                _settingsImage.Source =
-                    ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/settings.png"));
-        }
-
-        private void _settingsImage_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            _settingsImage.Source =
-                ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/settings_hover.png"));
         }
         #endregion
 
@@ -500,20 +458,6 @@ namespace Licencjat_new.Controls
                 Background = new SolidColorBrush(Colors.Transparent),
                 HorizontalAlignment = HorizontalAlignment.Right
             };
-
-
-            _settingsImage = new Image()
-            {
-                Height = 20,
-                Width = 20,
-                Source = null,
-                Margin = new Thickness(12.5)
-            };
-
-            _settingsImage.MouseEnter += _settingsImage_MouseEnter;
-            _settingsImage.MouseLeave += _settingsImage_MouseLeave;
-
-            //rightPanel.Children.Add(_settingsImage);
 
             DockPanel.SetDock(rightPanel, Dock.Right);
        
@@ -613,6 +557,7 @@ namespace Licencjat_new.Controls
         public event EventHandler DownloadAllAttachments;
         public event EventHandler RenameFile;
         public event EventHandler DownloadFile;
+        public event EventHandler OpenFile;
         public event EventHandler ShowMessageDetails;
 
         private Label NoElementsPlaceholder;
@@ -654,11 +599,17 @@ namespace Licencjat_new.Controls
             messageItem.DownloadAllAttachments += MessageItem_DownloadAllAttachments;
             messageItem.RenameFile += MessageItem_RenameFile;
             messageItem.DownloadFile += MessageItem_DownloadFile;
+            messageItem.OpenFile += MessageItem_OpenFile;
             messageItem.ShowDetails += MessageItem_ShowDetails;
 
             Children.Remove(NoElementsPlaceholder);
 
             Children.Add(messageItem);
+        }
+
+        private void MessageItem_OpenFile(object sender, EventArgs e)
+        {
+            OpenFile?.Invoke(sender, e);
         }
 
         private void MessageItem_ShowDetails(object sender, EventArgs e)
@@ -736,6 +687,7 @@ namespace Licencjat_new.Controls
 
         public event EventHandler DownloadAllAttachments;
         public event EventHandler RenameFile;
+        public event EventHandler OpenFile;
         public event EventHandler DownloadFile;
         public event EventHandler ShowDetails;
         #endregion
@@ -860,6 +812,7 @@ namespace Licencjat_new.Controls
 
                 attachmentPanel.RenameFile += AttachmentPanel_RenameFile;
                 attachmentPanel.DownloadFile += AttachmentPanel_DownloadFile;
+                attachmentPanel.OpenFile += AttachmentPanel_OpenFile;
 
                 DockPanel.SetDock(attachmentPanel, Dock.Bottom);
                 innerDock.Children.Add(attachmentPanel);
@@ -1051,6 +1004,11 @@ namespace Licencjat_new.Controls
             ContextMenu = contextMenu;
         }
 
+        private void AttachmentPanel_OpenFile(object sender, EventArgs e)
+        {
+            OpenFile?.Invoke(sender, e);
+        }
+
         private void ConversationMessageListItem_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount == 2)
@@ -1090,6 +1048,7 @@ namespace Licencjat_new.Controls
 
         public event EventHandler RenameFile;
         public event EventHandler DownloadFile;
+        public event EventHandler OpenFile;
 
         public List<FileModel> Files { get; private set; }
 
@@ -1198,8 +1157,10 @@ namespace Licencjat_new.Controls
                 {
                     FileListItem fileItem = new FileListItem(file);
 
+                    fileItem.AllowDelete = false;
                     fileItem.RenameFile += FileItem_RenameFile;
                     fileItem.DownloadFile += FileItem_DownloadFile;
+                    fileItem.OpenFile += FileItem_OpenFile;
 
                     _attachmentStack.Children.Add(fileItem);
                 }
@@ -1215,6 +1176,11 @@ namespace Licencjat_new.Controls
             {
                 
             }
+        }
+
+        private void FileItem_OpenFile(object sender, EventArgs e)
+        {
+            OpenFile?.Invoke(sender, e);
         }
 
         private void FileItem_DownloadFile(object sender, EventArgs e)
@@ -1950,61 +1916,6 @@ namespace Licencjat_new.Controls
             if (showContextMenu)
             {
                 ContextMenu contextMenu = new ContextMenu();
-
-                MenuItem detailsItem = new MenuItem()
-                {
-                    Header = "Pokaż szczegóły",
-                    Icon =
-                        new Image()
-                        {
-                            Source =
-                                ImageHelper.UriToImageSource(
-                                    new Uri(@"pack://application:,,,/resources/info_context.png"))
-                        }
-                };
-                //renameItem.Click += RenameItem_Click;
-                contextMenu.Items.Add(detailsItem);
-
-                contextMenu.Items.Add(new Separator());
-
-                _addFilterItem = new MenuItem()
-                {
-                    Header = "Dodaj do filtra",
-                    Icon =
-                        new Image()
-                        {
-                            Source =
-                                ImageHelper.UriToImageSource(
-                                    new Uri(@"pack://application:,,,/resources/addFilter_context.png"))
-                        }
-                };
-                _addFilterItem.Click += AddFilterItem_Click;
-                contextMenu.Items.Add(_addFilterItem);
-
-                _removeFilterItem = new MenuItem()
-                {
-                    Header = "Usuń z filtra",
-                    Icon =
-                        new Image()
-                        {
-                            Source =
-                                ImageHelper.UriToImageSource(
-                                    new Uri(@"pack://application:,,,/resources/removeFilter_context.png"))
-                        }
-                };
-                _removeFilterItem.Click += _removeFilterItem_Click;
-                _removeFilterItem.Visibility = Visibility.Collapsed;
-                contextMenu.Items.Add(_removeFilterItem);
-
-                _clearFilterItem = new MenuItem()
-                {
-                    Header = "Wyczyść filtr",
-                };
-                _clearFilterItem.Click += _clearFilterItem_Click;
-                _clearFilterItem.Visibility = Visibility.Collapsed;
-                contextMenu.Items.Add(_clearFilterItem);
-
-                contextMenu.Items.Add(new Separator());
 
                 MenuItem removeMemberItem = new MenuItem()
                 {

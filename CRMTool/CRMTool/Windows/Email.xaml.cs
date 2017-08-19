@@ -17,6 +17,7 @@ using Awesomium.Windows.Controls;
 using ImapX;
 using Licencjat_new.Controls;
 using Licencjat_new.CustomClasses;
+using Licencjat_new.Properties;
 using Licencjat_new.Server;
 using Licencjat_new.Windows.HelperWindows;
 using TheArtOfDev.HtmlRenderer.WPF;
@@ -63,6 +64,7 @@ namespace Licencjat_new.Windows
         public void Init()
         {
             EmailList.AddNewEmailAddress += EmailList_AddNewEmailAddress;
+            EmailTreeList.SelectedNodeChanged += EmailTree_SelectedNodeChanged;
             MessagesGrid.SelectionMode = DataGridSelectionMode.Single;
             SmallToolBarWideButton removeButton = new SmallToolBarWideButton("Usuń");
             removeButton.Click += (s, ea) =>
@@ -158,18 +160,13 @@ namespace Licencjat_new.Windows
             _parent = (MainWindow) Window.GetWindow(this);
             _client = _parent.Client;
 
-            if (_parent.EmailWorker.IsBusy)
+            if (_parent.EmailClients != null)
             {
-                _parent.EmailWorker.RunWorkerCompleted += _emailWorker_RunWorkerCompleted;
+                _emailClients = _parent.EmailClients;
+                LoadFolders(_emailClients);
             }
-            else
-            {
-                if (_parent.EmailClients != null)
-                {
-                    _emailClients = _parent.EmailClients;
-                    LoadFolders(_emailClients);
-                }
-            }
+
+            _parent.EmailWorker.RunWorkerCompleted += _emailWorker_RunWorkerCompleted;
 
             if (_parent.ConversationWorker.IsBusy)
             {
@@ -200,25 +197,34 @@ namespace Licencjat_new.Windows
 
         private void _parent_NewEmailAddress(object sender, NewEmailAddressEventArgs e)
         {
-            CustomTreeListNode rootNode = new CustomTreeListNode(e.Address,
-                ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/mail.png")));
+            //CustomTreeListNode rootNode = new CustomTreeListNode(e.Address,
+            //    ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/mail.png")));
 
-            EmailModel email = _parent.EmailClients.Last();
-            rootNode.ChildObject = email;
+            //EmailModel email = _parent.EmailClients.Last();
+            //rootNode.ChildObject = email;
 
-            EmailTreeList.AddNode(rootNode);
+            //EmailTreeList.AddNode(rootNode);
         }
 
         private void EmailList_AddNewEmailAddress(object sender, EventArgs e)
         {
-            NewEmailAddress newEmail = new NewEmailAddress();
+            NewEmailAddress newEmail = new NewEmailAddress(_parent);
 
             newEmail.ReadyButtonClicked += (s, ea) =>
             {
-                ea.Login = CryptographyHelper.EncodeString(ea.Login);
-                ea.Password = CryptographyHelper.EncodeString(ea.Password);
+                if (ea.UseLoginPassword)
+                {
+                    ea.Login = CryptographyHelper.EncodeString(ea.Login);
+                    ea.Password = CryptographyHelper.EncodeString(ea.Password);
 
-                RegistryHelper.AddRegistryValue(CryptographyHelper.HashString(ea.Address, 0), ea.Password);
+                    RegistryHelper.AddRegistryValue(CryptographyHelper.HashString(ea.Address, 0), ea.Password);
+                }
+                else
+                {
+                    ea.Login = "";
+                    ea.Password = "";
+                }
+
                 _parent.Client.AddNewEmailAddress(ea);
 
                 _parent.mainCanvas.Children.Remove(newEmail);
@@ -466,10 +472,17 @@ namespace Licencjat_new.Windows
 
         private void LoadFolders(List<EmailModel> clients)
         {
-            CustomTreeListControl tree = (CustomTreeListControl)LogicalTreeHelper.FindLogicalNode(this, "EmailTreeList");
-            tree.SelectedNodeChanged += EmailTree_SelectedNodeChanged;
             foreach (EmailModel client in clients)
             {
+                int nodeIndex = -1;
+
+                if (EmailTreeList.Nodes.Select(obj => obj.ChildObject).Any(obj => ((EmailModel) obj) == client))
+                {
+                    CustomTreeListNode node = EmailTreeList.Nodes.Find(obj => ((EmailModel) obj.ChildObject) == client);
+                    nodeIndex = EmailTreeList.Nodes.IndexOf(node);
+                    EmailTreeList.RemoveNode(node);
+                }
+
                 if (client.ImapClient != null)
                 {
                     long unseenCount = 0;
@@ -483,16 +496,27 @@ namespace Licencjat_new.Windows
                         ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/mail.png")));
 
                     rootNode.ChildObject = client;
-                    tree.AddNode(rootNode);
+                    EmailTreeList.AddNode(rootNode, nodeIndex);
 
                     client.UnseenCountChanged += Client_UnseenCountChanged;
-                    client.UnseenCount = (Int32)unseenCount;
+                    client.UnseenCount = (Int32) unseenCount;
                 }
                 else
                 {
-                    CustomTreeListNode rootNode = new CustomTreeListNode(client.Address, ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/mail_locked.png")));
-                    rootNode.ChildObject = client;
-                    tree.AddNode(rootNode);
+                    if (client.CannotConnect)
+                    {
+                        CustomTreeListNode rootNode = new CustomTreeListNode(client.Address,
+                            ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/mail_error.png")));
+                        rootNode.ChildObject = client;
+                        EmailTreeList.AddNode(rootNode, nodeIndex);
+                    }
+                    else
+                    {
+                        CustomTreeListNode rootNode = new CustomTreeListNode(client.Address,
+                            ImageHelper.UriToImageSource(new Uri("pack://application:,,,/resources/mail_locked.png")));
+                        rootNode.ChildObject = client;
+                        EmailTreeList.AddNode(rootNode, nodeIndex);
+                    }
                 }
             }
             MessagesGrid.SelectedCellsChanged += MessagesGrid_SelectedCellsChanged;
@@ -520,8 +544,30 @@ namespace Licencjat_new.Windows
                 EmailModel email = (EmailModel)selectedNode.ChildObject;
                 if (email.ImapClient == null)
                 {
-                    MessageBox.Show("Zablokowany");
-                    return;
+                    if (!email.CannotConnect)
+                    {
+                        EmailLogin emailLogin = new EmailLogin(email);
+                        emailLogin.ReadyButtonClicked += (s, ea) =>
+                        {
+                            email.Login = emailLogin.Login;
+                            email.Password = emailLogin.Password;
+
+                            _parent.mainCanvas.Children.Remove(emailLogin);
+                            _parent.Darkened = false;
+
+                            _parent.EmailWorker.RunWorkerAsync(new List<EmailModel>() {email});
+                        };
+
+                        emailLogin.CancelButtonClicked += (s, ea) =>
+                        {
+                            _parent.mainCanvas.Children.Remove(emailLogin);
+                            _parent.Darkened = false;
+                        };
+
+                        _parent.Darkened = true;
+                        _parent.mainCanvas.Children.Add(emailLogin);
+                        return;
+                    }
                 }
 
                 FillMessages(email.UnhandledMessages);

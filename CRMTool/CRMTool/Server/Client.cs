@@ -5,24 +5,31 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Mime;
+using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 using System.Windows.Resources;
 using Licencjat_new.Controls;
 using Licencjat_new.CustomClasses;
+using Licencjat_new.Windows;
 using Licencjat_new.Windows.HelperWindows;
 using Message = ImapX.Message;
+using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace Licencjat_new.Server
 {
     public class Client
     {
         #region Variables
+
+        private MainWindow _parent;
+
         private Thread _connectionThread;
         private string _user;
         private string _password;
@@ -31,7 +38,7 @@ namespace Licencjat_new.Server
         private BinaryReader _reader;
         private BinaryWriter _writer;
         private readonly string _server = Properties.Settings.Default.ServerIP;
-        private int _port = 2001;
+        private int _port = Properties.Settings.Default.ServerPort;
         private bool _isConnected = false;
 
         public event EventHandler<LoginSuccedeedEventArgs> loginSucceeded;
@@ -42,6 +49,14 @@ namespace Licencjat_new.Server
         #endregion
 
         public UserInfo UserInfo { get; set; }
+
+        #region Constructors
+
+        public Client(MainWindow parent)
+        {
+            _parent = parent;
+        }
+        #endregion
 
         #region Methods
         public void Connect(string user, string password)
@@ -73,8 +88,10 @@ namespace Licencjat_new.Server
                 _client = new TcpClient(_server, _port);
                 _stream = _client.GetStream();
 
-                _reader = new BinaryReader(_stream);
-                _writer = new BinaryWriter(_stream);
+                SslStream sslStream = new SslStream(_stream,false, new RemoteCertificateValidationCallback(ValidateCert));
+
+                _reader = new BinaryReader(_stream, Encoding.UTF8);
+                _writer = new BinaryWriter(_stream, Encoding.UTF8);
 
                 int result = _reader.ReadByte();
                 if (result == MessageDictionary.Hello)
@@ -97,6 +114,11 @@ namespace Licencjat_new.Server
             }
         }
 
+        private static bool ValidateCert(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            return true;
+        }
+
         public void Login()
         {
             try
@@ -116,12 +138,9 @@ namespace Licencjat_new.Server
                         string login = _user;
                         string firstName = _reader.ReadString();
                         string lastName = _reader.ReadString();
-                        string lastLoggedOut = _reader.ReadString();
+                        bool isAdmin = _reader.ReadBoolean();
 
                         DateTime? lastLoggedOutDate = null;
-
-                        if (lastLoggedOut != "")
-                            lastLoggedOutDate = DateTime.Parse(lastLoggedOut);
 
                         UserInfo = new UserInfo()
                         {
@@ -130,11 +149,11 @@ namespace Licencjat_new.Server
                             Login = login,
                             FirstName = firstName,
                             LastName = lastName,
-                            LastLoggedOut = lastLoggedOutDate,
+                            IsAdmin = isAdmin
                         };
 
                         loginSucceeded?.Invoke(this,
-                            new LoginSuccedeedEventArgs(id, login, firstName, lastName, lastLoggedOutDate));
+                            new LoginSuccedeedEventArgs(id, login, firstName, lastName));
                     }
                     else if (response == MessageDictionary.Error)
                     {
@@ -202,6 +221,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
                 return null;
             }
         }
@@ -254,6 +274,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
                 return null;
             }
         }
@@ -338,6 +359,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
                 return null;
             }
         }
@@ -356,7 +378,7 @@ namespace Licencjat_new.Server
                             string conversationId = _reader.ReadString();
                             return conversationId;
                         case MessageDictionary.DoesNotExist:
-                            throw new Exception("Conversation doesn't exist");
+                            return "";
                     }
                 }
                 return null;
@@ -449,6 +471,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
                 return 0;
             }
         }
@@ -484,6 +507,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
                 return null;
             }
         }
@@ -519,11 +543,8 @@ namespace Licencjat_new.Server
                             string emailId = _reader.ReadString();
                             string emailName = _reader.ReadString();
                             string emailAddress = _reader.ReadString();
-                            bool emailActive = _reader.ReadBoolean();
-                            bool emailDefault = _reader.ReadBoolean();
 
-                            EmailAddressModel emailAddressModel = new EmailAddressModel(emailId, emailAddress, emailName,
-                                emailActive, emailDefault);
+                            EmailAddressModel emailAddressModel = new EmailAddressModel(emailId, emailAddress, emailName);
                             contactPerson.EmailAddresses.Add(emailAddressModel);
                         }
 
@@ -536,11 +557,8 @@ namespace Licencjat_new.Server
                                 string phoneNumberId = _reader.ReadString();
                                 string phoneName = _reader.ReadString();
                                 string phoneNumber = _reader.ReadString();
-                                bool phoneActive = _reader.ReadBoolean();
-                                bool phoneDefault = _reader.ReadBoolean();
 
-                                PhoneNumberModel phoneNumberModel = new PhoneNumberModel(phoneNumberId, phoneNumber, phoneName,
-                                    phoneActive, phoneDefault);
+                                PhoneNumberModel phoneNumberModel = new PhoneNumberModel(phoneNumberId, phoneNumber, phoneName);
                                 contactPerson.PhoneNumbers.Add(phoneNumberModel);
                             }
                         }
@@ -561,6 +579,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
                 return null;
             }
         }
@@ -616,6 +635,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
                 return null;
             }
         }
@@ -639,6 +659,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -654,6 +675,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -674,6 +696,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -689,6 +712,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -727,6 +751,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
                 return null;
             }
         }
@@ -747,6 +772,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -766,6 +792,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -783,6 +810,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -805,6 +833,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -825,6 +854,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -846,6 +876,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -865,6 +896,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -886,6 +918,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -905,6 +938,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -921,12 +955,19 @@ namespace Licencjat_new.Server
                     _writer.Write(Convert.ToInt32(gender));
                     _writer.Write(company != null ? company.Id : "");
 
-                    _writer.Write(emailList.Count);
-                    foreach (EmailAddressModel email in emailList)
+                    if (emailList != null)
                     {
-                        _writer.Write(email.Id);
-                        _writer.Write(email.Name);
-                        _writer.Write(email.Address);
+                        _writer.Write(emailList.Count);
+                        foreach (EmailAddressModel email in emailList)
+                        {
+                            _writer.Write(email.Id);
+                            _writer.Write(email.Name);
+                            _writer.Write(email.Address);
+                        }
+                    }
+                    else
+                    {
+                        _writer.Write(-1);
                     }
 
                     _writer.Write(phoneList.Count);
@@ -944,6 +985,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -982,6 +1024,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -1001,6 +1044,7 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
         }
 
@@ -1029,6 +1073,74 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
+            }
+        }
+
+        public void RemoveConversation(string id)
+        {
+            try
+            {
+                _writer.Write(MessageDictionary.RemoveConversation);
+                if (_reader.Read() == MessageDictionary.OK)
+                {
+                    _writer.Write(id);
+                    return;
+                }
+                throw new Exception("Connection unsynced");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                ErrorHelper.LogError(ex);
+                Logout();
+            }
+        }
+
+        public void AddInternalContact(string firstName, string lastName, Gender gender, string hashedLogin, string hashedPassword, bool isAdmin)
+        {
+            try
+            {
+                _writer.Write(MessageDictionary.AddInternalContact);
+                if (_reader.Read() == MessageDictionary.OK)
+                {
+                    _writer.Write(firstName);
+                    _writer.Write(lastName);
+                    _writer.Write(Convert.ToInt32(gender));
+                    _writer.Write(hashedLogin);
+                    _writer.Write(hashedPassword);
+                    _writer.Write(isAdmin);
+                    return;
+                }
+                throw new Exception("Connection unsynced");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                ErrorHelper.LogError(ex);
+                Logout();
+            }
+        }
+
+        public bool CheckLoginExists(string login)
+        {
+            try
+            {
+                _writer.Write(MessageDictionary.CheckIfLoginExists);
+                if (_reader.Read() == MessageDictionary.OK)
+                {
+                    _writer.Write(login);
+                    bool loginExists = _reader.ReadBoolean();
+                    return loginExists;
+                }
+                throw new Exception("Connection unsynced");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                ErrorHelper.LogError(ex);
+                Logout();
+                return true;
             }
         }
 
@@ -1071,6 +1183,22 @@ namespace Licencjat_new.Server
             return file.ToArray();
         }
         #endregion
+
+        private void Logout()
+        {
+            CustomMessageBox messageBox =
+                new CustomMessageBox("Wystąpił problem podczas połączenia z serwerem. Aplikacja zostanie zrestartowana.", MessageBoxButton.OK);
+
+            messageBox.OKButtonClicked += (s, ea) =>
+            {
+                _parent.Darkened = false;
+                _parent.mainCanvas.Children.Remove(messageBox);
+                _parent.Logout();
+            };
+
+            _parent.Darkened = true;
+            _parent.mainCanvas.Children.Add(messageBox);
+        }
     }
 
     public class LoginFailedEventArgs : EventArgs
@@ -1091,15 +1219,13 @@ namespace Licencjat_new.Server
         public string UserLogin { get; private set; }
         public string FirstName { get; private set; }
         public string LastName { get; private set; }
-        public DateTime? LastLoggedOut { get; private set; }
 
-        public LoginSuccedeedEventArgs(string userId, string userLogin, string firstName, string lastName, DateTime? lastLoggedOut)
+        public LoginSuccedeedEventArgs(string userId, string userLogin, string firstName, string lastName)
         {
             UserId = userId;
             UserLogin = userLogin;
             FirstName = firstName;
             LastName = lastName;
-            LastLoggedOut = lastLoggedOut;
         }
     }
 
@@ -1110,6 +1236,6 @@ namespace Licencjat_new.Server
         public string Login { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public DateTime? LastLoggedOut { get; set; }
+        public bool IsAdmin { get; set; }
     }
 }

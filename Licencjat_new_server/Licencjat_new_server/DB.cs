@@ -171,14 +171,15 @@ namespace Licencjat_new_server
         public static LoginResultInfo CheckUserCredentials(string login, string password)
         {
             Logger.Log($"Authenticating: {login}");
+            DataTable parameters = DB.GetParametersDataTable();
+
             string hashedLogin = Cryptography.HashString(login, 0);
 
-            DataTable parameters = DB.GetParametersDataTable();
             parameters.Rows.Add("Login", hashedLogin);
 
             DataTable users =
                 DB.RunSelectCommand(
-                    "SELECT t1.Id, t2.Id as PersonId, t2.FirstName, t2.LastName, t1.Password, t1.LastLoggedOut FROM Users as t1 join Persons as t2 on t2.Id = t1.Person WHERE Login = @Login",
+                    "SELECT t1.Id, t2.Id as PersonId, t2.FirstName, t2.LastName, t1.Password, t1.IsAdmin FROM Users as t1 join Persons as t2 on t2.Id = t1.Person WHERE Login = @Login",
                     parameters);
             if (users.Rows.Count > 0)
             {
@@ -193,9 +194,9 @@ namespace Licencjat_new_server
                     string personId = users.Rows[0]["PersonId"].ToString();
                     string firstName = users.Rows[0]["FirstName"].ToString();
                     string lastName = users.Rows[0]["LastName"].ToString();
-                    string lastLoggedOut = users.Rows[0]["LastLoggedOut"] == DBNull.Value ? "" : users.Rows[0]["LastLoggedOut"].ToString();
+                    bool isAdmin = Convert.ToBoolean(users.Rows[0]["IsAdmin"]);
 
-                    return new LoginResultInfo(MessageDictionary.OK, MessageDictionary.OK, userId, personId, firstName, lastName, lastLoggedOut);
+                    return new LoginResultInfo(MessageDictionary.OK, MessageDictionary.OK, userId, personId, firstName, lastName, isAdmin);
                 }
                 else
                 {
@@ -258,7 +259,7 @@ namespace Licencjat_new_server
             DataTable parameters = DB.GetParametersDataTable();
             parameters.Rows.Add("UserId", userId);
 
-            DataTable conversations = DB.RunSelectCommand("select t1.Conversation, t2.Name, t2.VisibleId, t2.DateStarted, t2.NotifyContactPersons, t3.Id as [User]  from PersonConversations t1 join Conversations t2 on t1.Conversation = t2.Id join Users t3 on t3.Person = t1.Person WHERE t3.Id = @UserId",
+            DataTable conversations = DB.RunSelectCommand("select t1.Conversation, t2.Name, t2.VisibleId, t2.DateStarted, t3.Id as [User]  from PersonConversations t1 join Conversations t2 on t1.Conversation = t2.Id join Users t3 on t3.Person = t1.Person WHERE t3.Id = @UserId",
                 parameters);
 
             foreach (DataRow conversation in conversations.Rows)
@@ -269,8 +270,6 @@ namespace Licencjat_new_server
                 string dateCreatedString =
                     DateTime.ParseExact(conversation["DateStarted"].ToString(), "dd.MM.yyyy HH:mm:ss",
                         CultureInfo.InvariantCulture).ToString("dd-MM-yyyy HH:mm:ss");
-                bool notifyContactPersons = Convert.ToBoolean(conversation["NotifyContactPersons"]);
-
 
                 parameters.Clear();
                 parameters.Rows.Add("ConversationId", id);
@@ -289,7 +288,7 @@ namespace Licencjat_new_server
                 }
 
                 ConversationResultInfo result = new ConversationResultInfo(id, name,
-                    memberIds, memberColors, visibleId, dateCreatedString, notifyContactPersons);
+                    memberIds, memberColors, visibleId, dateCreatedString, true);
                 conversationResults.Add(result);
             }
 
@@ -428,7 +427,7 @@ namespace Licencjat_new_server
         {
             List<PersonResultInfo> contactResults = new List<PersonResultInfo>();
 
-            DataTable contacts = DB.RunSelectCommand("exec GetAllContacts");
+            DataTable contacts = DB.RunSelectCommand("select * from v_GetAllContacts");
 
             foreach (DataRow contact in contacts.Rows)
             {
@@ -452,15 +451,15 @@ namespace Licencjat_new_server
                     {
                         case "EmailAddress":
                             EmailAddressResultInfo emailAddress =
-                                new EmailAddressResultInfo(contact["DetailId"].ToString(), contact["DetailName"].ToString(), contact["DetailValue"].ToString(),
-                                    Convert.ToBoolean(contact["Active"]), Convert.ToBoolean(contact["Default"]));
+                                new EmailAddressResultInfo(contact["DetailId"].ToString(),
+                                    contact["DetailName"].ToString(), contact["DetailValue"].ToString());
 
                             personInfo.EmailAddresses.Add(emailAddress);
                             break;
                         case "PhoneNumber":
                             PhoneNumberResultInfo phoneNumber =
-                                new PhoneNumberResultInfo(contact["DetailId"].ToString(), contact["DetailName"].ToString(), contact["DetailValue"].ToString(),
-                                    Convert.ToBoolean(contact["Active"]), Convert.ToBoolean(contact["Default"]));
+                                new PhoneNumberResultInfo(contact["DetailId"].ToString(),
+                                    contact["DetailName"].ToString(), contact["DetailValue"].ToString());
 
                             personInfo.PhoneNumbers.Add(phoneNumber);
                             break;
@@ -716,7 +715,7 @@ namespace Licencjat_new_server
 
             DataTable returnTable =
                 DB.RunSelectCommand(
-                    "INSERT INTO Files ([FileName], Extension, Size, DateAdded, RowId,  FileData) values (@fileName, @fileExtension, @fileSize, @fileDateAdded, NewId(), @fileData); SELECT SCOPE_IDENTITY();",
+                    "INSERT INTO Files ([FileName], ContentType, Size, DateAdded, RowId,  FileData) values (@fileName, @fileExtension, @fileSize, @fileDateAdded, NewId(), @fileData); SELECT SCOPE_IDENTITY();",
                     parameters);
 
             return returnTable.Rows[0][0].ToString();
@@ -823,7 +822,7 @@ namespace Licencjat_new_server
             DataTable parameters = DB.GetParametersDataTable();
             parameters.Rows.Add("conversationName", conversationName);
 
-            DataTable conversation = DB.RunSelectCommand("declare @visibleId nvarchar(8);exec GetRandomConversationVisibleId @visibleId OUTPUT;INSERT INTO Conversations(DateStarted, Active, Name, VisibleId) values(GETDATE(), 1, @conversationName, @visibleId);SELECT * FROM Conversations WHERE Id = (select scope_identity())", parameters);
+            DataTable conversation = DB.RunSelectCommand("declare @visibleId nvarchar(8);exec GetRandomConversationVisibleId @visibleId OUTPUT;INSERT INTO Conversations(DateStarted, Name, VisibleId) values(GETDATE(), @conversationName, @visibleId);SELECT * FROM Conversations WHERE Id = (select scope_identity())", parameters);
             return new ConversationResultInfo(
                 conversation.Rows[0]["Id"].ToString(), conversation.Rows[0]["Name"].ToString(), new List<string>(),
                 new List<string>(), conversation.Rows[0]["VisibleId"].ToString(), DateTime.ParseExact(conversation.Rows[0]["DateStarted"].ToString(), "dd.MM.yyyy HH:mm:ss",
@@ -843,7 +842,7 @@ namespace Licencjat_new_server
 
                 DataTable colorTable =
                     DB.RunSelectCommand(
-                        "INSERT INTO PersonConversations (Conversation, Person, DateJoined, LastChecked, Muted, Color) values (@conversationId, @personId, GETDATE(),NULL, 0,(SELECT TOP 1 Id from Colors WHERE Id not in (Select Color FROM PersonConversations WHERE Conversation = @conversationId))); SELECT Hex from PersonConversations t1 join Colors t2 on t2.Id = t1.Color where Conversation = @conversationId AND Person = @personId",
+                        "INSERT INTO PersonConversations (Conversation, Person, Color) values (@conversationId, @personId, (SELECT TOP 1 Id from Colors WHERE Id not in (Select Color FROM PersonConversations WHERE Conversation = @conversationId))); SELECT t2.Hex from PersonConversations t1 join Colors t2 on t2.Id = t1.Color where Conversation = @conversationId AND Person = @personId",
                         parameters);
                 personColors.Add(colorTable.Rows[0]["Hex"].ToString());
             }
@@ -950,7 +949,7 @@ namespace Licencjat_new_server
             parameters.Rows.Add("name", name);
             parameters.Rows.Add("personId", personId);
 
-            DataTable returnTable = DB.RunSelectCommand("INSERT INTO PersonEmailAddresses ([Address], [Login], [ImapHost], [ImapPort], [ImapUseSsl], [Person], [Active], [SmtpHost], [SmtpPort], [SmtpUseSsl], [Default], [Name]) values (@emailAddress, @login, @imapHost, @imapPort, @imapUseSsl, @personId, 1, @smtpHost, @smtpPort, @smtpUseSsl, 1, @name); select scope_identity()", parameters);
+            DataTable returnTable = DB.RunSelectCommand("INSERT INTO PersonEmailAddresses ([Address], [Login], [ImapHost], [ImapPort], [ImapUseSsl], [Person], [SmtpHost], [SmtpPort], [SmtpUseSsl], [Name]) values (@emailAddress, @login, @imapHost, @imapPort, @imapUseSsl, @personId, @smtpHost, @smtpPort, @smtpUseSsl, @name); select scope_identity()", parameters);
             return returnTable.Rows[0][0].ToString();
         }
 
@@ -994,72 +993,82 @@ namespace Licencjat_new_server
                 DB.RunSimpleCommand("delete from ContactPersons where Person = @personId",parameters);
             }
 
-            parameters.Clear();
-            parameters.Rows.Add("personId", id);
-
-            DataTable personEmailAddresses = DB.RunSelectCommand("SELECT Id, [Name], [Address] FROM PersonEmailAddresses WHERE Person = @personId", parameters);
-
-            List<EmailAddressResultInfo> emailsToAdd = new List<EmailAddressResultInfo>();
-            List<EmailAddressResultInfo> emailsToUpdate = new List<EmailAddressResultInfo>();
-            List<string> emailsToDelete = new List<string>();
-
-
-            foreach (DataRow row in personEmailAddresses.Rows)
+            if (emailAddressesList != null)
             {
-                EmailAddressResultInfo email = emailAddressesList.Find(obj => obj.Id == row[0].ToString());
-                if (email == null)
-                {
-                    emailsToDelete.Add(row[0].ToString());
-                }
-                else
-                {
-                    emailsToUpdate.Add(email);
-                }
-            }
+                parameters.Clear();
+                parameters.Rows.Add("personId", id);
 
-            foreach (EmailAddressResultInfo email in emailAddressesList)
-            {
-                bool exists = false;
+                DataTable personEmailAddresses =
+                    DB.RunSelectCommand(
+                        "SELECT Id, [Name], [Address] FROM PersonEmailAddresses WHERE Person = @personId", parameters);
 
-                for (int i = 0; i < personEmailAddresses.Rows.Count; i++)
+                List<EmailAddressResultInfo> emailsToAdd = new List<EmailAddressResultInfo>();
+                List<EmailAddressResultInfo> emailsToUpdate = new List<EmailAddressResultInfo>();
+                List<string> emailsToDelete = new List<string>();
+
+
+                foreach (DataRow row in personEmailAddresses.Rows)
                 {
-                    if (personEmailAddresses.Rows[i][0].ToString() == email.Id)
+                    EmailAddressResultInfo email = emailAddressesList.Find(obj => obj.Id == row[0].ToString());
+                    if (email == null)
                     {
-                        exists = true;
+                        emailsToDelete.Add(row[0].ToString());
+                    }
+                    else
+                    {
+                        emailsToUpdate.Add(email);
                     }
                 }
 
-                if (!exists)
+                foreach (EmailAddressResultInfo email in emailAddressesList)
                 {
-                    emailsToAdd.Add(email);
+                    bool exists = false;
+
+                    for (int i = 0; i < personEmailAddresses.Rows.Count; i++)
+                    {
+                        if (personEmailAddresses.Rows[i][0].ToString() == email.Id)
+                        {
+                            exists = true;
+                        }
+                    }
+
+                    if (!exists)
+                    {
+                        emailsToAdd.Add(email);
+                    }
                 }
-            }
 
-            foreach (EmailAddressResultInfo email in emailsToAdd)
-            {
-                parameters.Clear();
-                parameters.Rows.Add("personId", id);
-                parameters.Rows.Add("emailName", email.Name);
-                parameters.Rows.Add("emailAddress", email.Address);
-                DataTable returnTable = DB.RunSelectCommand("insert into PersonEmailAddresses ([Person], [Name], [Address], [Default]) values (@personId, @emailName, @emailAddress, 0); select scope_identity()", parameters);
-                email.Id = returnTable.Rows[0][0].ToString();
-            }
+                foreach (EmailAddressResultInfo email in emailsToAdd)
+                {
+                    parameters.Clear();
+                    parameters.Rows.Add("personId", id);
+                    parameters.Rows.Add("emailName", email.Name);
+                    parameters.Rows.Add("emailAddress", email.Address);
+                    DataTable returnTable =
+                        DB.RunSelectCommand(
+                            "insert into PersonEmailAddresses ([Person], [Name], [Address]) values (@personId, @emailName, @emailAddress); select scope_identity()",
+                            parameters);
+                    email.Id = returnTable.Rows[0][0].ToString();
+                }
 
-            foreach (EmailAddressResultInfo email in emailsToUpdate)
-            {
-                parameters.Clear();
-                parameters.Rows.Add("emailId", email.Id);
-                parameters.Rows.Add("emailName", email.Name);
-                parameters.Rows.Add("emailAddress", email.Address);
-                DB.RunSimpleCommand("update PersonEmailAddresses set [Name] = @emailName, Address = @emailAddress WHERE Id = @emailId", parameters);
-            }
+                foreach (EmailAddressResultInfo email in emailsToUpdate)
+                {
+                    parameters.Clear();
+                    parameters.Rows.Add("emailId", email.Id);
+                    parameters.Rows.Add("emailName", email.Name);
+                    parameters.Rows.Add("emailAddress", email.Address);
+                    DB.RunSimpleCommand(
+                        "update PersonEmailAddresses set [Name] = @emailName, Address = @emailAddress WHERE Id = @emailId",
+                        parameters);
+                }
 
-            foreach (string email in emailsToDelete)
-            {
-                parameters.Clear();
-                parameters.Rows.Add("emailId", email);
-                parameters.Rows.Add("personId", id);
-                DB.RunSimpleCommand("delete from PersonEmailAddresses WHERE Id = @emailId", parameters);
+                foreach (string email in emailsToDelete)
+                {
+                    parameters.Clear();
+                    parameters.Rows.Add("emailId", email);
+                    parameters.Rows.Add("personId", id);
+                    DB.RunSimpleCommand("delete from PersonEmailAddresses WHERE Id = @emailId", parameters);
+                }
             }
 
             // PHONES
@@ -1110,7 +1119,7 @@ namespace Licencjat_new_server
                 parameters.Rows.Add("personId", id);
                 parameters.Rows.Add("phoneName", phone.Name);
                 parameters.Rows.Add("phoneNumber", phone.Number);
-                DataTable returnTable = DB.RunSelectCommand("insert into PersonPhoneNumbers ([Person], [Name], [PhoneNumber], [Default]) values (@personId, @phoneName, @phoneNumber, 0); select scope_identity()", parameters);
+                DataTable returnTable = DB.RunSelectCommand("insert into PersonPhoneNumbers ([Person], [Name], [PhoneNumber]) values (@personId, @phoneName, @phoneNumber); select scope_identity()", parameters);
 
                 phone.Id = returnTable.Rows[0][0].ToString();
             }
@@ -1118,17 +1127,17 @@ namespace Licencjat_new_server
             foreach (PhoneNumberResultInfo phone in phonesToUpdate)
             {
                 parameters.Clear();
-                parameters.Rows.Add("emailId", phone.Id);
+                parameters.Rows.Add("phoneId", phone.Id);
                 parameters.Rows.Add("phoneName", phone.Name);
                 parameters.Rows.Add("phoneNumber", phone.Number);
-                DB.RunSimpleCommand("update PersonPhoneNumbers set [Name] = @phoneName, PhoneNumber = @phoneNumber WHERE Id = @emailId", parameters);
+                DB.RunSimpleCommand("update PersonPhoneNumbers set [Name] = @phoneName, PhoneNumber = @phoneNumber WHERE Id = @phoneId", parameters);
             }
 
             foreach (string phone in phonesToDelete)
             {
                 parameters.Clear();
                 parameters.Rows.Add("phoneId", phone);
-                DB.RunSimpleCommand("delete from PersonPhoneNumbers WHERE Id = @emailId", parameters);
+                DB.RunSimpleCommand("delete from PersonPhoneNumbers WHERE Id = @phoneId", parameters);
             }
         }
 
@@ -1158,7 +1167,7 @@ namespace Licencjat_new_server
                 parameters.Rows.Add("personId", id);
                 parameters.Rows.Add("emailName", email.Name);
                 parameters.Rows.Add("emailAddress", email.Address);
-                returnTable = DB.RunSelectCommand("insert into PersonEmailAddresses ([Person], [Name], [Address], [Default]) values (@personId, @emailName, @emailAddress, 0); select scope_identity()", parameters);
+                returnTable = DB.RunSelectCommand("insert into PersonEmailAddresses ([Person], [Name], [Address]) values (@personId, @emailName, @emailAddress); select scope_identity()", parameters);
                 email.Id = returnTable.Rows[0][0].ToString();
             }
 
@@ -1168,7 +1177,7 @@ namespace Licencjat_new_server
                 parameters.Rows.Add("personId", id);
                 parameters.Rows.Add("phoneName", phone.Name);
                 parameters.Rows.Add("phoneNumber", phone.Number);
-                returnTable = DB.RunSelectCommand("insert into PersonPhoneNumbers ([Person], [Name], [PhoneNumber], [Default]) values (@personId, @phoneName, @phoneNumber, 0); select scope_identity()", parameters);
+                returnTable = DB.RunSelectCommand("insert into PersonPhoneNumbers ([Person], [Name], [PhoneNumber]) values (@personId, @phoneName, @phoneNumber); select scope_identity()", parameters);
 
                 phone.Id = returnTable.Rows[0][0].ToString();
             }
@@ -1185,10 +1194,59 @@ namespace Licencjat_new_server
             DB.RunSimpleCommand("delete from ContactPersons where Person = @personId", parameters);
             DB.RunSimpleCommand("delete from PersonEmailAddresses where Person = @personId", parameters);
             DB.RunSimpleCommand("delete from PersonPhoneNumbers where Person = @personId", parameters);
-            DataTable returnTable = DB.RunSelectCommand("select FirstName, LastName from Persons where Id = @personId; delete from Persons where Id = @personId", parameters);
+            DataTable returnTable = DB.RunSelectCommand("select FirstName, LastName from Persons where Id = @personId", parameters);
             DB.RunSimpleCommand("delete from Persons where Id = @personId", parameters);
 
             return returnTable.Rows[0][0] + " " + returnTable.Rows[0][1];
+        }
+
+        public static void RemoveConversation(string converastionId)
+        {
+            DataTable parameters = DB.GetParametersDataTable();
+            parameters.Rows.Add("converastionId", converastionId);
+
+            DB.RunSimpleCommand("delete from Notifications where ConversationId = @converastionId", parameters);
+            DB.RunSimpleCommand("delete from PersonConversations where Conversation = @converastionId", parameters);
+            DB.RunSimpleCommand("delete from Conversations where Id = @converastionId", parameters);
+        }
+
+        public static string GetConversationName(string conversationId)
+        {
+            DataTable parameters = DB.GetParametersDataTable();
+            parameters.Rows.Add("converastionId", conversationId);
+
+            DataTable returnTable = DB.RunSelectCommand("select Name from Conversations where Id = @converastionId", parameters);
+
+            return returnTable.Rows[0][0].ToString();
+        }
+
+        public static string NewInternalContact(string firstName, string lastName, int gender, string hashedLogin, string hashedPassword, bool isAdmin)
+        {
+            DataTable parameters = DB.GetParametersDataTable();
+            parameters.Rows.Add("firstName", firstName);
+            parameters.Rows.Add("lastName", lastName);
+            parameters.Rows.Add("gender", gender);
+            DataTable returnTable = DB.RunSelectCommand("insert into Persons (FirstName, LastName, Gender) values (@firstName, @lastName, @gender);select scope_identity()", parameters);
+
+            string id = returnTable.Rows[0][0].ToString();
+
+            parameters.Clear();
+            parameters.Rows.Add("id", id);
+            parameters.Rows.Add("login", hashedLogin);
+            parameters.Rows.Add("password", hashedPassword);
+            parameters.Rows.Add("isAdmin", isAdmin);
+
+            DB.RunSimpleCommand("insert into Users ([Login], [Password], Person, IsAdmin) values (@login, @password, @id, @isAdmin)", parameters);
+            return id;
+        }
+
+        public static bool CheckLoginExists(string login)
+        {
+            DataTable parameters = DB.GetParametersDataTable();
+            parameters.Rows.Add("login", login);
+
+            DataTable returnTable = DB.RunSelectCommand("SELECT count(*) as 'Count' FROM Users WHERE [Login] = @login", parameters);
+            return Convert.ToInt32(returnTable.Rows[0][0]) != 0;
         }
     }
 
@@ -1230,7 +1288,7 @@ namespace Licencjat_new_server
         public string PersonId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public string LastLoggedOut { get; set; }
+        public bool IsAdmin { get; set; }
 
         public LoginResultInfo(byte status, byte error)
         {
@@ -1238,7 +1296,7 @@ namespace Licencjat_new_server
             Error = error;
         }
 
-        public LoginResultInfo(byte status, byte error, string userId, string personId, string firstName, string lastName, string lastLoggedOut)
+        public LoginResultInfo(byte status, byte error, string userId, string personId, string firstName, string lastName, bool isAdmin)
         {
             Status = status;
             Error = error;
@@ -1246,7 +1304,7 @@ namespace Licencjat_new_server
             PersonId = personId;
             FirstName = firstName;
             LastName = lastName;
-            LastLoggedOut = lastLoggedOut;
+            IsAdmin = isAdmin;
         }
     }
 
@@ -1358,16 +1416,12 @@ namespace Licencjat_new_server
         public string Id { get; set; }
         public string Name { get; set; }
         public string Address { get; set; }
-        public bool Active { get; set; }
-        public bool DefaultAddress { get; set; }
 
-        public EmailAddressResultInfo(string id, string name, string address, bool active, bool defaultAddress)
+        public EmailAddressResultInfo(string id, string name, string address)
         {
             Id = id;
             Name = name;
             Address = address;
-            Active = active;
-            DefaultAddress = defaultAddress;
         }
     }
 
@@ -1376,16 +1430,12 @@ namespace Licencjat_new_server
         public string Id { get; set; }
         public string Name { get; set; }
         public string Number { get; set; }
-        public bool Active { get; set; }
-        public bool DefaultPhoneNUmber { get; set; }
 
-        public PhoneNumberResultInfo(string id, string name, string number, bool active, bool defaultPhoneNumber)
+        public PhoneNumberResultInfo(string id, string name, string number)
         {
             Id = id;
             Name = name;
             Number = number;
-            Active = active;
-            DefaultPhoneNUmber = defaultPhoneNumber;
         }
     }
 

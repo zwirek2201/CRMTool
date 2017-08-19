@@ -153,6 +153,9 @@
     </Compile>
     <Compile Include="CustomClasses\HelperClasses.cs" />
     <Compile Include="Controls\Menus.cs" />
+    <Compile Include="Windows\HelperWindows\AccountSettings.xaml.cs">
+      <DependentUpon>AccountSettings.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\HelperWindows\AdditionalChoose.xaml.cs">
       <DependentUpon>AdditionalChoose.xaml</DependentUpon>
     </Compile>
@@ -165,20 +168,17 @@
     <Compile Include="Windows\HelperWindows\ChoosePerson.xaml.cs">
       <DependentUpon>ChoosePerson.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\HelperWindows\CompanyDetails.xaml.cs">
-      <DependentUpon>CompanyDetails.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Windows\HelperWindows\ConversationDetails.xaml.cs">
       <DependentUpon>ConversationDetails.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\HelperWindows\ConversationMessageDetails.xaml.cs">
       <DependentUpon>ConversationMessageDetails.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\HelperWindows\ConversationSettings.xaml.cs">
-      <DependentUpon>ConversationSettings.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Windows\HelperWindows\CustomMessageBox.xaml.cs">
       <DependentUpon>CustomMessageBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\HelperWindows\EmailLogin.xaml.cs">
+      <DependentUpon>EmailLogin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\HelperWindows\NewEmailAddress.xaml.cs">
       <DependentUpon>NewEmailAddress.xaml</DependentUpon>
@@ -186,11 +186,17 @@
     <Compile Include="Windows\HelperWindows\NewEmailMessage.xaml.cs">
       <DependentUpon>NewEmailMessage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\HelperWindows\NewInternalUser.xaml.cs">
+      <DependentUpon>NewInternalUser.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\HelperWindows\NewPhoneConversationMessage.xaml.cs">
       <DependentUpon>NewPhoneConversationMessage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\HelperWindows\PersonDetails.xaml.cs">
       <DependentUpon>PersonDetails.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\HelperWindows\ProgramSettings.xaml.cs">
+      <DependentUpon>ProgramSettings.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\HelperWindows\Rename.xaml.cs">
       <DependentUpon>Rename.xaml</DependentUpon>
@@ -223,6 +229,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Windows\HelperWindows\AccountSettings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\HelperWindows\AdditionalChoose.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -239,10 +249,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\HelperWindows\CompanyDetails.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Windows\HelperWindows\ConversationDetails.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -251,11 +257,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\HelperWindows\ConversationSettings.xaml">
+    <Page Include="Windows\HelperWindows\CustomMessageBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\HelperWindows\CustomMessageBox.xaml">
+    <Page Include="Windows\HelperWindows\EmailLogin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -267,11 +273,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Windows\HelperWindows\NewInternalUser.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\HelperWindows\NewPhoneConversationMessage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\HelperWindows\PersonDetails.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\HelperWindows\ProgramSettings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -501,6 +515,15 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="resources\addEmailClient.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\mail_error.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="temp\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\open_context.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

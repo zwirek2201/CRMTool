@@ -1,0 +1,69 @@
+﻿<UserControl x:Class="Licencjat_new.Windows.HelperWindows.AccountSettings"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Licencjat_new.Windows.HelperWindows"
+             xmlns:controls="clr-namespace:Licencjat_new.Controls"
+             xmlns:gif="http://wpfanimatedgif.codeplex.com"
+             mc:Ignorable="d" 
+             Panel.ZIndex="301" 
+             Height="{Binding ActualHeight, ElementName=mainCanvas}" 
+             Width="{Binding ActualWidth, ElementName=mainCanvas}">
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <DockPanel x:Name="MainDock" Background="#fdfdfd" Margin="10" Width="800" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <DockPanel Height="30" VerticalAlignment="Center" LastChildFill="False" Background="#1c9ad2" DockPanel.Dock="Top"  HorizontalAlignment="Stretch">
+                <Grid x:Name="CloseButton" Height="30" Width="30" Background="#1c9ad2" DockPanel.Dock="Right">
+                    <Image x:Name="CloseImage" Height="15" Width="15"  Margin="7.5" Source="pack://application:,,,/resources/close_light.png"/>
+                </Grid>
+                <DockPanel.Effect>
+                    <DropShadowEffect Color="Black" Direction="320" ShadowDepth="-10" Opacity="0.4"  BlurRadius="5" />
+                </DockPanel.Effect>
+            </DockPanel>
+            <StackPanel Height="15" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="#1c9ad2" DockPanel.Dock="Bottom"/>
+            <Border BorderBrush="#1c9ad2" BorderThickness="0,1,0,0" DockPanel.Dock="Bottom">
+                <DockPanel Height="50" Background="#fdfdfd" LastChildFill="False">
+                    <TextBlock x:Name="ErrorLabel" VerticalAlignment="Center" FontSize="18" Text="" Margin="20,0,0,0"  DockPanel.Dock="Left"  Foreground="#bb0000"></TextBlock>
+                    <controls:RoundedButton x:Name="ReadyButton" BackgroundColor="#1c9ad2" BorderColor="#fdfdfd" Text="Zapisz" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
+                    <controls:RoundedButton x:Name="CancelButton" BackgroundColor="#fdfdfd" BorderColor="#1c9ad2" Text="Anuluj" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
+                </DockPanel>
+            </Border>
+            <DockPanel DockPanel.Dock="Top">
+                <Grid  DockPanel.Dock="Top">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <controls:RoundedTextBox x:Name="FirstNameTextBox"  Grid.Column="0" Caption="Imię"></controls:RoundedTextBox>
+                    <controls:RoundedTextBox x:Name="LastNameTextBox"  Grid.Column="1" Caption="Nazwisko"></controls:RoundedTextBox>
+                </Grid>
+                <DockPanel  DockPanel.Dock="Top">
+                    <Border BorderBrush="#c2c2c2" DockPanel.Dock="Left"  BorderThickness="1" Height="40" CornerRadius="10" HorizontalAlignment="Stretch" Margin="7">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,6,0">
+                            <TextBlock FontSize="16" Margin="15,10,5,0" Text="Tytuł:" Foreground="#1c9ad2"></TextBlock>
+                            <controls:CustomComboBox x:Name="GenderComboBox" HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Border>
+                </DockPanel>
+                <ScrollViewer Padding="0,0,10,0">
+                    <StackPanel>
+                        <Border  DockPanel.Dock="Top" BorderBrush="#c2c2c2" BorderThickness="1" CornerRadius="10" Margin="10,5,10,10">
+                            <StackPanel>
+                                <DockPanel>
+                                    <controls:RoundedButton x:Name="addPhoneNumberButton" BackgroundColor="#fdfdfd" BorderColor="#1c9ad2" Text="Dodaj" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
+                                    <TextBlock FontSize="20" Margin="20,7,10,0" Text="Numery telefonów" Foreground="#1c9ad2"></TextBlock>
+                                </DockPanel>
+                                <TextBlock x:Name="NoPhoneLabel" Visibility="Collapsed" FontSize="16" Text="Brak numerów telefonu" Margin="0,0,0,10"  HorizontalAlignment="Center" Foreground="#c2c2c2"></TextBlock>
+                                <StackPanel x:Name="PhoneList"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </DockPanel>
+        </DockPanel>
+        <Border x:Name="loadingOverlay" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="#bbffffff" Visibility="Collapsed" Opacity="0.8">
+            <Image gif:ImageBehavior.AnimatedSource="pack://application:,,,/resources/loading.gif" VerticalAlignment="Center" HorizontalAlignment="Center" Width="100" Height="100" />
+        </Border>
+        <Border x:Name="DarkenerPanel" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="#bb000000" Visibility="Collapsed" Opacity="0.8"/>
+    </Grid>
+</UserControl>

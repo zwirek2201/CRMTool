@@ -24,15 +24,20 @@ namespace Licencjat_new.Controls
         private MainWindow  _parent;
         private StackPanel _userPanel;
         private Popup _userPopup;
+        private StackPanel _rightPanel;
         private UpperMenuMode _menuMode;
         private List<UpperMenuModeButton> _menuButtons = new List<UpperMenuModeButton>();
         private Label _userLabel;
         private Label _hiddenLabel;
-        private LoginStatusChangedEventArgs _loginStatus;
         public event EventHandler UpperMenuModeChanged;
+
+        public event EventHandler LogoutButtonClicked;
+        public event EventHandler AccountSettingsButtonClicked;
+        public event EventHandler ProgramSettingsButtonClicked;
         #endregion
 
         #region Properties
+        public LoginStatusChangedEventArgs LoginStatus { get; set; }
         public NotificationButton NotificationButton { get; private set; }
 
         public UpperMenuMode MenuMode
@@ -77,7 +82,7 @@ namespace Licencjat_new.Controls
             VerticalAlignment = VerticalAlignment.Top;
             Background = new SolidColorBrush(ColorScheme.GlobalBlue);
             DockPanel.SetDock(this, Dock.Top);
-            _loginStatus = null;
+            LoginStatus = null;
 
             Redraw();
         }
@@ -86,7 +91,7 @@ namespace Licencjat_new.Controls
         #region Events
         private void _parent_LoginStatusChanged(object sender, LoginStatusChangedEventArgs e)
         {
-            _loginStatus = e;
+            LoginStatus = e;
             Redraw();
         }
 
@@ -107,8 +112,11 @@ namespace Licencjat_new.Controls
 
         private void _userPanel_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
         {
+            StackPanel popupStack = (StackPanel) _userPopup.Child;
+
             _userPopup.IsOpen = true;
             _userLabel.FontWeight = FontWeights.Medium;
+
         }
 
         private void _userPanel_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
@@ -122,8 +130,9 @@ namespace Licencjat_new.Controls
         #endregion
 
         #region Methods
-        private void Redraw()
+        public void Redraw()
         {
+            this.Children.Clear();
             //Left panel
             StackPanel leftPanel = new StackPanel()
             {
@@ -171,7 +180,11 @@ namespace Licencjat_new.Controls
             this.Children.Add(leftPanel);
 
             //Right panel
-            StackPanel rightPanel = new StackPanel()
+
+            if(NotificationButton != null)
+                _rightPanel.Children.Remove(NotificationButton);
+
+            _rightPanel = new StackPanel()
             {
                 Orientation = Orientation.Horizontal,
                 Height = 40,
@@ -179,7 +192,7 @@ namespace Licencjat_new.Controls
                 HorizontalAlignment = HorizontalAlignment.Right
             };
 
-            this.Children.Add(rightPanel);
+            this.Children.Add(_rightPanel);
 
             _userPanel = new StackPanel()
             {
@@ -224,84 +237,206 @@ namespace Licencjat_new.Controls
 
             _userPanel.Children.Add(new StackPanel() { Orientation = Orientation.Vertical, Children = { _userLabel, _hiddenLabel } });
 
-            //User logged in
-            if (_loginStatus != null && _loginStatus.LoggedIn)
+            _userPanel.PreviewMouseLeftButtonUp += _userPanel_PreviewMouseLeftButtonUp;
+
+            _userPopup = new Popup()
             {
+                Width = 200,
+                PlacementTarget = _userPanel,
+                Placement = PlacementMode.Bottom,
+                AllowsTransparency = true,
+                VerticalOffset = 0,
+                PopupAnimation = PopupAnimation.Slide
+            };
+
+            StackPanel popupStack = new StackPanel()
+            {
+                Background = new SolidColorBrush(Colors.White),
+                Margin = new Thickness(5, 0, 5, 5),
+                Effect = new DropShadowEffect
+                {
+                    Color = Colors.Black,
+                    Direction = 320,
+                    ShadowDepth = 0,
+                    Opacity = 0.4,
+                    BlurRadius = 8
+                }
+            };
+
+            Label accountSettingsLabel = new Label()
+            {
+                VerticalAlignment = VerticalAlignment.Top,
+                VerticalContentAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                HorizontalContentAlignment = HorizontalAlignment.Center,
+                Height = 35,
+                FontSize = 14,
+                Background = new SolidColorBrush(ColorScheme.MenuLight),
+                Foreground = new SolidColorBrush(Colors.Black),
+                Content = "Ustawienia konta"
+            };
+
+            Label programSettingsLabel = new Label()
+            {
+                VerticalAlignment = VerticalAlignment.Top,
+                VerticalContentAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                HorizontalContentAlignment = HorizontalAlignment.Center,
+                Height = 35,
+                FontSize = 14,
+                Background = new SolidColorBrush(ColorScheme.MenuLight),
+                Foreground = new SolidColorBrush(Colors.Black),
+                Content = "Ustawienia programu"
+            };
+
+            Label logoutLabel = new Label()
+            {
+                VerticalAlignment = VerticalAlignment.Top,
+                VerticalContentAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                HorizontalContentAlignment = HorizontalAlignment.Center,
+                Height = 35,
+                FontSize = 14,
+                Background = new SolidColorBrush(ColorScheme.MenuLight),
+                Foreground = new SolidColorBrush(Colors.Black),
+                Content = "Wyloguj"
+            };
+
+            MouseEventHandler mouseEnter = (s, ea) =>
+            {
+                Label label = (Label)s;
+                label.Foreground = new SolidColorBrush(ColorScheme.GlobalBlue);
+            };
+
+            MouseEventHandler mouseLeave = (s, ea) =>
+            {
+                Label label = (Label)s;
+                label.Foreground = new SolidColorBrush(Colors.Black);
+            };
+
+            logoutLabel.MouseEnter += mouseEnter;
+            logoutLabel.MouseLeave += mouseLeave;
+
+            accountSettingsLabel.MouseEnter += mouseEnter;
+            accountSettingsLabel.MouseLeave += mouseLeave;
+
+            programSettingsLabel.MouseEnter += mouseEnter;
+            programSettingsLabel.MouseLeave += mouseLeave;
+
+            logoutLabel.PreviewMouseLeftButtonDown += LogoutLabel_PreviewMouseLeftButtonDown;
+            accountSettingsLabel.PreviewMouseLeftButtonDown += AccountSettingsLabel_PreviewMouseLeftButtonDown;
+            programSettingsLabel.PreviewMouseLeftButtonDown += ProgramSettingsLabel_PreviewMouseLeftButtonDown;
+
+            popupStack.Children.Add(accountSettingsLabel);
+            popupStack.Children.Add(programSettingsLabel);
+            popupStack.Children.Add(logoutLabel);
+
+            _userPopup.Child = popupStack;
+
+            _userPanel.MouseEnter += _userPanel_MouseEnter;
+            _userPanel.MouseLeave += _userPanel_MouseLeave;
+            _userPopup.MouseLeave += _userPanel_MouseLeave;
+
+            //User logged in
+            if (LoginStatus != null && LoginStatus.LoggedIn)
+            {
+                _menuButtons.Clear();
+                _rightPanel.Children.Clear();
+
                 UpperMenuModeButton mainButton = new UpperMenuModeButton("Strona główna", UpperMenuMode.HomePage);
                 mainButton.Click += UpperMenuButtonClick;
-                rightPanel.Children.Add(mainButton);
+                _rightPanel.Children.Add(mainButton);
                 _menuButtons.Add(mainButton);
 
                 UpperMenuModeButton conversationButton = new UpperMenuModeButton("Konwersacje",
                     UpperMenuMode.Conversation);
                 conversationButton.Click += UpperMenuButtonClick;
-                rightPanel.Children.Add(conversationButton);
+                _rightPanel.Children.Add(conversationButton);
                 _menuButtons.Add(conversationButton);
 
                 UpperMenuModeButton documentButton = new UpperMenuModeButton("Dokumenty", UpperMenuMode.Document);
                 documentButton.Click += UpperMenuButtonClick;
-                rightPanel.Children.Add(documentButton);
+                _rightPanel.Children.Add(documentButton);
                 _menuButtons.Add(documentButton);
 
                 UpperMenuModeButton emailButton = new UpperMenuModeButton("E-mail", UpperMenuMode.Email);
                 emailButton.Click += UpperMenuButtonClick;
-                rightPanel.Children.Add(emailButton);
+                _rightPanel.Children.Add(emailButton);
                 _menuButtons.Add(emailButton);
 
                 UpperMenuModeButton contactButton = new UpperMenuModeButton("Kontakty", UpperMenuMode.Contact);
                 contactButton.Click += UpperMenuButtonClick;
-                rightPanel.Children.Add(contactButton);
+                _rightPanel.Children.Add(contactButton);
                 _menuButtons.Add(contactButton);
 
-                _userLabel.Content = _loginStatus.FirstName + " " + _loginStatus.LastName;
-                _hiddenLabel.Content = _loginStatus.FirstName + " " + _loginStatus.LastName;
+                _userLabel.Content = LoginStatus.FirstName + " " + LoginStatus.LastName;
+                _hiddenLabel.Content = LoginStatus.FirstName + " " + LoginStatus.LastName;
 
-                _userPanel.PreviewMouseLeftButtonUp += _userPanel_PreviewMouseLeftButtonUp;
-
-                _userPopup = new Popup()
-                {
-                    Width = 200,
-                    Height = 150,
-                    PlacementTarget = _userPanel,
-                    Placement = PlacementMode.Bottom,
-                    AllowsTransparency = true,
-                    VerticalOffset = 0,
-                    PopupAnimation = PopupAnimation.Slide
-                };
-
-                Canvas popupStack = new Canvas()
-                {
-                    Background = new SolidColorBrush(Colors.White),
-                    Margin = new Thickness(5, 0, 5, 5),
-                    Effect = new DropShadowEffect
-                    {
-                        Color = Colors.Black,
-                        Direction = 320,
-                        ShadowDepth = 0,
-                        Opacity = 0.4,
-                        BlurRadius = 8
-                    }
-                };
-
-                _userPopup.Child = popupStack;
-
-                _userPanel.MouseEnter += _userPanel_MouseEnter;
-                _userPanel.MouseLeave += _userPanel_MouseLeave;
-                _userPopup.MouseLeave += _userPanel_MouseLeave;
+                logoutLabel.Visibility = Visibility.Visible;
+                accountSettingsLabel.Visibility = Visibility.Visible;
             }
             else
             {
                 _userLabel.Content = "Zaloguj";
                 _hiddenLabel.Content = "Zaloguj";
+
+                logoutLabel.Visibility = Visibility.Collapsed;
+                accountSettingsLabel.Visibility = Visibility.Collapsed;
             }
 
-            rightPanel.Children.Add(_userPanel);
+            _rightPanel.Children.Add(_userPanel);
 
-            if (_loginStatus != null && _loginStatus.LoggedIn)
+            if (LoginStatus != null && LoginStatus.LoggedIn)
             {
-                NotificationButton = new NotificationButton();
-                rightPanel.Children.Add(NotificationButton);
+                if (NotificationButton == null)
+                {
+                    NotificationButton = new NotificationButton();
+                }
+
+                _rightPanel.Children.Add(NotificationButton);
             }
+        }
+
+        private void AccountSettingsLabel_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Label label = (Label)sender;
+            label.PreviewMouseLeftButtonUp += AccountSettingsLabel_PreviewMouseLeftButtonUp; ;
+        }
+
+        private void AccountSettingsLabel_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            AccountSettingsButtonClicked?.Invoke(this, EventArgs.Empty);
+
+            Label label = (Label)sender;
+            label.PreviewMouseLeftButtonUp -= AccountSettingsLabel_PreviewMouseLeftButtonUp;
+        }
+
+        private void ProgramSettingsLabel_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Label label = (Label)sender;
+            label.PreviewMouseLeftButtonUp += ProgramSettingsLabel_PreviewMouseLeftButtonUp; ;
+        }
+
+        private void ProgramSettingsLabel_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            ProgramSettingsButtonClicked?.Invoke(this, EventArgs.Empty);
+
+            Label label = (Label)sender;
+            label.PreviewMouseLeftButtonUp -= ProgramSettingsLabel_PreviewMouseLeftButtonUp;
+        }
+
+        private void LogoutLabel_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Label logoutLabel = (Label)sender;
+            logoutLabel.PreviewMouseLeftButtonUp += LogoutLabel_PreviewMouseLeftButtonUp;
+        }
+
+        private void LogoutLabel_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            LogoutButtonClicked?.Invoke(this, EventArgs.Empty);
+
+            Label logoutLabel = (Label)sender;
+            logoutLabel.PreviewMouseLeftButtonUp -= LogoutLabel_PreviewMouseLeftButtonUp;
         }
         #endregion
     }
@@ -1210,13 +1345,16 @@ namespace Licencjat_new.Controls
             get { return _selectedItem; } 
             set
             {
-                if (_selectedItem != null)
-                    _selectedItem.Selected = false;
+                if (value.Enabled)
+                {
+                    if (_selectedItem != null)
+                        _selectedItem.Selected = false;
 
-                _selectedItem = value;
-                _selectedItem.Selected = true;
+                    _selectedItem = value;
+                    _selectedItem.Selected = true;
 
-                _textBlock.Text = SelectedItem.Caption;
+                    _textBlock.Text = SelectedItem.Caption;
+                }
             }
         }
 
@@ -1328,8 +1466,8 @@ namespace Licencjat_new.Controls
 
             if (Items.Count == 0)
             {
-                SelectedItem = item;
-                _textBlock.Text = item.Caption;
+                //SelectedItem = item;
+                //_textBlock.Text = item.Caption;
             }
 
             Items.Add(item);

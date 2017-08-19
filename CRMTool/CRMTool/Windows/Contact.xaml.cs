@@ -37,6 +37,8 @@ namespace Licencjat_new.Windows
 
         private ContactList _contactList;
 
+        private ToolBarButton _addButton;
+
         #endregion
         #endregion
 
@@ -85,6 +87,7 @@ namespace Licencjat_new.Windows
 
             //ContactSearchBox searchBox = ContactSearchBox;
             //ContactList.BoundSearchBox = searchBox;
+            ContactTabControl.SelectedModeChanged += ContactTabControl_SelectedModeChanged;
             WindowInitialized = true;
         }
 
@@ -135,11 +138,11 @@ namespace Licencjat_new.Windows
             _contactList.PersonShowDetails += _contactList_PersonShowDetails;
             _contactList.RemoveExternalContact += _contactList_RemoveExternalContact;
 
-            ToolBarButton addButton = new ToolBarButton("",
+            _addButton = new ToolBarButton("",
                 new Uri("pack://application:,,,/resources/add.png"));
-            addButton.Click += AddButton_Click;
+            _addButton.Click += AddButton_Click;
 
-            MainMenuStrip.AddButton(addButton, Dock.Left);
+            MainMenuStrip.AddButton(_addButton, Dock.Left);
         }
 
         private void _contactList_RemoveExternalContact(object sender, EventArgs e)
@@ -362,6 +365,37 @@ namespace Licencjat_new.Windows
                     _parent.mainCanvas.Children.Add(newCompany);
                     break;
                 case ContactTabControlMode.InternalContacts:
+                    NewInternalUser newInternalUser = new NewInternalUser(_parent);
+
+                    newInternalUser.ReadyButtonClicked += (s, ea) =>
+                    {
+
+                        //_parent.Client.AddExternalContact(newInternalUser.FirstNameTextBox.Text,
+                        //    newInternalUser.LastNameTextBox.Text,
+                        //    newInternalUser.GenderComboBox.SelectedItem == details.GenderComboBox.Items.First()
+                        //        ? Gender.Female);
+
+                        string hashedLogin = CryptographyHelper.HashString(newInternalUser.PasswordTextBox.Text,0);
+                        string hashedPassword = CryptographyHelper.HashString(newInternalUser.PasswordTextBox.Text);
+
+                        _parent.Client.AddInternalContact(newInternalUser.FirstNameTextBox.Text,
+                            newInternalUser.LastNameTextBox.Text,
+                            newInternalUser.GenderComboBox.SelectedItem == newInternalUser.GenderComboBox.Items.First()
+                                ? Gender.Female : Gender.Male, hashedLogin, hashedPassword,
+                            newInternalUser.AdministratorCheckBox.Selected);
+
+                         _parent.Darkened = false;
+                        _parent.mainCanvas.Children.Remove(newInternalUser);
+                    };
+
+                    newInternalUser.CancelButtonClicked += (s, ea) =>
+                    {
+                        _parent.Darkened = false;
+                        _parent.mainCanvas.Children.Remove(newInternalUser);
+                    };
+
+                    _parent.Darkened = true;
+                    _parent.mainCanvas.Children.Add(newInternalUser);
                     break;
             }
         }
@@ -422,29 +456,21 @@ namespace Licencjat_new.Windows
 
         private void ContactTabControl_SelectedModeChanged(object sender, EventArgs e)
         {
-            //ContactTabControl tabControl = (ContactTabControl)sender;
-            //ContactList deletedList = (ContactList)ContactListContainer.Children[1];
-            //deletedList.Toggled = false;
-            //ContactListContainer.Children.RemoveAt(1);
-
-            //switch (tabControl.SelectedMode)
-            //{
-            //    case ContactTabControlMode.Contacts:
-            //        ContactListContainer.Children.Add(_contactList);
-            //        _contactList.Toggled = true;
-            //        AlphabetList.Elements = _contactList.UsedAlphabet;
-            //        break;
-            //    case ContactTabControlMode.Companies:
-            //        ContactListContainer.Children.Add(_companyList);
-            //        _companyList.Toggled = true;
-            //        AlphabetList.Elements = _companyList.UsedAlphabet;
-            //        break;
-            //    case ContactTabControlMode.InternalContacts:
-            //        ContactListContainer.Children.Add(_internalContactList);
-            //        _internalContactList.Toggled = true;
-            //        AlphabetList.Elements = _internalContactList.UsedAlphabet;
-            //        break;
-            //}
+            switch (ContactTabControl.SelectedMode)
+            {
+                case ContactTabControlMode.Contacts:
+                    _addButton.Visibility = Visibility.Visible;
+                    break;
+                case ContactTabControlMode.Companies:
+                    _addButton.Visibility = Visibility.Visible;
+                    break;
+                case ContactTabControlMode.InternalContacts:
+                    if (_parent.Client.UserInfo.IsAdmin)
+                        _addButton.Visibility = Visibility.Visible;
+                            else
+                    _addButton.Visibility = Visibility.Collapsed;
+                    break;
+            }
         }
         #endregion
     }

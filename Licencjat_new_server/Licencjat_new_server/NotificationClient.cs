@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -32,11 +33,19 @@ namespace Licencjat_new_server
 
         private void ClientSetup()
         {
-            _stream = _client.GetStream();
+            try
+            {
+                _stream = _client.GetStream();
 
-            _reader = new BinaryReader(_stream, Encoding.UTF8);
-            _writer = new BinaryWriter(_stream, Encoding.UTF8);
+                SslStream sslStream = new SslStream(_stream, true);
 
+                _reader = new BinaryReader(_stream, Encoding.UTF8);
+                _writer = new BinaryWriter(_stream, Encoding.UTF8);
+            }
+            catch (Exception ex)
+            {
+                
+            }
         }
 
         public void NewMessage(ConversationMessageResultInfo message, NotificationModel notification)
@@ -431,12 +440,19 @@ namespace Licencjat_new_server
                 _writer.Write(gender.ToString());
                 _writer.Write(companyId);
 
-                _writer.Write(emailAddressesList.Count);
-                foreach (EmailAddressResultInfo emailAddress in emailAddressesList)
+                if (emailAddressesList != null)
                 {
-                    _writer.Write(emailAddress.Id);
-                    _writer.Write(emailAddress.Name);
-                    _writer.Write(emailAddress.Address);
+                    _writer.Write(emailAddressesList.Count);
+                    foreach (EmailAddressResultInfo emailAddress in emailAddressesList)
+                    {
+                        _writer.Write(emailAddress.Id);
+                        _writer.Write(emailAddress.Name);
+                        _writer.Write(emailAddress.Address);
+                    }
+                }
+                else
+                {
+                    _writer.Write(-1);
                 }
 
                 _writer.Write(phoneNumbersList.Count);
@@ -550,6 +566,29 @@ namespace Licencjat_new_server
                 _writer.Write(MessageDictionary.RemoveExternalContact);
 
                 _writer.Write(personId);
+            }
+        }
+
+        internal void RemoveConversation(string conversationId, NotificationModel notification)
+        {
+            _writer.Write(MessageDictionary.NewNotification);
+
+            if (_reader.Read() == MessageDictionary.OK)
+            {
+                _writer.Write(notification.NotificationId);
+                _writer.Write(notification.NotificationText);
+                _writer.Write(notification.NotificationDate.ToString("dd-MM-yyyy HH:mm:ss"));
+                _writer.Write(notification.NotificationReferenceFields.Count);
+
+                foreach (string referenceField in notification.NotificationReferenceFields)
+                {
+                    _writer.Write(referenceField);
+                }
+
+                _writer.Write(MessageDictionary.EndOfMessage);
+                _writer.Write(MessageDictionary.RemoveConversation);
+
+                _writer.Write(conversationId);
             }
         }
     }

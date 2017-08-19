@@ -47,7 +47,10 @@
                 </DockPanel>
             </Border>
             <Border x:Name="CallAnsweredContainer"  BorderBrush="#1c9ad2" BorderThickness="0,1,0,0" Height="40"  DockPanel.Dock="Bottom">
-                <controls:CustomCheckBox x:Name="CallAnsweredCheckBox" Caption="Rozmowa odebrana"/>
+                <DockPanel HorizontalAlignment="Stretch">
+                    <controls:CustomCheckBox x:Name="CallAnsweredCheckBox" DockPanel.Dock="Left" Caption="Rozmowa odebrana"/>
+                    <TextBlock x:Name="ErrorTextBlock" DockPanel.Dock="Right" TextAlignment="Right" Foreground="#e50000" Text="" FontSize="16" LineStackingStrategy="BlockLineHeight" Margin="10,15,10,0"/>
+                </DockPanel>
             </Border>
             <TextBox x:Name="messageBox" VerticalAlignment="Stretch" BorderThickness="0" HorizontalAlignment="Stretch" AcceptsReturn="True" Background="White" Text="Hej" FontSize="16" Padding="10" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" TextWrapping="Wrap"/>
         </DockPanel>

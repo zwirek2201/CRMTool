@@ -22,7 +22,6 @@
                 <DockPanel Height="50" Background="#fdfdfd" LastChildFill="False">
                     <controls:RoundedButton x:Name="ReadyButton" BackgroundColor="#1c9ad2" BorderColor="#fdfdfd" Text="Gotowe" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
                     <controls:RoundedButton x:Name="CancelButton" BackgroundColor="#fdfdfd" BorderColor="#1c9ad2" Text="Anuluj" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
-                    <Label x:Name="SelectedCountLabel" Foreground="#1c9ad2" Height="50" Content="2 osoby" VerticalContentAlignment="Center" FontSize="15" Padding="20,0,0,0"/>
                 </DockPanel>
             </Border>
             <Grid x:Name="MainDockPanel" ClipToBounds="True">

@@ -42,6 +42,10 @@ namespace Licencjat_new.Windows.HelperWindows
                     foreach (FileModel attachment in message.Attachments)
                     {
                         FileListItem listItem = new FileListItem(attachment);
+                        listItem.AllowDelete = false;
+                        listItem.AllowDownload = false;
+                        listItem.AllowRename = false;
+                        listItem.AllowSelect = false;
                         AttachmentList.Children.Add(listItem);
                     }
                 }

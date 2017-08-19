@@ -35,6 +35,7 @@ namespace Licencjat_new.CustomClasses
         public static ImapClient ConnectToServer(string server, int port = 993, bool useSsl = true)
         {
             ImapClient client = new ImapClient();
+            client.Behavior.NoopIssueTimeout = 120;
             if (client.Connect(server, port, useSsl))
             {
                 _clients.Add(client);
@@ -107,6 +108,7 @@ namespace Licencjat_new.CustomClasses
         #region Properties
         public string Id { get; set; }
         public string Address { get; set; }
+        public string Password { get; set; }
         public string Login { get; set; }
         public string ImapHost { get; set; }
         public int ImapPort { get; set; }
@@ -132,6 +134,8 @@ namespace Licencjat_new.CustomClasses
 
         public ImapClient ImapClient { get; set; }
         public SmtpClient SmtpClient { get; set; }
+
+        public bool CannotConnect { get; set; } = false;
         #endregion
 
         #region Constructors

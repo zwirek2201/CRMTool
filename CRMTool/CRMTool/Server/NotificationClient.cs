@@ -5,28 +5,35 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Mime;
+using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Licencjat_new.CustomClasses;
+using Licencjat_new.Windows;
 using Licencjat_new.Windows.HelperWindows;
+using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace Licencjat_new.Server
 {
     public class NotificationClient
     {
         #region Variables
+
+        private MainWindow _parent;
+
         private Thread _connectionThread;
         private TcpClient _client;
         private NetworkStream _stream;
         private BinaryReader _reader;
         private BinaryWriter _writer;
         private readonly string _server = Properties.Settings.Default.ServerIP;
-        private int _port = 2001;
+        private int _port = Properties.Settings.Default.ServerPort;
         private bool _isConnected = false;
         private string _userId;
 
@@ -51,9 +58,10 @@ namespace Licencjat_new.Server
         #endregion
 
         #region Constructors
-        public NotificationClient(string userId)
+        public NotificationClient(string userId, MainWindow parent)
         {
             _userId = userId;
+            _parent = parent;
             Connect();
         }
         #endregion
@@ -76,6 +84,8 @@ namespace Licencjat_new.Server
             {
                 _client = new TcpClient(_server, _port);
                 _stream = _client.GetStream();
+
+                SslStream sslStream = new SslStream(_stream, false, new RemoteCertificateValidationCallback(ValidateCert));
 
                 _reader = new BinaryReader(_stream);
                 _writer = new BinaryWriter(_stream);
@@ -106,6 +116,11 @@ namespace Licencjat_new.Server
             {
                 connectionFailed?.Invoke(this, EventArgs.Empty);
             }
+        }
+
+        private static bool ValidateCert(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            return true;
         }
 
         public void Receiver()
@@ -388,9 +403,9 @@ namespace Licencjat_new.Server
                                             string emailName = _reader.ReadString();
                                             emailAddress = _reader.ReadString();
 
-                                            EmailAddressModel emailAddressModel = new EmailAddressModel(emailId, emailAddress,
-                                                emailName,
-                                                true, true);
+                                            EmailAddressModel emailAddressModel = new EmailAddressModel(emailId,
+                                                emailAddress,
+                                                emailName);
                                             contactPerson.EmailAddresses.Add(emailAddressModel);
                                         }
 
@@ -403,8 +418,7 @@ namespace Licencjat_new.Server
                                             string phoneNumber = _reader.ReadString();
 
                                             PhoneNumberModel phoneNumberModel = new PhoneNumberModel(phoneNumberId, phoneNumber,
-                                                phoneName,
-                                                true, true);
+                                                phoneName);
                                             contactPerson.PhoneNumbers.Add(phoneNumberModel);
                                         }
 
@@ -445,8 +459,7 @@ namespace Licencjat_new.Server
                                             emailAddress = _reader.ReadString();
 
                                             EmailAddressModel emailAddressModel = new EmailAddressModel(emailId, emailAddress,
-                                                emailName,
-                                                true, true);
+                                                emailName);
                                             contactPerson.EmailAddresses.Add(emailAddressModel);
                                         }
 
@@ -459,8 +472,7 @@ namespace Licencjat_new.Server
                                             string phoneNumber = _reader.ReadString();
 
                                             PhoneNumberModel phoneNumberModel = new PhoneNumberModel(phoneNumberId, phoneNumber,
-                                                phoneName,
-                                                true, true);
+                                                phoneName);
                                             contactPerson.PhoneNumbers.Add(phoneNumberModel);
                                         }
 
@@ -484,6 +496,21 @@ namespace Licencjat_new.Server
                                         ExternalContactRemoved?.Invoke(this, new ExternalContactRemovedEventArgs()
                                         {
                                             PersonId = personId,
+                                            Notification = new NotificationModel(notificationId, notificationText,
+                                                referenceFields,
+                                                notificationDate, false)
+                                        });
+                                        break;
+                                    #endregion
+
+                                    #region RemoveConversation
+                                    case MessageDictionary.RemoveConversation:
+                                        _writer.Write(MessageDictionary.OK);
+                                        conversationId = _reader.ReadString();
+
+                                        ConversationRemoved?.Invoke(this, new ConversationRemovedEventArgs()
+                                        {
+                                            ConversationId = conversationId,
                                             Notification = new NotificationModel(notificationId, notificationText,
                                                 referenceFields,
                                                 notificationDate, false)
@@ -682,7 +709,29 @@ namespace Licencjat_new.Server
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
                 ErrorHelper.LogError(ex);
+                Logout();
             }
+        }
+
+        private void Logout()
+        {
+            _parent.Dispatcher.Invoke(() =>
+            {
+                CustomMessageBox messageBox =
+                    new CustomMessageBox(
+                        "Wystąpił problem podczas połączenia z serwerem. Aplikacja zostanie zrestartowana.",
+                        MessageBoxButton.OK);
+
+                messageBox.OKButtonClicked += (s, ea) =>
+                {
+                    _parent.Darkened = false;
+                    _parent.mainCanvas.Children.Remove(messageBox);
+                    _parent.Logout();
+                };
+
+                _parent.Darkened = true;
+                _parent.mainCanvas.Children.Add(messageBox);
+            });
         }
 
         public byte[] ReceiveFile()
@@ -753,6 +802,7 @@ namespace Licencjat_new.Server
     public class ConversationRemovedEventArgs
     {
         public string ConversationId { get; set; }
+        public NotificationModel Notification { get; set; }
     }
 
     public class ConversationMemberRemovedEventArgs

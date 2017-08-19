@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -50,115 +51,127 @@ namespace Licencjat_new_server
 
         private void ClientSetup()
         {
-            _stream = _client.GetStream();
-
-            _reader = new BinaryReader(_stream, Encoding.UTF8);
-            _writer = new BinaryWriter(_stream, Encoding.UTF8);
-
-            _writer.Write(MessageDictionary.Hello);
-
-            byte response = _reader.ReadByte();
-            if (response == MessageDictionary.Hello)
+            try
             {
-                response = _reader.ReadByte();
-                switch (response)
+                _stream = _client.GetStream();
+
+                SslStream sslStream = new SslStream(_stream, false);
+
+                _reader = new BinaryReader(_stream, Encoding.UTF8);
+                _writer = new BinaryWriter(_stream, Encoding.UTF8);
+
+                _writer.Write(MessageDictionary.Hello);
+
+                byte response = _reader.ReadByte();
+                if (response == MessageDictionary.Hello)
                 {
-                    case MessageDictionary.Login:
-                        string login = _reader.ReadString();
-                        string password = _reader.ReadString();
+                    response = _reader.ReadByte();
+                    switch (response)
+                    {
+                        case MessageDictionary.Login:
+                            string login = _reader.ReadString();
+                            string password = _reader.ReadString();
 
-                        LoginResultInfo loginInfo = DBApi.CheckUserCredentials(login, password);
-                        if (loginInfo.Status == MessageDictionary.OK)
-                        {
-                            _writer.Write(MessageDictionary.OK);
-                            _writer.Write(loginInfo.UserId);
-                            _writer.Write(loginInfo.PersonId);
-                            _writer.Write(loginInfo.FirstName);
-                            _writer.Write(loginInfo.LastName);
-                            _writer.Write(loginInfo.LastLoggedOut);
-
-                            _writer.Flush();
-
-                            _userInfo = new UserInfo()
+                            LoginResultInfo loginInfo = DBApi.CheckUserCredentials(login, password);
+                            if (loginInfo.Status == MessageDictionary.OK)
                             {
-                                UserId = loginInfo.UserId,
-                                PersonId = loginInfo.PersonId,
-                                Login = login,
-                                FirstName = loginInfo.FirstName,
-                                LastName = loginInfo.LastName,
-                                IsConnected = true
-                            };
+                                _writer.Write(MessageDictionary.OK);
+                                _writer.Write(loginInfo.UserId);
+                                _writer.Write(loginInfo.PersonId);
+                                _writer.Write(loginInfo.FirstName);
+                                _writer.Write(loginInfo.LastName);
+                                _writer.Write(loginInfo.IsAdmin);
 
-                            UserLoggedIn?.Invoke(this);
-                            Logger.Log("Login succedeed");
+                                _writer.Flush();
 
-                            Receiver();
-                        }
-                        else if (loginInfo.Status == MessageDictionary.Error)
-                        {
-                            switch (loginInfo.Error)
-                            {
-                                case MessageDictionary.WrongPassword:
-                                    Logger.Log($"Login failed ({MessageDictionary.WrongPassword})");
-                                    _writer.Write(MessageDictionary.Error);
-                                    _writer.Write(MessageDictionary.WrongPassword);
-                                    _writer.Write(
-                                        ErrorMessageDictionary.GetErrorMessageByCode(MessageDictionary.WrongPassword));
-                                    _writer.Flush();
-                                    break;
-                                case MessageDictionary.UserNotFound:
-                                    Logger.Log($"Login failed ({MessageDictionary.UserNotFound})");
-                                    _writer.Write(MessageDictionary.Error);
-                                    _writer.Write(MessageDictionary.UserNotFound);
-                                    _writer.Write(ErrorMessageDictionary.GetErrorMessageByCode(MessageDictionary.UserNotFound));
-                                    _writer.Flush();
-                                    break;
+                                _userInfo = new UserInfo()
+                                {
+                                    UserId = loginInfo.UserId,
+                                    PersonId = loginInfo.PersonId,
+                                    Login = login,
+                                    FirstName = loginInfo.FirstName,
+                                    LastName = loginInfo.LastName,
+                                    IsAdmin = loginInfo.IsAdmin,
+                                    IsConnected = true
+                                };
+
+                                UserLoggedIn?.Invoke(this);
+                                Logger.Log("Login succedeed");
+
+                                Receiver();
                             }
-                        }
-                        break;
-                    case MessageDictionary.ImNotificationClient:
-                        string userId = _reader.ReadString();
-                        NotificationClient notificationClient = new NotificationClient(_client, userId);
+                            else if (loginInfo.Status == MessageDictionary.Error)
+                            {
+                                switch (loginInfo.Error)
+                                {
+                                    case MessageDictionary.WrongPassword:
+                                        Logger.Log($"Login failed ({MessageDictionary.WrongPassword})");
+                                        _writer.Write(MessageDictionary.Error);
+                                        _writer.Write(MessageDictionary.WrongPassword);
+                                        _writer.Write(
+                                            ErrorMessageDictionary.GetErrorMessageByCode(MessageDictionary.WrongPassword));
+                                        _writer.Flush();
+                                        break;
+                                    case MessageDictionary.UserNotFound:
+                                        Logger.Log($"Login failed ({MessageDictionary.UserNotFound})");
+                                        _writer.Write(MessageDictionary.Error);
+                                        _writer.Write(MessageDictionary.UserNotFound);
+                                        _writer.Write(
+                                            ErrorMessageDictionary.GetErrorMessageByCode(MessageDictionary.UserNotFound));
+                                        _writer.Flush();
+                                        break;
+                                }
+                            }
+                            break;
+                        case MessageDictionary.ImNotificationClient:
+                            string userId = _reader.ReadString();
+                            NotificationClient notificationClient = new NotificationClient(_client, userId);
+                            notificationClient.program = Program;
 
-                        Client client = Program.GetClientById(userId);
+                            Client client = Program.GetClientById(userId);
 
-                        if (client != null)
-                        {
-                            client.NotificationClient = notificationClient;
-                            _writer.Write(MessageDictionary.OK);
-                            Program.DestroyClient(this);
-                        }
-                        break;
-                    case MessageDictionary.ImUploadClient:
-                        userId = _reader.ReadString();
-                        UploadClient uploadClient = new UploadClient(_client, userId);
+                            if (client != null)
+                            {
+                                client.NotificationClient = notificationClient;
+                                _writer.Write(MessageDictionary.OK);
+                                Program.DestroyClient(this);
+                            }
+                            break;
+                        case MessageDictionary.ImUploadClient:
+                            userId = _reader.ReadString();
+                            UploadClient uploadClient = new UploadClient(_client, userId);
 
-                        client = Program.GetClientById(userId);
+                            client = Program.GetClientById(userId);
 
-                        if (client != null)
-                        {
-                            client.UploadClient = uploadClient;
-                            _writer.Write(MessageDictionary.OK);
-                            Program.DestroyClient(this);
-                        }
-                        break;
-                    case MessageDictionary.ImDownloadClient:
-                        userId = _reader.ReadString();
-                        DownloadClient downloadClient = new DownloadClient(_client, userId);
+                            if (client != null)
+                            {
+                                client.UploadClient = uploadClient;
+                                _writer.Write(MessageDictionary.OK);
+                                Program.DestroyClient(this);
+                            }
+                            break;
+                        case MessageDictionary.ImDownloadClient:
+                            userId = _reader.ReadString();
+                            DownloadClient downloadClient = new DownloadClient(_client, userId);
 
-                        client = Program.GetClientById(userId);
+                            client = Program.GetClientById(userId);
 
-                        if (client != null)
-                        {
-                            client.DownloadClient = downloadClient;
-                            _writer.Write(MessageDictionary.OK);
-                            Program.DestroyClient(this);
-                        }
-                        break;
-                    default:
-                        CloseConnection();
-                        break;
+                            if (client != null)
+                            {
+                                client.DownloadClient = downloadClient;
+                                _writer.Write(MessageDictionary.OK);
+                                Program.DestroyClient(this);
+                            }
+                            break;
+                        default:
+                            CloseConnection();
+                            break;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                CloseConnection();
             }
         }
 
@@ -349,12 +362,10 @@ namespace Licencjat_new_server
                                 {
                                     _writer.Write(MessageDictionary.Exists);
                                     _writer.Write(resultInfo.Id);
-                                    _writer.Flush();
                                 }
                                 else
                                 {
                                     _writer.Write(MessageDictionary.DoesNotExist);
-                                    _writer.Flush();
                                 }
                                 Logger.Log("Sent response (" + resultInfo.Exists + ")");
                             }
@@ -388,7 +399,7 @@ namespace Licencjat_new_server
                                 {
                                     case MessageDictionary.MessageTypeEmail:
                                         _writer.Write(MessageDictionary.OK);
-
+                                        
                                         string authorEmailAddressId = _reader.ReadString();
                                         string messageDate = _reader.ReadString();
                                         string messageSubject = _reader.ReadString();
@@ -507,8 +518,6 @@ namespace Licencjat_new_server
                                         _writer.Write(emailAddress.Id);
                                         _writer.Write(emailAddress.Name);
                                         _writer.Write(emailAddress.Address);
-                                        _writer.Write(emailAddress.Active);
-                                        _writer.Write(emailAddress.DefaultAddress);
                                     }
                                     _writer.Write(MessageDictionary.EndOfMessage);
 
@@ -518,8 +527,6 @@ namespace Licencjat_new_server
                                         _writer.Write(phoneNumber.Id);
                                         _writer.Write(phoneNumber.Name);
                                         _writer.Write(phoneNumber.Number);
-                                        _writer.Write(phoneNumber.Active);
-                                        _writer.Write(phoneNumber.DefaultPhoneNUmber);
                                     }
 
                                     _writer.Write(MessageDictionary.EndOfMessage);
@@ -832,13 +839,21 @@ namespace Licencjat_new_server
                             List<EmailAddressResultInfo> emailAddressesList = new List<EmailAddressResultInfo>();
 
                             int emailCount = _reader.ReadInt32();
-                            for (int i = 0; i < emailCount; i++)
-                            {
-                                emailId = _reader.ReadString();
-                                string emailName = _reader.ReadString();
-                                string emailAddress = _reader.ReadString();
 
-                                emailAddressesList.Add(new EmailAddressResultInfo(emailId, emailName, emailAddress, true, true));
+                            if (emailCount != -1)
+                            {
+                                for (int i = 0; i < emailCount; i++)
+                                {
+                                    emailId = _reader.ReadString();
+                                    string emailName = _reader.ReadString();
+                                    string emailAddress = _reader.ReadString();
+
+                                    emailAddressesList.Add(new EmailAddressResultInfo(emailId, emailName, emailAddress));
+                                }
+                            }
+                            else
+                            {
+                                emailAddressesList = null;
                             }
 
                             List<PhoneNumberResultInfo> phoneNumbersList = new List<PhoneNumberResultInfo>();
@@ -850,7 +865,7 @@ namespace Licencjat_new_server
                                 string phoneName = _reader.ReadString();
                                 string phoneNumber = _reader.ReadString();
 
-                                phoneNumbersList.Add(new PhoneNumberResultInfo(phoneId, phoneName, phoneNumber, true, true));
+                                phoneNumbersList.Add(new PhoneNumberResultInfo(phoneId, phoneName, phoneNumber));
                             }
 
                             DBApi.UpdatePersonDetails(id, firstName, lastName, gender, companyId, emailAddressesList,
@@ -879,7 +894,7 @@ namespace Licencjat_new_server
                                 string emailName = _reader.ReadString();
                                 string emailAddress = _reader.ReadString();
 
-                                emailAddressesList.Add(new EmailAddressResultInfo(emailId, emailName, emailAddress, true, true));
+                                emailAddressesList.Add(new EmailAddressResultInfo(emailId, emailName, emailAddress));
                             }
 
                             phoneNumbersList = new List<PhoneNumberResultInfo>();
@@ -891,7 +906,7 @@ namespace Licencjat_new_server
                                 string phoneName = _reader.ReadString();
                                 string phoneNumber = _reader.ReadString();
 
-                                phoneNumbersList.Add(new PhoneNumberResultInfo(phoneId, phoneName, phoneNumber, true, true));
+                                phoneNumbersList.Add(new PhoneNumberResultInfo(phoneId, phoneName, phoneNumber));
                             }
 
                             string personId = DBApi.NewExternalContact(firstName, lastName, gender, companyId, emailAddressesList,
@@ -912,7 +927,43 @@ namespace Licencjat_new_server
 
                             NotifyAllUsersAboutExternalContactRemoved(personId, personName);
                             break;
-                            #endregion;
+                        #endregion;
+
+                        #region RemoveConverastion
+                        case MessageDictionary.NewInternalContact:
+                            _writer.Write(MessageDictionary.OK);
+                            firstName = _reader.ReadString();
+                            lastName = _reader.ReadString();
+                            gender = _reader.ReadInt32();
+                            string hashedLogin = _reader.ReadString();
+                            string hashedPassword = _reader.ReadString();
+                            bool isAdmin = _reader.ReadBoolean();
+
+                            id = DBApi.NewInternalContact(firstName, lastName, gender, hashedLogin, hashedPassword, isAdmin);
+
+                            break;
+                        #endregion
+                        #region RemoveConverastion
+                        case MessageDictionary.RemoveConversation:
+                            _writer.Write(MessageDictionary.OK);
+                            conversationId = _reader.ReadString();
+
+                            string conversationName2 = DBApi.GetConversationName(conversationId);
+
+                            NotifySubscribedUsersAboutConversationRemoved(conversationId, conversationName2);
+
+                            DBApi.RemoveConversation(conversationId);
+
+                            break;
+                        #endregion
+
+                        #region CheckLoginExists
+                        case MessageDictionary.CheckIfLoginExists:
+                            _writer.Write(MessageDictionary.OK);
+                            login = _reader.ReadString();
+                            _writer.Write(DBApi.CheckLoginExists(login));
+                            break;
+                            #endregion
                     }
                 }
             }
@@ -963,6 +1014,43 @@ namespace Licencjat_new_server
                 int count;
                 while ((count = stream.Read(buffer, 0, buffer.Length)) > 0)
                     _writer.Write(buffer, 0, count);
+            }
+        }
+
+        private void NotifySubscribedUsersAboutConversationRemoved(string conversationId, string conversationName)
+        {
+            try
+            {
+                DateTime notificationDate = DateTime.Now;
+
+                NotificationResultInfo notificationResultInfo = new NotificationResultInfo()
+                {
+                    Type = NotificationType.RemovedConversation,
+                    SenderId = UserInfo.PersonId,
+                    NotificationDate = notificationDate,
+                    OldName = conversationName,
+                };
+
+                NotificationModel notification = NotificationHandler.ProcessNotification(notificationResultInfo);
+
+                List<string> subscribedUsersId = DBApi.GetUsersSubscribedToConversation(conversationId);
+
+                foreach (string userId in subscribedUsersId)
+                {
+                    NotificationResultInfo recipientNotificationResultInfo = notificationResultInfo;
+                    recipientNotificationResultInfo.RecipientId = userId;
+                    string notificationId = DBApi.AddNewNotification(recipientNotificationResultInfo);
+
+                    notification.NotificationId = notificationId;
+
+                    Client userClient = Program.GetClientById(userId);
+
+                    userClient?.NotificationClient.RemoveConversation(conversationId, notification);
+                }
+            }
+            catch (Exception ex)
+            {
+
             }
         }
 
@@ -1050,14 +1138,18 @@ namespace Licencjat_new_server
                 {
                     NotificationResultInfo recipientNotificationResultInfo = notificationResultInfo;
                     recipientNotificationResultInfo.RecipientId = userId;
-                    string notificationId = DBApi.AddNewNotification(recipientNotificationResultInfo);
+
+                    string notificationId = "";
+
+                    if (id != UserInfo.PersonId)
+                        notificationId = DBApi.AddNewNotification(recipientNotificationResultInfo);
 
                     notification.NotificationId = notificationId;
 
                     Client userClient = Program.GetClientById(userId);
-                    if (userClient == null) return;
 
-                    userClient.NotificationClient.PersonDetailsChanged(id, firstName, lastName, gender, companyId, emailAddressesList, phoneNumbersList, notification);
+                    //if(id != UserInfo.PersonId)
+                        userClient?.NotificationClient.PersonDetailsChanged(id, firstName, lastName, gender, companyId, emailAddressesList, phoneNumbersList, notification);
                 }
             }
             catch (Exception ex)
@@ -1093,9 +1185,9 @@ namespace Licencjat_new_server
                     notification.NotificationId = notificationId;
 
                     Client userClient = Program.GetClientById(userId);
-                    if (userClient == null) return;
 
-                    userClient.NotificationClient.CompanyRemoved(companyId, notification);
+
+                    userClient?.NotificationClient.CompanyRemoved(companyId, notification);
                 }
             }
             catch (Exception ex)
@@ -1152,9 +1244,9 @@ namespace Licencjat_new_server
                     notification.NotificationId = notificationId;
 
                     Client userClient = Program.GetClientById(userId);
-                    if (userClient == null) return;
 
-                    userClient.NotificationClient.CompanyRenamed(companyId, newName, notification);
+
+                    userClient?.NotificationClient.CompanyRenamed(companyId, newName, notification);
                 }
             }
             catch (Exception ex)
@@ -1222,11 +1314,10 @@ namespace Licencjat_new_server
                     notification.NotificationId = notificationId;
 
                     Client userClient = Program.GetClientById(userId);
-                    if (userClient == null) return;
 
                     if (userClient.UserInfo.UserId != UserInfo.UserId)
                     {
-                        userClient.NotificationClient.ConversationSettingsChanged(conversationId, notifyContactPersons, notification);
+                        userClient?.NotificationClient.ConversationSettingsChanged(conversationId, notifyContactPersons, notification);
                     }
                 }
             }
@@ -1271,13 +1362,12 @@ namespace Licencjat_new_server
                     notification.NotificationId = notificationId;
 
                     Client userClient = Program.GetClientById(userId);
-                    if (userClient == null) return;
 
                     files.ForEach(obj => obj.ConversationId = message.ConversationId);
 
-                    userClient.NotificationClient.NewFiles(files);
+                    userClient?.NotificationClient.NewFiles(files);
 
-                    userClient.NotificationClient.NewMessage(message, notification);
+                    userClient?.NotificationClient.NewMessage(message, notification);
                 }
             }
             catch (Exception ex)
@@ -1355,9 +1445,8 @@ namespace Licencjat_new_server
                     notification.NotificationId = notificationId;
 
                     Client userClient = Program.GetClientById(userId);
-                    if (userClient == null) return;
 
-                    userClient.NotificationClient.FileRenamed(fileId, oldName, newName, notification);
+                    userClient?.NotificationClient.FileRenamed(fileId, oldName, newName, notification);
 
                 }
             }
@@ -1480,5 +1569,6 @@ namespace Licencjat_new_server
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public bool IsConnected { get; set; } = false;
+        public bool IsAdmin { get; set; }
     }
 }

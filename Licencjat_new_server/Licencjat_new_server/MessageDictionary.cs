@@ -20,6 +20,7 @@ namespace Licencjat_new_server
         public const byte Login = 0;
         public const byte WrongPassword = 1;
         public const byte UserNotFound = 2;
+        public const byte CheckIfLoginExists = 3;
 
         //Emails
         public const byte GetEmailAddresses = 10;
@@ -59,6 +60,7 @@ namespace Licencjat_new_server
         public const byte UpdatePersonDetails = 51;
         public const byte NewExternalContact = 52;
         public const byte RemoveExternalContact = 53;
+        public const byte NewInternalContact = 54;
 
         //Companies
         public const byte GetAllCompanies = 60;

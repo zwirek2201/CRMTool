@@ -17,19 +17,19 @@ namespace Licencjat_new.Controls
 
         public event EventHandler RenameFile;
         public event EventHandler DownloadFile;
+        public event EventHandler OpenFile;
         public event EventHandler RemoveFile;
         public event EventHandler DataChanged;
         public event EventHandler SelectedChanged;
 
         private ContextMenu _contextMenu;
-        private MenuItem _detailsItem;
         private MenuItem _renameItem;
         private Separator _separator1;
         private MenuItem _downloadItem;
+        private MenuItem _openItem;
         private Separator _separator2;
         private MenuItem _removeItem;
 
-        private bool _allowShowDetails = true;
         private bool _allowRename = true;
         private bool _allowDownload = true;
         private bool _allowDelete = true;
@@ -51,19 +51,6 @@ namespace Licencjat_new.Controls
         }
 
         public bool AllowSelect { get; set; }
-   
-        public bool AllowShowDetails
-        {
-            get { return _allowShowDetails; }
-            set
-            {
-                _allowShowDetails = value;
-                if (!AllowShowDetails)
-                {
-                    _contextMenu.Items.Remove(_detailsItem);
-                }
-            }
-        }
 
         public bool AllowRename
         {
@@ -99,7 +86,7 @@ namespace Licencjat_new.Controls
                 _allowDelete = value;
                 if (!AllowDelete)
                 {
-                    _contextMenu.Items.Remove(_allowDelete);
+                    _contextMenu.Items.Remove(_removeItem);
                 }
             }
         }
@@ -122,6 +109,11 @@ namespace Licencjat_new.Controls
         private void DownloadItem_Click(object sender, RoutedEventArgs e)
         {
             DownloadFile?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void _openItem_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFile?.Invoke(this, EventArgs.Empty);
         }
 
         private void _removeItem_Click(object sender, RoutedEventArgs e)
@@ -236,19 +228,6 @@ namespace Licencjat_new.Controls
 
             _contextMenu = new ContextMenu();
 
-            _detailsItem = new MenuItem()
-            {
-                Header = "Pokaż szczegóły",
-                Icon =
-                    new Image()
-                    {
-                        Source =
-                            ImageHelper.UriToImageSource(new Uri(@"pack://application:,,,/resources/info_context.png"))
-                    }
-            };
-            //renameItem.Click += RenameItem_Click;
-            _contextMenu.Items.Add(_detailsItem);
-
             _renameItem = new MenuItem()
             {
                 Header = "Zmień nazwę",
@@ -277,6 +256,19 @@ namespace Licencjat_new.Controls
             };
             _downloadItem.Click += DownloadItem_Click;
             _contextMenu.Items.Add(_downloadItem);
+
+            _openItem = new MenuItem()
+            {
+                Header = "Otwórz",
+                Icon =
+        new Image()
+        {
+            Source =
+                ImageHelper.UriToImageSource(new Uri(@"pack://application:,,,/resources/open_context.png"))
+        }
+            };
+            _openItem.Click += _openItem_Click; ;
+            _contextMenu.Items.Add(_openItem);
 
             _separator2 = new Separator();
             _contextMenu.Items.Add(_separator2);
@@ -420,6 +412,7 @@ namespace Licencjat_new.Controls
 
         public event EventHandler RenameFile;
         public event EventHandler DownloadFile;
+        public event EventHandler OpenFile;
         public event EventHandler SelectedListChanged;
 
         public List<FileListItem> Files = new List<FileListItem>();
@@ -574,6 +567,7 @@ namespace Licencjat_new.Controls
 
                 item.RenameFile += Item_RenameFile;
                 item.DownloadFile += Item_DownloadFile;
+                item.OpenFile += Item_OpenFile;
                 item.SelectedChanged += Item_SelectedChanged;
                 item.DataChanged += Item_DataChanged;
                
@@ -581,6 +575,7 @@ namespace Licencjat_new.Controls
                     item.Selected = true;
 
                 item.AllowSelect = AllowSelect;
+                item.AllowDelete = false;
 
                 Files.Add(item);
             }
@@ -588,6 +583,11 @@ namespace Licencjat_new.Controls
             _innerStack.Children.Remove(NoElementsPlaceholder);
 
             Sort();
+        }
+
+        private void Item_OpenFile(object sender, EventArgs e)
+        {
+            OpenFile?.Invoke(sender, e);
         }
 
         private void Item_SelectedChanged(object sender, EventArgs e)

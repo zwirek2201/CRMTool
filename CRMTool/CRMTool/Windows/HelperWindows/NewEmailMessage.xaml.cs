@@ -40,12 +40,20 @@ namespace Licencjat_new.Windows.HelperWindows
 
             _parent = parent;
 
-            if (_parent.EmailClients != null)
+            if (_parent.EmailClients != null && _parent.EmailClients.Count > 0)
             {
                 foreach (EmailModel email in _parent.EmailClients)
                 {
-                    EmailComboBox.AddItem(email.Address, email.Login != "");
+                    EmailComboBox.AddItem(email.Address, email.Login != "" && !email.CannotConnect);
                 }
+
+                if (EmailComboBox.Items.Any(obj => obj.Enabled))
+                    EmailComboBox.SelectedItem = EmailComboBox.Items.First(obj => obj.Enabled);
+
+            }
+            else
+            {
+                EmailComboBox.AddItem("Brak dostępnych adresów e-mail",false);
             }
 
             visibleIdLabel.Content = "(" + conversation.VisibleId + ")";
@@ -61,11 +69,14 @@ namespace Licencjat_new.Windows.HelperWindows
 
             ReadyButton.Clicked += (s, ea) =>
             {
-                OutputSubject =
-                    "(" + conversation.VisibleId + ")" + titleBox.Text;
-                SendingAddress = EmailComboBox.SelectedItem.Caption;
-                Message = messageBox.Text;
-                ReadyButtonClicked?.Invoke(this, EventArgs.Empty);
+                if (_parent.EmailClients != null && _parent.EmailClients.Count > 0 && EmailComboBox.SelectedItem != null)
+                {
+                    OutputSubject =
+                        "(" + conversation.VisibleId + ")" + titleBox.Text;
+                    SendingAddress = EmailComboBox.SelectedItem.Caption;
+                    Message = messageBox.Text;
+                    ReadyButtonClicked?.Invoke(this, EventArgs.Empty);
+                }
             };
 
             CancelButton.Clicked += (s, ea) =>
@@ -165,7 +176,6 @@ namespace Licencjat_new.Windows.HelperWindows
                 FileListItem listItem = new FileListItem(file);
                 listItem.AllowDownload = false;
                 listItem.AllowRename = false;
-                listItem.AllowShowDetails = false;
                 listItem.RemoveFile += ListItem_RemoveFile;
 
                 FileList.Children.Add(listItem);

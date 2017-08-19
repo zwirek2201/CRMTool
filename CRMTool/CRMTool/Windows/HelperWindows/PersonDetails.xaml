@@ -11,7 +11,7 @@
              Height="{Binding ActualHeight, ElementName=mainCanvas}" 
              Width="{Binding ActualWidth, ElementName=mainCanvas}">
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-        <DockPanel x:Name="MainDock" Background="#fdfdfd" Width="800" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <DockPanel x:Name="MainDock" Background="#fdfdfd" Margin="10" Width="800" VerticalAlignment="Center" HorizontalAlignment="Center">
             <DockPanel Height="30" VerticalAlignment="Center" LastChildFill="False" Background="#1c9ad2" DockPanel.Dock="Top"  HorizontalAlignment="Stretch">
                 <Grid x:Name="CloseButton" Height="30" Width="30" Background="#1c9ad2" DockPanel.Dock="Right">
                     <Image x:Name="CloseImage" Height="15" Width="15"  Margin="7.5" Source="pack://application:,,,/resources/close_light.png"/>
@@ -28,8 +28,8 @@
                     <controls:RoundedButton x:Name="CancelButton" BackgroundColor="#fdfdfd" BorderColor="#1c9ad2" Text="Anuluj" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
                 </DockPanel>
             </Border>
-            <StackPanel Orientation="Vertical" DockPanel.Dock="Top">
-                <Grid>
+            <DockPanel DockPanel.Dock="Top">
+                <Grid  DockPanel.Dock="Top">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="1*"/>
@@ -37,10 +37,10 @@
                     <controls:RoundedTextBox x:Name="FirstNameTextBox"  Grid.Column="0" Caption="Imię"></controls:RoundedTextBox>
                     <controls:RoundedTextBox x:Name="LastNameTextBox"  Grid.Column="1" Caption="Nazwisko"></controls:RoundedTextBox>
                 </Grid>
-                <DockPanel>
-                    <Border BorderBrush="#c2c2c2" DockPanel.Dock="Left"  BorderThickness="1" Height="40" CornerRadius="10" HorizontalAlignment="Left" Margin="7">
+                <DockPanel  DockPanel.Dock="Top">
+                    <Border BorderBrush="#c2c2c2" DockPanel.Dock="Left"  BorderThickness="1" Height="40" CornerRadius="10" Width="150" HorizontalAlignment="Left" Margin="7">
                         <StackPanel Orientation="Horizontal" Margin="0,0,6,0">
-                            <TextBlock FontSize="16" Margin="15,10,5,0" Text="Płeć:" Foreground="#1c9ad2"></TextBlock>
+                            <TextBlock FontSize="16" Margin="15,10,5,0" Text="Tytuł:" Foreground="#1c9ad2"></TextBlock>
                             <controls:CustomComboBox x:Name="GenderComboBox" HorizontalAlignment="Left"/>
                         </StackPanel>
                     </Border>
@@ -48,27 +48,31 @@
                     <controls:RoundedButton x:Name="ChangeCompanyButton"   Margin="7" DockPanel.Dock="Right"  BackgroundColor="#1c9ad2" BorderColor="#fdfdfd" Text="Zmień"></controls:RoundedButton>
                     <controls:RoundedTextBox x:Name="CompanyTextBox" Caption="Firma" Enabled="False"></controls:RoundedTextBox>
                 </DockPanel>
-                <Border BorderBrush="#c2c2c2" BorderThickness="1" CornerRadius="10" Margin="10">
+                <ScrollViewer Padding="0,0,10,0">
                     <StackPanel>
-                        <DockPanel>
-                            <controls:RoundedButton x:Name="addEmailButton" BackgroundColor="#fdfdfd" BorderColor="#1c9ad2" Text="Dodaj" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
-                            <TextBlock FontSize="20" Margin="20,7,10,0" Text="Adresy e-mail" Foreground="#1c9ad2"></TextBlock>
-                        </DockPanel>
-                        <TextBlock x:Name="NoEmailsLabel" Visibility="Collapsed"  FontSize="16" Text="Brak adresów e-mail" Margin="0,0,0,10"  HorizontalAlignment="Center" Foreground="#c2c2c2"></TextBlock>
-                        <StackPanel x:Name="EmailList"/>
-                        </StackPanel>
-                </Border>
-                <Border BorderBrush="#c2c2c2" BorderThickness="1" CornerRadius="10" Margin="10,5,10,10">
-                    <StackPanel>
-                        <DockPanel>
-                            <controls:RoundedButton x:Name="addPhoneNumberButton" BackgroundColor="#fdfdfd" BorderColor="#1c9ad2" Text="Dodaj" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
-                            <TextBlock FontSize="20" Margin="20,7,10,0" Text="Numery telefonów" Foreground="#1c9ad2"></TextBlock>
-                        </DockPanel>
-                        <TextBlock x:Name="NoPhoneLabel" Visibility="Collapsed" FontSize="16" Text="Brak numerów telefonu" Margin="0,0,0,10"  HorizontalAlignment="Center" Foreground="#c2c2c2"></TextBlock>
-                        <StackPanel x:Name="PhoneList"/>
+                        <Border  DockPanel.Dock="Top" BorderBrush="#c2c2c2" BorderThickness="1" CornerRadius="10" Margin="10">
+                            <DockPanel>
+                                <DockPanel HorizontalAlignment="Stretch" DockPanel.Dock="Top">
+                                    <controls:RoundedButton x:Name="addEmailButton" BackgroundColor="#fdfdfd" BorderColor="#1c9ad2" Text="Dodaj" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
+                                    <TextBlock FontSize="20" Margin="20,7,10,0" Text="Adresy e-mail" Foreground="#1c9ad2"></TextBlock>
+                                </DockPanel>
+                                <TextBlock DockPanel.Dock="Top" x:Name="NoEmailsLabel" Visibility="Collapsed"  FontSize="16" Text="Brak adresów e-mail" Margin="0,0,0,10"  HorizontalAlignment="Center" Foreground="#c2c2c2"></TextBlock>
+                                <StackPanel x:Name="EmailList"/>
+                            </DockPanel>
+                        </Border>
+                        <Border  DockPanel.Dock="Top" BorderBrush="#c2c2c2" BorderThickness="1" CornerRadius="10" Margin="10,5,10,10">
+                            <StackPanel>
+                                <DockPanel>
+                                    <controls:RoundedButton x:Name="addPhoneNumberButton" BackgroundColor="#fdfdfd" BorderColor="#1c9ad2" Text="Dodaj" DockPanel.Dock="Right" Height="40" Margin="10,5,10,5"/>
+                                    <TextBlock FontSize="20" Margin="20,7,10,0" Text="Numery telefonów" Foreground="#1c9ad2"></TextBlock>
+                                </DockPanel>
+                                <TextBlock x:Name="NoPhoneLabel" Visibility="Collapsed" FontSize="16" Text="Brak numerów telefonu" Margin="0,0,0,10"  HorizontalAlignment="Center" Foreground="#c2c2c2"></TextBlock>
+                                <StackPanel x:Name="PhoneList"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
-                </Border>
-            </StackPanel>
+                </ScrollViewer>
+            </DockPanel>
         </DockPanel>
         <Border x:Name="loadingOverlay" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="#bbffffff" Visibility="Collapsed" Opacity="0.8">
             <Image gif:ImageBehavior.AnimatedSource="pack://application:,,,/resources/loading.gif" VerticalAlignment="Center" HorizontalAlignment="Center" Width="100" Height="100" />

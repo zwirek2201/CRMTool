@@ -12,18 +12,14 @@ namespace Licencjat_new.CustomClasses
         public string Id { get; private set; }
         public string Address { get; set; }
         public string Name { get; set; }
-        public bool Active { get; private set; }
-        public bool Default { get; private set; }
         #endregion
 
         #region Constructors
-        public EmailAddressModel(string id, string address, string name, bool active, bool defaultAddress)
+        public EmailAddressModel(string id, string address, string name)
         {
             Id = id;
             Address = address;
             Name = name;
-            Active = active;
-            Default = defaultAddress;
         }
         #endregion
     }

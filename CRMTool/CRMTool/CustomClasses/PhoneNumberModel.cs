@@ -12,19 +12,15 @@ namespace Licencjat_new.CustomClasses
         public string Id { get; private set; }
         public string Number { get; set; }
         public string Name { get; set; }
-        public bool Active { get; private set; }
 
-        public bool Default { get; private set; }
         #endregion
 
         #region Constructors
-        public PhoneNumberModel(string id, string number, string name, bool active, bool defaultPhoneNumber)
+        public PhoneNumberModel(string id, string number, string name)
         {
             Id = id;
             Number = number;
             Name = name;
-            Active = active;
-            Default = defaultPhoneNumber;
         }
         #endregion
         public override string ToString()

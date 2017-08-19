@@ -156,7 +156,7 @@ namespace Licencjat_new.Windows
 
         #region Lists
 
-        public List<EmailModel> EmailClients { get; set; } = new List<EmailModel>();
+        public List<EmailModel> EmailClients { get; set; }
         public List<ConversationModel> Conversations { get; set; }
         public List<CompanyModel> Companies { get; set; }
         public List<PersonModel> Persons { get; set; }
@@ -191,6 +191,10 @@ namespace Licencjat_new.Windows
                 ContentArea.Content = loginPage;
 
                 UpperMenu.UpperMenuModeChanged += UpperMenuModeChanged;
+                UpperMenu.LogoutButtonClicked += UpperMenu_LogoutButtonClicked;
+                UpperMenu.AccountSettingsButtonClicked += UpperMenu_AccountSettingsButtonClicked;
+                UpperMenu.ProgramSettingsButtonClicked += UpperMenu_ProgramSettingsButtonClicked;
+
                 MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 2;
 
                 _closeButton =
@@ -228,6 +232,12 @@ namespace Licencjat_new.Windows
                 TitleBar.Children.Add(_maximizeButton);
                 TitleBar.Children.Add(_minimizeButton);
                 TitleBar.Children.Add(dragPanel);
+
+                Closing += (s, ea) =>
+                {
+                    if(Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool"))
+                        Directory.Delete(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/CRMTool", true);
+                };
             }
             catch (Exception ex)
             {
@@ -236,6 +246,106 @@ namespace Licencjat_new.Windows
             }
         }
 
+        private void UpperMenu_ProgramSettingsButtonClicked(object sender, EventArgs e)
+        {
+            string ip = Properties.Settings.Default.ServerIP;
+            int port = Properties.Settings.Default.ServerPort;
+
+            ProgramSettings program = new ProgramSettings(ip, port);
+
+            program.ReadyButtonClicked += (s, ea) =>
+            {
+                Properties.Settings.Default.ServerIP = program.IP;
+                Properties.Settings.Default.ServerPort = program.Port;
+                Properties.Settings.Default.Save();
+
+                mainCanvas.Children.Remove(program);
+
+                CustomMessageBox messageBox =
+                    new CustomMessageBox(
+                        "Ustawienia zostały zapisane. Czy chcesz zrestartować program w celu użycia nowych ustawień?",
+                        MessageBoxButton.YesNo);
+
+                messageBox.YesButtonClicked += (s2, ea2) =>
+                {
+                    Darkened = false;
+                    mainCanvas.Children.Remove(messageBox);
+
+                    Logout();
+                };
+
+                messageBox.NoButtonClicked += (s2, ea2) =>
+                {
+                    Darkened = false;
+                    mainCanvas.Children.Remove(messageBox);
+                };
+
+                Darkened = true;
+                mainCanvas.Children.Add(messageBox);
+            };
+
+            program.CancelButtonClicked += (s, ea) =>
+            {
+                Darkened = false;
+                mainCanvas.Children.Remove(program);
+            };
+
+            Darkened = true;
+            mainCanvas.Children.Add(program);
+        }
+
+        private void UpperMenu_AccountSettingsButtonClicked(object sender, EventArgs e)
+        {
+            AccountSettings accountSettings = new AccountSettings(this,
+                Persons.Find(obj => obj.Id == Client.UserInfo.PersonId));
+
+            accountSettings.ReadyButtonClicked += (s, ea) =>
+            {
+                List<PersonDetailListItem> emailItems = accountSettings.EmailItems;
+                List<PersonDetailListItem> phoneItems = accountSettings.PhoneItems;
+
+                foreach (PersonDetailListItem detail in emailItems)
+                {
+                    EmailAddressModel emailAdress = (EmailAddressModel)detail.ChildObject;
+                    emailAdress.Name = detail.Name;
+                    emailAdress.Address = detail.DetailValue;
+                    detail.ChildObject = emailAdress;
+                }
+
+                foreach (PersonDetailListItem detail in phoneItems)
+                {
+                    PhoneNumberModel phoneNumber = (PhoneNumberModel)detail.ChildObject;
+                    phoneNumber.Name = detail.Name;
+                    phoneNumber.Number = detail.DetailValue;
+                    detail.ChildObject = phoneNumber;
+                }
+
+                Client.UpdatePersonDetails(accountSettings.Person.Id, accountSettings.FirstNameTextBox.Text,
+                    accountSettings.LastNameTextBox.Text,
+                    accountSettings.GenderComboBox.SelectedItem == accountSettings.GenderComboBox.Items.First()
+                        ? Gender.Female
+                        : Gender.Male, null,
+                    null,
+                    accountSettings.PhoneItems.Select(obj => (PhoneNumberModel)obj.ChildObject).ToList());
+
+                Darkened = false;
+                mainCanvas.Children.Remove(accountSettings);
+            };
+
+            accountSettings.CancelButtonClicked += (s, ea) =>
+            {
+                Darkened = false;
+                mainCanvas.Children.Remove(accountSettings);
+            };
+
+            Darkened = true;
+            mainCanvas.Children.Add(accountSettings);
+        }
+
+        private void UpperMenu_LogoutButtonClicked(object sender, EventArgs e)
+        {
+            Logout();
+        }
 
         private void DragPanel_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -453,50 +563,75 @@ namespace Licencjat_new.Windows
 
                     ImapClient client = EmailHelper.ConnectToServer(email.ImapHost, email.ImapPort, email.ImapUseSsl);
 
-                    if (email.Login != "" && client != null)
+                    if (email.Login == "")
                     {
-                        SmtpClient smtpClient = new SmtpClient(email.SmtpHost, email.SmtpPort);
-                        smtpClient.EnableSsl = email.SmtpUseSsl;
-                        smtpClient.UseDefaultCredentials = false;
-                        smtpClient.SendCompleted += SmtpClient_SendCompleted;
+                        email.ImapClient = null;
+                        continue;
+                    }
 
-                        string login = CryptographyHelper.DecodeString(email.Login);
-                        string password =
+                    if (client == null)
+                    {
+                        email.ImapClient = null;
+                        email.CannotConnect = true;
+                        continue;                 
+                    }
+
+                    SmtpClient smtpClient = new SmtpClient(email.SmtpHost, email.SmtpPort);
+                    smtpClient.EnableSsl = email.SmtpUseSsl;
+                    smtpClient.UseDefaultCredentials = false;
+                    smtpClient.SendCompleted += SmtpClient_SendCompleted;
+
+                    string login = "";
+                    string password = "";
+                    string decodedPassword = "";
+
+                    if (String.IsNullOrEmpty(email.Password))
+                    {
+                        login = CryptographyHelper.DecodeString(email.Login);
+                        password =
                             RegistryHelper.GetRegistryValue(CryptographyHelper.HashString(email.Address, 0));
-                        if (password != null)
-                        {
-                            string decodedPassword = CryptographyHelper.DecodeString(password);
 
-                            smtpClient.Credentials = new NetworkCredential(login, decodedPassword);
-                            smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
-                            email.SmtpClient = smtpClient;
-
-                            if (EmailHelper.AuthenticateClient(client, login, decodedPassword))
-                            {
-                                client.Behavior.ExamineFolders = false;
-                                client.Behavior.FolderTreeBrowseMode = ImapX.Enums.FolderTreeBrowseMode.Lazy;
-
-                                client.Folders.Inbox.Examine();
-                                client.Folders.Inbox.Messages.Download(searchString,
-                                    ImapX.Enums.MessageFetchMode.Body | ImapX.Enums.MessageFetchMode.Headers |
-                                    ImapX.Enums.MessageFetchMode.InternalDate | ImapX.Enums.MessageFetchMode.Flags);
-                                client.Folders.Inbox.OnNewMessagesArrived += Client_NewMessagesArrived;
-                                client.Folders.Inbox.StartIdling();
-                                email.ImapClient = client;
-                            }
-                        }
-                        else
+                        if (password == null)
                         {
                             email.ImapClient = null;
+                            continue;
                         }
+
+                        decodedPassword = CryptographyHelper.DecodeString(password);
+                    }
+                    else
+                    {
+                        login = email.Login;
+                        decodedPassword = email.Password;
+                    }
+
+                    smtpClient.Credentials = new NetworkCredential(login, decodedPassword);
+                    smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
+                    email.SmtpClient = smtpClient;
+
+                    if (EmailHelper.AuthenticateClient(client, login, decodedPassword))
+                    {
+                        client.Behavior.ExamineFolders = false;
+                        client.Behavior.FolderTreeBrowseMode = ImapX.Enums.FolderTreeBrowseMode.Lazy;
+
+                        client.Folders.Inbox.Examine();
+                        client.Folders.Inbox.Messages.Download(searchString,
+                            ImapX.Enums.MessageFetchMode.Body | ImapX.Enums.MessageFetchMode.Headers |
+                            ImapX.Enums.MessageFetchMode.InternalDate | ImapX.Enums.MessageFetchMode.Flags);
+
+                        client.Folders.Inbox.OnNewMessagesArrived += Client_NewMessagesArrived;
+                        client.Folders.Inbox.StartIdling();
+                        email.ImapClient = client;
                     }
                     else
                     {
                         email.ImapClient = null;
+                        email.CannotConnect = true;
+                        continue;
                     }
+                    email.Password = "";
                 }
                 e.Result = emails;
-
             }
             catch (Exception ex)
             {
@@ -513,7 +648,15 @@ namespace Licencjat_new.Windows
         {
             try
             {
-                EmailClients.AddRange((List<EmailModel>) e.Result);
+                if (EmailClients == null)
+                    EmailClients = new List<EmailModel>();
+
+                foreach (EmailModel email in (List<EmailModel>) e.Result)
+                {
+                    if (!EmailClients.Contains(email))
+                        EmailClients.Add(email);
+                }
+
                 Label statusLabel = (Label) LogicalTreeHelper.FindLogicalNode(this, "leftLabel");
                 statusLabel.Content = "Zakończono pobieranie";
 
@@ -778,7 +921,7 @@ namespace Licencjat_new.Windows
                                 .GetValue(referenceInnerObject)
                                 .ToString();
 
-                        if (referenceInnerObject is PersonModel)
+                        if (referenceInnerObject is PersonModel && i == 0)
                         {
                             PersonModel person = (PersonModel) referenceInnerObject;
                             if (person.FirstName.Last() == 'a')
@@ -841,7 +984,15 @@ namespace Licencjat_new.Windows
                 {
                     if (author.IsInternalUser)
                         message.Received = false;
-                    message.Color = conversation.ColorDictionary[author];
+
+                    try
+                    {
+                        message.Color = conversation.ColorDictionary[author];
+                    }
+                    catch (Exception ex)
+                    {
+                        
+                    }
 
                     foreach (string attachmentId in message.AttachmentsIds)
                     {
@@ -909,36 +1060,51 @@ namespace Licencjat_new.Windows
         {
             try
             {
-                EmailModel email = EmailClients.Find(obj => obj.ImapClient.Folders.Contains((Folder) sender));
+                EmailModel email = null;
+                foreach (EmailModel email2 in EmailClients)
+                {
+                    if (email2.ImapClient != null)
+                    {
+                        if (email2.ImapClient.Folders.Contains((Folder)sender))
+                            email = email2;
+                    }
+                }
 
                 DoWorkEventHandler doWorkHandler =
                     delegate(object s, DoWorkEventArgs ev)
                     {
-                        List<Message> messages = (List<Message>) ev.Argument;
+                        try
+                        {
+                            List<Message> messages = (List<Message>) ev.Argument;
 
                             List<Message> unhandledMessages = ProcessMessages(email, messages);
-                        this.Dispatcher.Invoke(delegate ()
-                        {
-                            email.UnhandledMessages.AddRange(unhandledMessages);
-
-                            NewUnhandledMessageArrived?.Invoke(this, new NewUnhandledMessageArrivedEventArgs()
+                            this.Dispatcher.Invoke(delegate()
                             {
-                                Email = email,
-                                Messages = unhandledMessages
+                                email.UnhandledMessages.AddRange(unhandledMessages);
+
+                                NewUnhandledMessageArrived?.Invoke(this, new NewUnhandledMessageArrivedEventArgs()
+                                {
+                                    Email = email,
+                                    Messages = unhandledMessages
+                                });
+
+                                Client.AddUnhandledMessages(email.Id, email.UnhandledMessagesIds);
+
+                                if (unhandledMessages.Count > 0)
+                                {
+                                    _notificationPanel.RemoveNotification(_unhandledNotification);
+                                    _unhandledNotification = new NotificationModel("", "", null,
+                                        DateTime.Now, false, true)
+                                    {Text = email.UnhandledMessages.Count + " wiadomości wymaga Twojej uwagi"};
+
+                                    RaiseNotification(_unhandledNotification);
+                                }
                             });
-
-                            Client.AddUnhandledMessages(email.Id, email.UnhandledMessagesIds);
-
-                            if (unhandledMessages.Count > 0)
-                            {
-                                _notificationPanel.RemoveNotification(_unhandledNotification);
-                                _unhandledNotification = new NotificationModel("", "", null,
-                                    DateTime.Now, false, true)
-                                {Text = email.UnhandledMessages.Count + " wiadomości wymaga Twojej uwagi"};
-
-                                RaiseNotification(_unhandledNotification);
-                            }
-                        });
+                        }
+                        catch (Exception ex)
+                        {
+                            
+                        }
                     };
 
                 RunWorkerCompletedEventHandler workerCompletedHandler = null;
@@ -947,14 +1113,14 @@ namespace Licencjat_new.Windows
                     {
                         ProcessingWorker.DoWork -= doWorkHandler;
                         ProcessingWorker.RunWorkerCompleted -= workerCompletedHandler;
+                        long maxUid = e.Messages.Max(obj => obj.UId);
+                        Client.SetLastDownloadedUid(email.Id, maxUid.ToString());
                     };
 
                 ProcessingWorker.DoWork += doWorkHandler;
                 ProcessingWorker.RunWorkerCompleted += workerCompletedHandler;
 
                 ProcessingWorker.RunWorkerAsync(e.Messages.ToList());
-                long maxUid = e.Messages.Max(obj => obj.UId);
-                Client.SetLastDownloadedUid(email.Id, maxUid.ToString());
             }
             catch (Exception ex)
             {
@@ -1158,16 +1324,32 @@ namespace Licencjat_new.Windows
                 if (person.Gender != e.NewData.Gender)
                     person.Gender = e.NewData.Gender;
 
-                if (person.EmailAddresses != e.NewData.EmailAddresses)
-                    person.EmailAddresses = e.NewData.EmailAddresses;
+                if (person.Id != Client.UserInfo.PersonId)
+                {
+                    if (person.EmailAddresses != e.NewData.EmailAddresses)
+                        person.EmailAddresses = e.NewData.EmailAddresses;
+                }
 
                 if (person.PhoneNumbers != e.NewData.PhoneNumbers)
                     person.PhoneNumbers = e.NewData.PhoneNumbers;
 
                 person.OnDataChanged();
 
-                NotificationModel notification = ProcessNotification(e.Notification);
-                RaiseNotification(notification);
+                if (person.Id == Client.UserInfo.PersonId)
+                {
+                    Client.UserInfo.FirstName = person.FirstName;
+                    Client.UserInfo.LastName = person.LastName;
+
+                    UpperMenu.LoginStatus.FirstName = person.FirstName;
+                    UpperMenu.LoginStatus.LastName = person.LastName;
+
+                    UpperMenu.Redraw();
+                }
+                else
+                {
+                    NotificationModel notification = ProcessNotification(e.Notification);
+                    RaiseNotification(notification);
+                }
             });
         }
 
@@ -1175,6 +1357,8 @@ namespace Licencjat_new.Windows
         {
             this.Dispatcher.Invoke(() =>
             {
+                CompanyRemoved?.Invoke(sender, e);
+
                 Persons.Where(obj => obj.Company == Companies.Find(obj2 => obj2.Id == e.CompanyId))
                     .ToList()
                     .ForEach(obj => obj.Company = null);
@@ -1184,8 +1368,6 @@ namespace Licencjat_new.Windows
 
                 Companies.Find(obj => obj.Id == e.CompanyId).Name = "";
                 Companies.Remove(Companies.Find(obj => obj.Id == e.CompanyId));
-
-                CompanyRemoved?.Invoke(sender, e);
             });
         }
 
@@ -1203,7 +1385,7 @@ namespace Licencjat_new.Windows
 
             completed = (s, ea) =>
             {
-                NewEmailAddress?.Invoke(this, e);
+               NewEmailAddress?.CrossInvoke(this, e);
                 EmailWorker.RunWorkerCompleted -= completed;
             };
 
@@ -1273,11 +1455,20 @@ namespace Licencjat_new.Windows
                         ConversationRemoved?.Invoke(this, e);
                     });
 
-                    RaiseNotification(new NotificationModel("", "", null,
-                        DateTime.Now, false, true)
-                    {Text = "Usunięto Cię z konwersacji " + conversation.Name});
-                    Conversations.Remove(conversation);
-                    Files.RemoveAll(obj => obj.ConversationId == conversation.Id);
+                    if (e.Notification != null)
+                    {
+                        NotificationModel notification = e.Notification;
+                        notification = ProcessNotification(notification);
+                        RaiseNotification(notification);
+                    }
+                    else
+                    {
+                        RaiseNotification(new NotificationModel("", "", null,
+                            DateTime.Now, false, true)
+                        {Text = "Usunięto Cię z konwersacji " + conversation.Name});
+                        Conversations.Remove(conversation);
+                        Files.RemoveAll(obj => obj.ConversationId == conversation.Id);
+                    }
                 }
             }
             catch (Exception ex)
@@ -1402,7 +1593,7 @@ namespace Licencjat_new.Windows
                 this.Dispatcher.Invoke(delegate()
                 {
                     ConversationModel conversation = Conversations.Find(obj => obj.Id == e.Message.ConversationId);
-
+                    
                     ConversationMessageModel handledMessage = HandleNewMessage(e.Message, conversation);
                     conversation.AddMessage(handledMessage);
 
@@ -1510,7 +1701,17 @@ namespace Licencjat_new.Windows
                     {
                         string receivedNumber = matches[0].Value.Replace("(", "").Replace(")", "");
 
-                        string conversationId = Client.CheckConversationExists(receivedNumber);
+
+                        string conversationId = "";
+             
+                        conversationId = Client.CheckConversationExists(receivedNumber);
+
+                        if (conversationId == "")
+                        {                          
+                            unhandledMessages.Add(message);
+                            unhandledMessageIds.Add(message.UId.ToString());
+                            break;
+                        }
 
                         PersonModel messageSender =
                             Persons.Find(obj => obj.EmailAddresses.Any(obj2 => obj2.Address == message.From.Address));
@@ -1519,53 +1720,73 @@ namespace Licencjat_new.Windows
                         {
                             if (messageSender != null)
                             {
-                                EmailAddressModel authorEmailAddress =
-                                    messageSender.EmailAddresses.Single(obj => obj.Address == message.From.Address);
+                                ConversationModel conversation = Conversations.Find(obj => obj.Id == conversationId);
 
-                                ConversationMessageModel receivedMessage =
-                                    new ConversationMessageModel(messageSender,
-                                        message.InternalDate)
-                                    {
-                                        ConversationId = conversationId
-                                    };
-
-                                ConversationEmailMessageModel emailMessage =
-                                    new ConversationEmailMessageModel(receivedMessage, authorEmailAddress,
-                                        message.Subject,
-                                        message.Body.Html == "" ? message.Body.Text.Replace("\r\n","<br>") : message.Body.Html);                            
-
-                                BitmapSource previewImage = null;
-
-                                Dispatcher.Invoke(() =>
+                                if (conversation.Members.Contains(messageSender))
                                 {
-                                    previewImage =
-                                        ImageHelper.GetHtmlImagePreview(
-                                            message.Body.Html == "" ? message.Body.Text.Replace("\r\n", "<br>") : message.Body.Html,
-                                            new Size(600, 60), new Size(600, 250));
 
-                                    previewImage.Freeze();
-                                });
+                                    EmailAddressModel authorEmailAddress =
+                                        messageSender.EmailAddresses.Single(obj => obj.Address == message.From.Address);
 
-                                emailMessage.PreviewImage = previewImage;
+                                    ConversationMessageModel receivedMessage =
+                                        new ConversationMessageModel(messageSender,
+                                            message.InternalDate)
+                                        {
+                                            ConversationId = conversationId
+                                        };
 
-                                if (message.Attachments.Any())
-                                {
-                                    AwaitingMessages.Add(emailMessage);
-                                    foreach (Attachment attachment in message.Attachments)
+                                    ConversationEmailMessageModel emailMessage =
+                                        new ConversationEmailMessageModel(receivedMessage, authorEmailAddress,
+                                            message.Subject,
+                                            message.Body.Html == ""
+                                                ? message.Body.Text.Replace("\r\n", "<br>")
+                                                : message.Body.Html);
+
+                                    BitmapSource previewImage = null;
+
+                                    Dispatcher.Invoke(() =>
                                     {
-                                        if (!attachment.Downloaded)
-                                            attachment.Download();
+                                        previewImage =
+                                            ImageHelper.GetHtmlImagePreview(
+                                                message.Body.Html == ""
+                                                    ? message.Body.Text.Replace("\r\n", "<br>")
+                                                    : message.Body.Html,
+                                                new Size(600, 60), new Size(600, 250));
 
-                                        FileModel file = new FileModel(attachment, DateTime.Today);
+                                        previewImage.Freeze();
+                                    });
 
-                                        emailMessage.Attachments.Add(file);
+                                    emailMessage.PreviewImage = previewImage;
+
+                                    if (message.Attachments.Any())
+                                    {
+                                        AwaitingMessages.Add(emailMessage);
+                                        foreach (Attachment attachment in message.Attachments)
+                                        {
+                                            if (!attachment.Downloaded)
+                                                attachment.Download();
+
+                                            FileModel file = new FileModel(attachment, DateTime.Today);
+
+                                            emailMessage.Attachments.Add(file);
+                                        }
+                                        UploadClient.UploadFiles(emailMessage, emailMessage.Attachments);
                                     }
-                                    UploadClient.UploadFiles(emailMessage, emailMessage.Attachments);
+                                    else
+                                    {
+                                        Client.AddNewMessage(conversationId, emailMessage);
+                                    }
                                 }
                                 else
                                 {
-                                    Client.AddNewMessage(conversationId, emailMessage);
+                                    unhandledMessages.Add(message);
+                                    unhandledMessageIds.Add(message.UId.ToString());
                                 }
+                            }
+                            else
+                            {
+                                unhandledMessages.Add(message);
+                                unhandledMessageIds.Add(message.UId.ToString());
                             }
                         }
                         else
@@ -1592,6 +1813,12 @@ namespace Licencjat_new.Windows
         }
 
         #endregion
+
+        public void Logout()
+        {
+            System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
+            Application.Current.Shutdown();
+        }
     }
 
     #region EventArgs
