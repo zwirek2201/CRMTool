@@ -1,8 +1,0 @@
-Version: 1.1.6357.37074
-Started: 28.05.2017 20:35:52
------------------------------------------------------------------------------
-Date: 28.05.2017 20:37:15
-Exception: System.Collections.Generic.KeyNotFoundException: The given key was not present in the dictionary.
-   at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
-   at Licencjat_new.Windows.MainWindow.HandleNewMessage(ConversationMessageModel message, ConversationModel conversation) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\MainWindow.xaml.cs:line 830
---------------------------------------

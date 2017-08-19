@@ -1,7 +1,0 @@
-Version: 1.1.6357.22338
-Started: 28.05.2017 12:24:41
------------------------------------------------------------------------------
-Date: 28.05.2017 12:25:50
-Exception: System.NullReferenceException: Object reference not set to an instance of an object.
-   at Licencjat_new.Windows.Conversation.<>c__DisplayClass16_0.<_newPhoneButton_Click>b__1(Object se, DoWorkEventArgs ev) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Windows\Conversation.xaml.cs:line 167
---------------------------------------

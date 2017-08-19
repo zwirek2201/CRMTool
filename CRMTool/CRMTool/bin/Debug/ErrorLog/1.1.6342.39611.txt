@@ -1,7 +1,0 @@
-Version: 1.1.6342.39611
-Started: 13.05.2017 22:00:27
------------------------------------------------------------------------------
-Date: 13.05.2017 22:00:46
-Exception: System.Exception: Connection unsynced
-   at Licencjat_new.Server.Client.SaveConversationSettings(ConversationModel conversation) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\Client.cs:line 810
---------------------------------------
