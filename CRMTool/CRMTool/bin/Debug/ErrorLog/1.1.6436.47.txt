@@ -1,0 +1,20 @@
+Version: 1.1.6436.47
+Started: 15.08.2017 00:01:43
+-----------------------------------------------------------------------------
+Version: 1.1.6436.47
+Started: 15.08.2017 00:03:37
+-----------------------------------------------------------------------------
+Date: 15.08.2017 00:04:24
+Exception: System.IO.IOException: Nie można odczytać danych z połączenia transportowego: Istniejące połączenie zostało gwałtownie zamknięte przez zdalnego hosta. ---> System.Net.Sockets.SocketException: Istniejące połączenie zostało gwałtownie zamknięte przez zdalnego hosta
+   w System.Net.Sockets.Socket.Receive(Byte[] buffer, Int32 offset, Int32 size, SocketFlags socketFlags)
+   w System.Net.Sockets.NetworkStream.Read(Byte[] buffer, Int32 offset, Int32 size)
+   --- Koniec śladu stosu wyjątków wewnętrznych ---
+   w System.Net.Sockets.NetworkStream.Read(Byte[] buffer, Int32 offset, Int32 size)
+   w System.IO.Stream.ReadByte()
+   w System.IO.BinaryReader.InternalReadOneChar()
+   w System.IO.BinaryReader.Read()
+   w Licencjat_new.Server.Client.GetUserConversations() w E:\Marcin\Documents\GitHub\Licencjat\CRMTool\CRMTool\Server\Client.cs:wiersz 236
+--------------------------------------
+Version: 1.1.6436.47
+Started: 15.08.2017 00:04:33
+-----------------------------------------------------------------------------

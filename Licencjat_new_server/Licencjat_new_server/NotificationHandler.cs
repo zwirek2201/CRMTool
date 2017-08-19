@@ -12,7 +12,7 @@ namespace Licencjat_new_server
         private static List<NotificationRule> NotificationRules = new List<NotificationRule>()
         {
             new NotificationRule(NotificationType.MessageAdded,"{SenderId} dodał wiadomość do konwersacji {ConversationId}",new List<string>() { "Persons.FullName", "Conversations.Name"}),
-            new NotificationRule(NotificationType.ConversationMemberAdded,"{SenderId} dodał użytkownika {PersonId} do konwersacji {ConversationId}",new List<string>() { "Persons.FullName", "Persons.FullName", "Conversations.Name",  }),
+            new NotificationRule(NotificationType.ConversationMemberAdded,"{SenderId} dodał użytkownika {PersonId} do konwersacji {ConversationId}",new List<string>() { "Persons.FullName", "Persons.FullName", "Conversations.Name"}),
             new NotificationRule(NotificationType.ConversationMemberRemoved,"{SenderId} usunął użytkownika {PersonId} z konwersacji {ConversationId}",new List<string>() { "Persons.FullName", "Persons.FullName", "Conversations.Name",  }),
             new NotificationRule(NotificationType.RenamedConversation,"{SenderId} zmienił nazwę konwersacji [OldName] na [NewName]",new List<string>() { "Persons.FullName"}),
             new NotificationRule(NotificationType.RenamedFile,"{SenderId} zmienił nazwę pliku [OldName] na [NewName]",new List<string>() { "Persons.FullName"}),

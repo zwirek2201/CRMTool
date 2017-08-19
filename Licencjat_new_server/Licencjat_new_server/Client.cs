@@ -57,7 +57,6 @@ namespace Licencjat_new_server
 
                 SslStream sslStream = new SslStream(_stream, false);
 
-
                 _reader = new BinaryReader(_stream, Encoding.UTF8);
                 _writer = new BinaryWriter(_stream, Encoding.UTF8);
 

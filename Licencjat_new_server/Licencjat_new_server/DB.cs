@@ -171,9 +171,10 @@ namespace Licencjat_new_server
         public static LoginResultInfo CheckUserCredentials(string login, string password)
         {
             Logger.Log($"Authenticating: {login}");
+            DataTable parameters = DB.GetParametersDataTable();
+
             string hashedLogin = Cryptography.HashString(login, 0);
 
-            DataTable parameters = DB.GetParametersDataTable();
             parameters.Rows.Add("Login", hashedLogin);
 
             DataTable users =
@@ -258,7 +259,7 @@ namespace Licencjat_new_server
             DataTable parameters = DB.GetParametersDataTable();
             parameters.Rows.Add("UserId", userId);
 
-            DataTable conversations = DB.RunSelectCommand("select t1.Conversation, t2.Name, t2.VisibleId, t2.DateStarted, t2.NotifyContactPersons, t3.Id as [User]  from PersonConversations t1 join Conversations t2 on t1.Conversation = t2.Id join Users t3 on t3.Person = t1.Person WHERE t3.Id = @UserId",
+            DataTable conversations = DB.RunSelectCommand("select t1.Conversation, t2.Name, t2.VisibleId, t2.DateStarted, t3.Id as [User]  from PersonConversations t1 join Conversations t2 on t1.Conversation = t2.Id join Users t3 on t3.Person = t1.Person WHERE t3.Id = @UserId",
                 parameters);
 
             foreach (DataRow conversation in conversations.Rows)
@@ -269,8 +270,6 @@ namespace Licencjat_new_server
                 string dateCreatedString =
                     DateTime.ParseExact(conversation["DateStarted"].ToString(), "dd.MM.yyyy HH:mm:ss",
                         CultureInfo.InvariantCulture).ToString("dd-MM-yyyy HH:mm:ss");
-                bool notifyContactPersons = Convert.ToBoolean(conversation["NotifyContactPersons"]);
-
 
                 parameters.Clear();
                 parameters.Rows.Add("ConversationId", id);
@@ -289,7 +288,7 @@ namespace Licencjat_new_server
                 }
 
                 ConversationResultInfo result = new ConversationResultInfo(id, name,
-                    memberIds, memberColors, visibleId, dateCreatedString, notifyContactPersons);
+                    memberIds, memberColors, visibleId, dateCreatedString, true);
                 conversationResults.Add(result);
             }
 
