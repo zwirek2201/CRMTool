@@ -7,4 +7,6 @@
 *.txt
 /Licencjat_new_server
 /Licencjat_new_server/bin
-/Licencjat_nwe_server/obj
+/Licencjat_new_server/obj
+/CRMTool/.vs
+/Licencjat_new_server/.vs
