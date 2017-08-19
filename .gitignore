@@ -2,4 +2,9 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
+/CRMTool/CRMTool/bin
+/CRMTool/CRTool/obj
 *.txt
+/Licencjat_new_server
+/Licencjat_new_server/bin
+/Licencjat_nwe_server/obj
