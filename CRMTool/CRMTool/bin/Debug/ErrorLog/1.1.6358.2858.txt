@@ -1,7 +1,0 @@
-Version: 1.1.6358.2858
-Started: 29.05.2017 01:35:19
------------------------------------------------------------------------------
-Date: 29.05.2017 01:55:57
-Exception: System.NullReferenceException: Object reference not set to an instance of an object.
-   at Licencjat_new.Server.Client.AddNewMessage(String conversationId, ConversationMessageModel message) in E:\Marcin\Documents\LICENCJAT\CRMTool\CRMTool\Server\Client.cs:line 426
---------------------------------------
