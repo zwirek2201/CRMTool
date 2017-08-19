@@ -327,7 +327,51 @@ namespace Licencjat_new.Windows
 
             if (conversation.Members.Where(obj => !obj.IsInternalUser).Any(obj => obj.EmailAddresses.Count > 0))
             {
-                _parent.Darkened = true;
+                Dispatcher.Invoke(() =>
+                {
+                    _parent.Darkened = true;
+                    CustomMessageBox messageBox =
+                        new CustomMessageBox(
+                            "Nie można wysłać wiadomości. Żaden z członków konwersacji nie posiada adresu e-mail.",
+                            MessageBoxButton.OK);
+
+                    messageBox.OKButtonClicked += (s2, ea2) =>
+                    {
+                        _parent.mainCanvas.Children.Remove(messageBox);
+                        _parent.Darkened = false;
+
+                    };
+
+                    _parent.mainCanvas.Children.Add(messageBox);
+
+                    return;
+                });
+            }
+
+            if (!_parent.Persons.Find(obj => obj.Id == _parent.Client.UserInfo.PersonId).EmailAddresses.Any())
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    _parent.Darkened = true;
+                    CustomMessageBox messageBox =
+                        new CustomMessageBox(
+                            "Nie można utworzyć wiadomości. Twoje konto nie zawiera żadnego adresu e-mail",
+                            MessageBoxButton.OK);
+
+                    messageBox.OKButtonClicked += (s2, ea2) =>
+                    {
+                        _parent.mainCanvas.Children.Remove(messageBox);
+                        _parent.Darkened = false;
+
+                    };
+
+                    _parent.mainCanvas.Children.Add(messageBox);
+                });
+
+                return;
+            }
+
+            _parent.Darkened = true;
 
             NewEmailMessage newMessage = new NewEmailMessage(conversation, _parent);
 
@@ -434,7 +478,7 @@ namespace Licencjat_new.Windows
                             }
                         };
 
-                    _sendingWorker.DoWork += doWorkHandler;
+                _sendingWorker.DoWork += doWorkHandler;
 
                     RunWorkerCompletedEventHandler runWorkerCompleted = null;
 
@@ -453,27 +497,6 @@ namespace Licencjat_new.Windows
             };
 
             _parent.mainCanvas.Children.Add(newMessage);
-            }
-            else
-            {
-                Dispatcher.Invoke(() =>
-                {
-                    _parent.Darkened = true;
-                    CustomMessageBox messageBox =
-                        new CustomMessageBox(
-                            "Nie można wysłać wiadomości. Żaden z członków konwersacji nie posiada adresu e-mail.",
-                            MessageBoxButton.OK);
-
-                    messageBox.OKButtonClicked += (s2, ea2) =>
-                    {
-                        _parent.mainCanvas.Children.Remove(messageBox);
-                        _parent.Darkened = false;
-
-                    };
-
-                    _parent.mainCanvas.Children.Add(messageBox);
-                });
-            }
         }
 
         private void MessageList_ShowMessageDetails(object sender, EventArgs e)
