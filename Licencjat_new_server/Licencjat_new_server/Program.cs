@@ -16,7 +16,7 @@ namespace Licencjat_new_server
 
         private List<Client> _connectedClients = new List<Client>();
 
-        public X509Certificate2 Certificate = new X509Certificate2("CRMToolServer.pfx", "");
+        public X509Certificate2 Certificate = new X509Certificate2("../../CRMToolServer.pfx", "");
 
 
         static void Main(string[] args)

@@ -20,7 +20,10 @@ namespace Licencjat_new_server
                 string dir = System.IO.Path.GetDirectoryName(
       System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-                string filePath = dir + "/ErrorLog/" + version + ".txt";
+                if (!Directory.Exists(dir + "../../../ErrorLog"))
+                    Directory.CreateDirectory(dir + "../../../ErrorLog");
+
+                string filePath = dir + "../../../ErrorLog/" + version + ".txt";
 
                 using (StreamWriter writer = new StreamWriter(filePath, true))
                 {
