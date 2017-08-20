@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Licencjat_new.Controls;
 using Licencjat_new.CustomClasses;
+using System.Net.Mime;
 
 namespace Licencjat_new.Windows.HelperWindows
 {
@@ -120,6 +121,22 @@ namespace Licencjat_new.Windows.HelperWindows
             Scanning scan = new Scanning();
             _parent.mainCanvas.Children.Add(scan);
 
+            scan.ReadyButtonClicked += (s, ea) =>
+            {
+                FileModel file = new FileModel(scan.FileName, new ContentType(MimeTypes.MimeTypeMap.GetMimeType(".pdf")), scan.FileStream.Length, DateTime.Now, scan.FileStream.ToArray());
+
+                file.Downloaded = true;
+                AddFile(file);
+
+                
+                FileListContainer.Visibility = Visibility.Visible;
+                _parent.mainCanvas.Children.Remove(scan);
+            };
+
+            scan.CancelButtonClicked += (s, ea) =>
+            {
+                _parent.mainCanvas.Children.Remove(scan);
+            };
         }
 
         private void AddExistingFile_Clicked(object sender, EventArgs e)

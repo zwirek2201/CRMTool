@@ -32,6 +32,9 @@ namespace Licencjat_new.Windows
         private int _displayedPage = 0;
         private bool _saving = false;
 
+        public event EventHandler ReadyButtonClicked;
+        public event EventHandler CancelButtonClicked;
+
         #region Lists
         private List<System.Drawing.Image> _scannedImages = new List<System.Drawing.Image>();
         #endregion
@@ -65,6 +68,10 @@ namespace Licencjat_new.Windows
                 });
             }
         }
+
+        public MemoryStream FileStream { get; private set; } 
+
+        public string FileName { get; private set; }
         #endregion
 
         #region Constructors
@@ -87,13 +94,13 @@ namespace Licencjat_new.Windows
             _saveWorker.RunWorkerCompleted += _saveWorker_RunWorkerCompleted;
 
             ReadyButton.Clicked += ReadyButton_Clicked;
-            //btnCancelScanning.Click += BtnCancelScanning_Click;
+            CancelButton.Clicked += CancelButton_Clicked;
         }
         #endregion
 
         #region Events
 
-            #region SaveWorker
+        #region SaveWorker
         private void _saveWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             try
@@ -112,12 +119,8 @@ namespace Licencjat_new.Windows
                     MemoryStream stream2 = new MemoryStream();
                     collection.Write(stream2, MagickFormat.Pdf);
 
-                    string fileName = "";
 
-                    Dispatcher.Invoke(() =>
-                    {
-                        fileName = txtFileName.Text + ".pdf";
-                    });
+                    FileStream = stream2;
 
                     _saving = false;
                     
@@ -129,9 +132,17 @@ namespace Licencjat_new.Windows
             }
         }
 
+        private void CancelButton_Clicked(object sender, EventArgs e)
+        {
+            CancelButtonClicked?.Invoke(this, EventArgs.Empty);
+        }
+
         private void _saveWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             lblStatus.Content = "Zapisano...";
+
+            FileName = txtFileName.Text + ".pdf";
+            ReadyButtonClicked?.Invoke(this, EventArgs.Empty);
         }
 
         #endregion
@@ -389,14 +400,12 @@ namespace Licencjat_new.Windows
                     "Zapisywanie pliku", MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.Yes)
                 {
-                    Canvas parent = (Canvas) Parent;
-                    parent.Children.Remove(this);
+                    CancelButtonClicked?.Invoke(this, EventArgs.Empty);
                 }
             }
             else
             {
-                Canvas parent = (Canvas)Parent;
-                parent.Children.Remove(this);
+                CancelButtonClicked?.Invoke(this, EventArgs.Empty);
             }
         }
         #endregion

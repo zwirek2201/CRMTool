@@ -13,7 +13,7 @@
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <DockPanel x:Name="mainPanel" Background="#fdfdfd" Height="650" Width="900"  VerticalAlignment="Center" HorizontalAlignment="Center">
             <DockPanel DockPanel.Dock="Top" x:Name="upperPanel" Background="#1c9ad2" Height="30">
-                <Button Name="btnClose" Width="30" Height="30" BorderThickness="0" Background="Transparent" DockPanel.Dock="Right" HorizontalAlignment="Right" Click="btnClose_Click">
+                <Button Name="btnClose" Width="30" BorderThickness="0" Background="Transparent" DockPanel.Dock="Right" HorizontalAlignment="Right" Click="btnClose_Click">
                     <Image Source="pack://application:,,,/resources/close_white.png" Margin="7"/>
                 </Button>
             </DockPanel>

@@ -325,7 +325,7 @@ namespace Licencjat_new.Windows
         {
             ConversationModel conversation = ConversationList.SelectedConversation;
 
-            if (conversation.Members.Where(obj => !obj.IsInternalUser).Any(obj => obj.EmailAddresses.Count > 0))
+            if (conversation.Members.Where(obj => !obj.IsInternalUser).All(obj => obj.EmailAddresses.Count == 0))
             {
                 Dispatcher.Invoke(() =>
                 {
