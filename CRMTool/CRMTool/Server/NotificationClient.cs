@@ -30,6 +30,8 @@ namespace Licencjat_new.Server
         private bool _isConnected = false;
         private string _userId;
 
+        
+        //hehe
         public event EventHandler connectionSuccess;
         public event EventHandler connectionFailed;
         public event EventHandler<NewConversationMessageArrivedEventArgs> NewConversationMessageArrived;
